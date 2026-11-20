@@ -1,0 +1,25 @@
+# Ambiente virtual e Python
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Segredos
+.env
+
+# Dados pesados e artefatos locais
+models/*.pt
+data/videos/
+data/debug/
+data/epagri_csv/*.csv
+data/weather_history_*.csv
+data/fase2/
+r/dados/*.csv
+r/dados/*.json
+
+# IDE e SO
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

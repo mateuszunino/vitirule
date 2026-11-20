@@ -1,0 +1,15 @@
+# Dependências permitidas pelo SKILL.md (núcleo leve sem PyTorch/YOLO)
+opencv-python
+numpy
+scipy
+pandas
+requests
+psycopg2-binary
+flask
+python-dotenv
+pytest
+tzdata
+
+# Para visão computacional com GPU (instalar separadamente com CUDA adequado):
+# torch
+# ultralytics
