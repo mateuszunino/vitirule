@@ -291,7 +291,13 @@ Every frozen checkpoint is auditable in Git history:
 
 ### 5.2 AI Assistance Statement
 
-*[To be completed by the author in his own words before distribution.]*
+This project was carried out by a single author with extensive use of AI assistants. The author conceived the original problem, a decision support system for foliar diseases, and defined its initial scope, data sources and software stack. The author decided to replace the planned field trial with a simulation-first approach and, after weighing an option raised during review, to move the study from tomato to *Plasmopara viticola*. Throughout the work, the author ran an iterative review process in which the output of one assistant was critiqued by another. Several of the methodological safeguards reported here were first proposed by Claude during that review: the equal-budget comparison, the frozen out-of-sample protocol, validation against field leaf wetness sensors, the per-cohort decomposition and the diagnosis of the failure cohorts. The author decided which proposals to adopt or reject and when to stop adding analyses.
+
+AI assistants generated and refactored the Python and R code, ran the simulation and analysis scripts, searched for and retrieved datasets and references, produced the figures and the PDF, and assisted with the English text. The tools used were Claude Fable 5.2 and Claude Opus 5.5 and Google Antigravity with Gemini 4 Neon.
+
+The author read the full report critically, inspected the generated tables, figures and result files, and ran the automated test suite. The author did not audit every line of code manually.
+
+The author takes full responsibility for the scientific content, the interpretations and any errors in this report.
 
 ---
 
