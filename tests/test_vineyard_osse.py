@@ -183,3 +183,23 @@ def test_economics_bunch_damage_and_net_return():
     r_cal_hi = eco.economic_outcome(150.0, 6.0, cfg_high)
     r_fc_hi = eco.economic_outcome(167.0, 4.0, cfg_high)
     assert r_fc_hi["net_return_eur_ha"] < r_cal_hi["net_return_eur_ha"]
+
+    # Teto europeu de cobre (Reg. UE 2018/1981: 28 kg/7 anos = 4 kg/ha/ano)
+    assert eco.economic_outcome(100.0, 11.0, cfg_low)["complies_eu_2018_1981"] is False
+    assert eco.economic_outcome(120.0, 7.0, cfg_low)["complies_eu_2018_1981"] is True
+
+    # Grade de sensibilidade cobre toda a matriz e exclui cal_7d sob teto de cobre
+    fake_pareto = {
+        "testemunha": {"strategy": "testemunha", "sprays_mean": 0.0, "aacpd_mean": 300.0},
+        "calendars": [
+            {"strategy": "cal_7d", "sprays_mean": 11.0, "aacpd_mean": 95.0},
+            {"strategy": "cal_12d", "sprays_mean": 7.0, "aacpd_mean": 140.0},
+        ],
+        "rules": [
+            {"strategy": "om_v1_T10", "sprays_mean": 6.8, "aacpd_mean": 120.0},
+        ],
+    }
+    s_free = eco.sensitivity_grid(fake_pareto, enforce_eu_copper=False)
+    s_cu = eco.sensitivity_grid(fake_pareto, enforce_eu_copper=True)
+    assert "cal_7d" not in s_cu["winner_share_pct"]
+    assert sum(s_free["winner_share_pct"].values()) == pytest.approx(100.0, abs=0.5)
