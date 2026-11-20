@@ -85,11 +85,16 @@ Com `r_prior_gompertz` separada em [epidemiology_assimilation.py](epidemiology_a
 
 ---
 
-## 5. Como reproduzir
+## 5. Dados brutos, licenças e como reproduzir
+
+Os dados brutos de sensores (`data/`) **não são versionados no Git** (`.gitignore`), respeitando as licenças dos repositórios originais — em particular **Politecnico di Torino / iXem Labs** (`doi:10.17632/sd4b8vpvyb.1`, licença **CC BY-NC 4.0**) e **INRAE AgroClim** (`doi:10.57745/BQ0BWB`, Recherche Data Gouv). Use o script [scripts/download_sensor_datasets.py](scripts/download_sensor_datasets.py) para baixá-los diretamente pelos DOIs oficiais antes de reproduzir as análises:
 
 ```powershell
 # Testes automatizados (sem rede, sem banco, sem GPU)
 .venv\Scripts\python.exe -m pytest tests/ -q
+
+# 0. Baixar sensores reais diretamente pelos DOIs oficiais (INRAE + Politecnico di Torino)
+.venv\Scripts\python.exe scripts/download_sensor_datasets.py
 
 # 1. Validação de LWD contra sensores reais (INRAE AgroClim + Politecnico di Torino)
 .venv\Scripts\python.exe lwd_sensor_validation.py
@@ -99,6 +104,11 @@ Com `r_prior_gompertz` separada em [epidemiology_assimilation.py](epidemiology_a
 
 # 3. Sensibilidade econômica e mapa de decisão sob Reg. (UE) 2018/1981
 .venv\Scripts\python.exe economics.py data/fase2/semireal_inrae_osse.json \
+    --out-json data/fase2/economics_semireal_inrae.json \
     --out-svg-unconstrained data/fase2/economics_map_unconstrained.svg \
     --out-svg-copper data/fase2/economics_map_eu_copper.svg
+
+# 4. Figuras em inglês e compilação do relatório técnico (PDF de 12 páginas)
+.venv\Scripts\python.exe scripts/generate_report_figures.py
+.venv\Scripts\python.exe scripts/render_report_pdf.py
 ```
