@@ -123,12 +123,13 @@ def _pareto_plot_worker(task: dict) -> dict:
     local_tz_name: str = task["local_tz_name"]
     thresholds: Sequence[float] = task["thresholds"]
     include_v2: bool = task["include_v2"]
+    lwd_method: str = task.get("lwd_method", "cart_kim2002")
     seed: int = task["seed"]
 
     tz = ZoneInfo(local_tz_name)
     rng = np.random.default_rng(seed)
-    v1_cfg = osse.VineyardDecisionConfig()
-    v2_cfg = ResidualGateConfig()
+    v1_cfg = osse.VineyardDecisionConfig(lwd_method=lwd_method)
+    v2_cfg = ResidualGateConfig(lwd_method=lwd_method)
 
     # Gera previsões ruidosas uma única vez por talhão (comparação pareada limpa)
     obs_daily_steps: list[pd.DataFrame] = []
@@ -338,6 +339,7 @@ def run_pareto_suite(
     years: Sequence[int],
     thresholds: Sequence[float] = FORECAST_SCORE_THRESHOLDS,
     include_v2: bool = True,
+    lwd_method: str = "cart_kim2002",
     n_plots: int = 60,
     season_days: int = 75,
     base_seed: int = 20240101,
@@ -351,13 +353,13 @@ def run_pareto_suite(
         reg = dm.VINEYARD_REGIONS[region_key]
         tz = ZoneInfo(reg["tz"])
         for y_i, year in enumerate(years):
-            log.info("Pareto: %s %d ...", region_key, year)
+            log.info("Pareto (%s): %s %d ...", lwd_method, region_key, year)
             weather = dm.fetch_rich_historical_weather(
                 f"{year}-05-01", f"{year}-08-05", reg["latitude"], reg["longitude"]
             )
             wdf = lw.normalize_rich_weather(weather)
             station_daily_full = dm.compute_downy_mildew_daily(
-                wdf, lwd_method="cart_kim2002", local_tz_name=reg["tz"]
+                wdf, lwd_method=lwd_method, local_tz_name=reg["tz"]
             )
             t_min = wdf.index.min()
             start_local = t_min.tz_convert(tz).normalize() + pd.Timedelta(hours=9)
@@ -388,6 +390,7 @@ def run_pareto_suite(
                     "local_tz_name": reg["tz"],
                     "thresholds": list(thresholds),
                     "include_v2": include_v2,
+                    "lwd_method": lwd_method,
                     "seed": cohort_seed + i * 131,
                 }
                 for i, plot in enumerate(plots)
@@ -410,12 +413,13 @@ def run_pareto_suite(
     return {
         "regions": list(regions),
         "years": list(years),
+        "lwd_method": lwd_method,
         "n_plots_per_cohort": n_plots,
         "total_plot_seasons": len(all_rows),
         "base_seed": base_seed,
         "thresholds": list(thresholds),
         "include_v2": include_v2,
-        "residual_gate_config": ResidualGateConfig().__dict__ if include_v2 else None,
+        "residual_gate_config": ResidualGateConfig(lwd_method=lwd_method).__dict__ if include_v2 else None,
         "pooled": pooled,
         "cohorts": cohorts,
     }
@@ -423,7 +427,8 @@ def run_pareto_suite(
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Fronteira de Pareto e validação fora da amostra (Caminho A).")
-    parser.add_argument("--mode", choices=("dev-pareto", "oos-validate"), required=True)
+    parser.add_argument("--mode", choices=("dev-pareto", "oos-validate", "oos-2016-2018"), required=True)
+    parser.add_argument("--lwd-method", choices=lw.VALID_METHODS, default="cart_kim2002")
     parser.add_argument("--n-plots", type=int, default=60)
     parser.add_argument("--out-dir", default="data/fase2")
     args = parser.parse_args(argv)
@@ -433,31 +438,45 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     if args.mode == "dev-pareto":
-        # Item 1: 2022–2024 (Moselle & Bordeaux) — descrição da fronteira (sem v2 ainda para descrição pura, ou com v1)
         res = run_pareto_suite(
             regions=("moselle_lu", "bordeaux_fr"),
             years=(2022, 2023, 2024),
             thresholds=FORECAST_SCORE_THRESHOLDS,
             include_v2=False,
+            lwd_method=args.lwd_method,
             n_plots=args.n_plots,
             base_seed=20240101,
         )
         json_path = out_dir / "pareto_dev_2022_2024.json"
         svg_path = out_dir / "pareto_dev_2022_2024.svg"
-        write_pareto_svg(res["pooled"], "Curva de Pareto (Desenvolvimento 2022–2024, N=360)", svg_path)
-    else:
-        # Itens 2 e 3: validação estritamente fora da amostra (2019–2021 + 3ª região Alsace/Colmar)
+        write_pareto_svg(res["pooled"], f"Curva de Pareto (Dev 2022–2024, {args.lwd_method}, N=360)", svg_path)
+    elif args.mode == "oos-validate":
         res = run_pareto_suite(
             regions=("moselle_lu", "bordeaux_fr", "alsace_fr"),
             years=(2019, 2020, 2021),
             thresholds=(FROZEN_OPERATING_THRESHOLD,),
             include_v2=True,
+            lwd_method=args.lwd_method,
             n_plots=args.n_plots,
             base_seed=20190101,
         )
         json_path = out_dir / "pareto_oos_2019_2021.json"
         svg_path = out_dir / "pareto_oos_2019_2021.svg"
-        write_pareto_svg(res["pooled"], "Validação Fora da Amostra (2019–2021, 3 Regiões, N=540)", svg_path)
+        write_pareto_svg(res["pooled"], f"Validação OOS (2019–2021, {args.lwd_method}, N=540)", svg_path)
+    else:
+        # Item 2: validação em anos intactos (2016–2018) com o estimador vencedor no sensor real
+        res = run_pareto_suite(
+            regions=("moselle_lu", "bordeaux_fr", "alsace_fr"),
+            years=(2016, 2017, 2018),
+            thresholds=(FROZEN_OPERATING_THRESHOLD,),
+            include_v2=True,
+            lwd_method=args.lwd_method,
+            n_plots=args.n_plots,
+            base_seed=20160101,
+        )
+        json_path = out_dir / f"pareto_oos_2016_2018_{args.lwd_method}.json"
+        svg_path = out_dir / f"pareto_oos_2016_2018_{args.lwd_method}.svg"
+        write_pareto_svg(res["pooled"], f"Validação OOS Intacta (2016–2018, {args.lwd_method}, N=540)", svg_path)
 
     json_path.write_text(json.dumps(res, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(res["pooled"], ensure_ascii=False, indent=2))

@@ -159,3 +159,27 @@ def test_gompertz_separate_prior_and_sensor_lwd_validation():
     assert pa.decide_forecast_residual_gate(obs_d, fc_d, t0, t0 + timedelta(days=6), 10.0, 30.0, gate) is True
     # Com 6 dias e 0 mm de chuva (P_est = 0,55 > 0,45), ainda segura
     assert pa.decide_forecast_residual_gate(obs_d, fc_d, t0, t0 + timedelta(days=6), 10.0, 0.0, gate) is False
+
+
+def test_economics_bunch_damage_and_net_return():
+    import economics as eco
+
+    cfg_low = eco.VineyardEconomicsConfig(label="mesa", gross_revenue_eur_ha=5000.0, spray_cost_eur_ha=55.0)
+    cfg_high = eco.VineyardEconomicsConfig(label="premium", gross_revenue_eur_ha=25000.0, spray_cost_eur_ha=55.0)
+
+    # Zero AACPD -> 0 % yield loss
+    assert eco.bunch_yield_loss_fraction(0.0, cfg_low) == 0.0
+    # Maior AACPD -> maior perda de produção, limitada a max_yield_loss_frac
+    l1 = eco.bunch_yield_loss_fraction(150.0, cfg_low)
+    l2 = eco.bunch_yield_loss_fraction(600.0, cfg_low)
+    assert 0.0 < l1 < l2 < cfg_low.max_yield_loss_frac
+
+    # Em vinhedo de mesa (5k €/ha), economizar 2 sprays ao custo de +17 AACPD aumenta o lucro líquido
+    r_cal_low = eco.economic_outcome(150.0, 6.0, cfg_low)
+    r_fc_low = eco.economic_outcome(167.0, 4.0, cfg_low)
+    assert r_fc_low["net_return_eur_ha"] > r_cal_low["net_return_eur_ha"]
+
+    # Em vinhedo premium (25k €/ha), o mesmo +17 AACPD custa mais caro que 2 sprays
+    r_cal_hi = eco.economic_outcome(150.0, 6.0, cfg_high)
+    r_fc_hi = eco.economic_outcome(167.0, 4.0, cfg_high)
+    assert r_fc_hi["net_return_eur_ha"] < r_cal_hi["net_return_eur_ha"]
