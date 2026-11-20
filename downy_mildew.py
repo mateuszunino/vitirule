@@ -45,6 +45,7 @@ PLASMOPARA_PARAMS: dict[str, float] = {
     "tmax": 30.0,
     "dry_factor": 0.08,
     "r_prior": 0.30,
+    "r_prior_gompertz": 0.16,
     "r_prior_sd_log": 0.70,
     "y0_prior_pct": 0.20,
 }
@@ -62,6 +63,13 @@ VINEYARD_REGIONS: dict[str, dict[str, Any]] = {
         "name": "Bordeaux (Saint-Émilion, França)",
         "latitude": 44.8944,
         "longitude": -0.1558,
+        "tz": "Europe/Paris",
+        "growing_season_months": (4, 5, 6, 7, 8, 9),
+    },
+    "alsace_fr": {
+        "name": "Alsace (Colmar, França)",
+        "latitude": 48.0794,
+        "longitude": 7.3585,
         "tz": "Europe/Paris",
         "growing_season_months": (4, 5, 6, 7, 8, 9),
     },

@@ -128,3 +128,34 @@ def test_seir_washoff_and_fair_equal_budget_osse():
     assert "closed_loop_dss_vs_weekly" in res["tradeoffs_vs_weekly"]
     # Garante ausência de vazamento: regra fixa em 15 mm, verdade SEIR centrada em 25 mm
     assert res["rule_config"]["washoff_override_mm"] == 15.0
+
+
+def test_gompertz_separate_prior_and_sensor_lwd_validation():
+    import epidemiology_assimilation as ea
+    import pareto_analysis as pa
+
+    # Priori separada para Gompertz (Item 4)
+    assert "r_prior_gompertz" in ea.PATHOGENS["pinta_preta"]
+    assert ea.PATHOGENS["pinta_preta"]["r_prior_gompertz"] < ea.PATHOGENS["pinta_preta"]["r_prior"]
+    assert dm.PLASMOPARA_PARAMS["r_prior_gompertz"] < dm.PLASMOPARA_PARAMS["r_prior"]
+
+    # Validação de molhamento foliar contra verdade de sensor (Item 5)
+    weather = _rich_synthetic_weather(days=5, seed=7)
+    wdf = lw.normalize_rich_weather(weather)
+    truth = lw.estimate_leaf_wetness(wdf, method="cart_kim2002")
+    wdf_sensor = wdf.assign(leaf_wet_sensor=truth.to_numpy())
+    metrics = lw.validate_lwd_against_sensor(wdf_sensor, sensor_col="leaf_wet_sensor")
+    cart_row = next(r for r in metrics if r["method"] == "cart_kim2002")
+    assert cart_row["accuracy"] == 1.0 and cart_row["daily_lwd_mae_h"] == 0.0
+
+    # Portão residual anti-agrupamento respeita piso mínimo de 6 dias (Item 3)
+    t0 = datetime(2025, 6, 1, 9, tzinfo=UTC)
+    gate = pa.ResidualGateConfig()
+    obs_d = pd.DataFrame([{"secondary_sv": 4, "rule_3_10": False}])
+    fc_d = pd.DataFrame([{"secondary_sv": 4, "rule_3_10": False}] * 7)
+    # Com 4 dias e 35 mm de chuva, v2 ainda bloqueia (piso 6 d)
+    assert pa.decide_forecast_residual_gate(obs_d, fc_d, t0, t0 + timedelta(days=4), 10.0, 35.0, gate) is False
+    # Com 6 dias e 30 mm de chuva (P_est <= 0,45), libera
+    assert pa.decide_forecast_residual_gate(obs_d, fc_d, t0, t0 + timedelta(days=6), 10.0, 30.0, gate) is True
+    # Com 6 dias e 0 mm de chuva (P_est = 0,55 > 0,45), ainda segura
+    assert pa.decide_forecast_residual_gate(obs_d, fc_d, t0, t0 + timedelta(days=6), 10.0, 0.0, gate) is False

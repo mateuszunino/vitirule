@@ -231,3 +231,62 @@ def compare_lwd_methods(weather: Any, local_tz_name: str = "America/Sao_Paulo") 
             "tomcast_days_ge2_pct": round(100.0 * float((dsv_arr >= 2).mean()), 1),
         })
     return rows
+
+
+def validate_lwd_against_sensor(
+    weather_with_sensor: Any,
+    sensor_col: str = "leaf_wet_sensor",
+    local_tz_name: str = "Europe/Luxembourg",
+) -> list[dict]:
+    """
+    Avalia os 4 estimadores de molhamento foliar contra verdade de campo medida
+    por sensor (`sensor_col` binário 0/1 ou booleano por hora).
+    Retorna acurácia, POD (sensibilidade), FAR (falso alarme), F1, CSI e MAE diário (h/d).
+    """
+    raw = weather_with_sensor.copy() if isinstance(weather_with_sensor, pd.DataFrame) else pd.DataFrame(list(weather_with_sensor))
+    if sensor_col not in raw.columns:
+        raise ValueError(f"coluna de sensor '{sensor_col}' ausente")
+    df = normalize_rich_weather(raw)
+    if "ts" in raw.columns:
+        obs_series = pd.Series(
+            pd.to_numeric(raw[sensor_col], errors="coerce").to_numpy(),
+            index=pd.DatetimeIndex([ea._to_utc(v) for v in raw["ts"]]),
+        )
+        obs_series = obs_series[~obs_series.index.duplicated(keep="last")].reindex(df.index)
+    else:
+        obs_series = pd.to_numeric(raw[sensor_col], errors="coerce").reindex(df.index)
+
+    valid_mask = obs_series.notna()
+    y_true = (obs_series[valid_mask].to_numpy(dtype=float) > 0.5).astype(int)
+    df_valid = df.loc[valid_mask]
+    tz = ea.ZoneInfo(local_tz_name)
+    day_label = (df_valid.index.tz_convert(tz) - pd.Timedelta(hours=12)).normalize()
+    daily_true = pd.Series(y_true, index=df_valid.index).groupby(day_label).sum()
+
+    out: list[dict] = []
+    for method in VALID_METHODS:
+        y_pred = (estimate_leaf_wetness(df_valid, method=method).to_numpy(dtype=float) > 0.5).astype(int)
+        tp = int(np.sum((y_pred == 1) & (y_true == 1)))
+        fp = int(np.sum((y_pred == 1) & (y_true == 0)))
+        fn = int(np.sum((y_pred == 0) & (y_true == 1)))
+        tn = int(np.sum((y_pred == 0) & (y_true == 0)))
+        acc = (tp + tn) / max(tp + fp + fn + tn, 1)
+        pod = tp / max(tp + fn, 1)
+        far = fp / max(tp + fp, 1)
+        f1 = (2 * tp) / max(2 * tp + fp + fn, 1)
+        csi = tp / max(tp + fp + fn, 1)
+        daily_pred = pd.Series(y_pred, index=df_valid.index).groupby(day_label).sum()
+        mae_h = float(np.mean(np.abs(daily_pred - daily_true)))
+        bias_h = float(np.mean(daily_pred - daily_true))
+        out.append({
+            "method": method,
+            "n_hours": int(len(y_true)),
+            "accuracy": round(acc, 4),
+            "pod": round(pod, 4),
+            "far": round(far, 4),
+            "f1": round(f1, 4),
+            "csi": round(csi, 4),
+            "daily_lwd_mae_h": round(mae_h, 3),
+            "daily_lwd_bias_h": round(bias_h, 3),
+        })
+    return out

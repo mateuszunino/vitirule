@@ -99,11 +99,11 @@ LOCAL_TZ = ZoneInfo("America/Sao_Paulo")
 PATHOGENS: dict[str, dict[str, float]] = {
     "pinta_preta": {   # Alternaria solani
         "tmin": 6.0, "topt": 27.0, "tmax": 35.0, "dry_factor": 0.25,
-        "r_prior": 0.18, "r_prior_sd_log": 0.70, "y0_prior_pct": 0.20,
+        "r_prior": 0.18, "r_prior_gompertz": 0.10, "r_prior_sd_log": 0.70, "y0_prior_pct": 0.20,
     },
     "requeima": {      # Phytophthora infestans
         "tmin": 4.0, "topt": 20.0, "tmax": 30.0, "dry_factor": 0.10,
-        "r_prior": 0.35, "r_prior_sd_log": 0.70, "y0_prior_pct": 0.20,
+        "r_prior": 0.35, "r_prior_gompertz": 0.19, "r_prior_sd_log": 0.70, "y0_prior_pct": 0.20,
     },
 }
 
@@ -602,12 +602,21 @@ def assimilate(unit_id: str, disease: str, observations: Sequence[dict],
         flags.append("pre_symptomatic")
 
     y0_frac = min(max(params["y0_prior_pct"] / cfg.K, 1e-6), 0.5)
-    prior_mu = [math.log(params["r_prior"]), float(logit(y0_frac))]
-    prior_sd = [params["r_prior_sd_log"], cfg.y0_prior_sd_logit]
+    r_prior_by_model = {
+        "logistic": float(params["r_prior"]),
+        "gompertz": float(params.get("r_prior_gompertz", 0.55 * params["r_prior"])),
+    }
+
+    def _prior_mu_for(model_name: str) -> np.ndarray:
+        mu = [math.log(r_prior_by_model[model_name]), float(logit(y0_frac))]
+        if cfg.fit_K:
+            mu.append(2.0)       # priori fraca empurrando K para perto de 100 %
+        return np.array(mu)
+
+    prior_sd_list = [params["r_prior_sd_log"], cfg.y0_prior_sd_logit]
     if cfg.fit_K:
-        prior_mu.append(2.0)       # priori fraca empurrando K para perto de 100 %
-        prior_sd.append(2.0)
-    prior_mu, prior_sd = np.array(prior_mu), np.array(prior_sd)
+        prior_sd_list.append(2.0)
+    prior_sd = np.array(prior_sd_list)
 
     warm = np.array(prev_state["theta"]) if prev_state and prev_state.get("theta") else None
     models = ["logistic", "gompertz"] if cfg.model == "auto" else [cfg.model]
@@ -616,7 +625,7 @@ def assimilate(unit_id: str, disease: str, observations: Sequence[dict],
     def run_fits(forgetting: float, upto: Optional[int] = None) -> dict[str, FitResult]:
         sl = slice(0, upto)
         ages = age_days[sl] - (age_days[sl].min() if upto else 0.0)
-        return {m: _fit_model(m, tau_obs[sl], y[sl], sd_video[sl], ages, prior_mu, prior_sd,
+        return {m: _fit_model(m, tau_obs[sl], y[sl], sd_video[sl], ages, _prior_mu_for(m), prior_sd,
                               cfg, forgetting,
                               warm if prev_state and prev_state.get("model") == m else None, rng)
                 for m in models}
@@ -726,7 +735,7 @@ def assimilate(unit_id: str, disease: str, observations: Sequence[dict],
                    "r_ci95": [round(float(r_ci[0]), 6), round(float(r_ci[1]), 6)],
                    "r_unit": "por_dia_favoravel" if clock.has_weather else "por_dia",
                    "y0_pct": round(float(y0_hat), 6), "K_pct": round(float(K_hat), 4),
-                   "r_prior": params["r_prior"], "r_prior_sd_log": params["r_prior_sd_log"]},
+                   "r_prior": r_prior_by_model[fit.model], "r_prior_sd_log": params["r_prior_sd_log"]},
         "fit": {"rmse_pct": round(float(np.sqrt(np.mean(residual ** 2))), 4),
                 "chi2_red": round(fit.chi2_red, 4),
                 "aicc": {m: (round(f.aicc, 3) if math.isfinite(f.aicc) else None) for m, f in fits.items()},
