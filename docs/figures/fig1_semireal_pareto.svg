@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 445" width="780" height="445" style="font-family:Segoe UI,Arial,sans-serif;background:#ffffff">
+<rect x="72.0" y="44" width="201.4" height="345" fill="#f3f4f6"/>
+<rect x="513.1" y="44" width="71.9" height="345" fill="#f3f4f6"/>
+<line x1="273.4" y1="44" x2="273.4" y2="389" stroke="#d1d5db" stroke-dasharray="4,3"/>
+<line x1="513.1" y1="44" x2="513.1" y2="389" stroke="#d1d5db" stroke-dasharray="4,3"/>
+<text x="172.7" y="59" text-anchor="middle" font-size="9.5" fill="#6b7280">Extrapolation (&lt;6 sprays)</text>
+<text x="393.2" y="59" text-anchor="middle" font-size="9.5" fill="#4b5563">Fixed-calendar range (6–11 sprays)</text>
+<text x="328.5" y="25" text-anchor="middle" font-size="13.5" font-weight="600" fill="#0f172a">Semi-Real INRAE Sensor OSSE (2019–2024, N = 1,200; 24 Cohorts)</text>
+<text x="328.5" y="431" text-anchor="middle" font-size="11.5" fill="#1f2937">Mean fungicide applications per season</text>
+<text x="20" y="216.5" text-anchor="middle" font-size="11.5" fill="#1f2937" transform="rotate(-90 20 216.5)">Mean foliar AUDPC (% × day)</text>
+<line x1="72" y1="389.0" x2="585" y2="389.0" stroke="#e5e7eb" stroke-width="0.8"/>
+<text x="64" y="392.5" text-anchor="end" font-size="9.5" fill="#4b5563">0</text>
+<line x1="72" y1="350.7" x2="585" y2="350.7" stroke="#e5e7eb" stroke-width="0.8"/>
+<text x="64" y="354.2" text-anchor="end" font-size="9.5" fill="#4b5563">50</text>
+<line x1="72" y1="312.3" x2="585" y2="312.3" stroke="#e5e7eb" stroke-width="0.8"/>
+<text x="64" y="315.8" text-anchor="end" font-size="9.5" fill="#4b5563">100</text>
+<line x1="72" y1="274.0" x2="585" y2="274.0" stroke="#e5e7eb" stroke-width="0.8"/>
+<text x="64" y="277.5" text-anchor="end" font-size="9.5" fill="#4b5563">150</text>
+<line x1="72" y1="235.7" x2="585" y2="235.7" stroke="#e5e7eb" stroke-width="0.8"/>
+<text x="64" y="239.2" text-anchor="end" font-size="9.5" fill="#4b5563">200</text>
+<line x1="72" y1="197.3" x2="585" y2="197.3" stroke="#e5e7eb" stroke-width="0.8"/>
+<text x="64" y="200.8" text-anchor="end" font-size="9.5" fill="#4b5563">250</text>
+<line x1="72" y1="159.0" x2="585" y2="159.0" stroke="#e5e7eb" stroke-width="0.8"/>
+<text x="64" y="162.5" text-anchor="end" font-size="9.5" fill="#4b5563">300</text>
+<line x1="72" y1="120.7" x2="585" y2="120.7" stroke="#e5e7eb" stroke-width="0.8"/>
+<text x="64" y="124.2" text-anchor="end" font-size="9.5" fill="#4b5563">350</text>
+<line x1="72" y1="82.3" x2="585" y2="82.3" stroke="#e5e7eb" stroke-width="0.8"/>
+<text x="64" y="85.8" text-anchor="end" font-size="9.5" fill="#4b5563">400</text>
+<line x1="72" y1="44.0" x2="585" y2="44.0" stroke="#e5e7eb" stroke-width="0.8"/>
+<text x="64" y="47.5" text-anchor="end" font-size="9.5" fill="#4b5563">450</text>
+<line x1="81.6" y1="44" x2="81.6" y2="389" stroke="#f1f5f9" stroke-width="0.8"/>
+<text x="81.6" y="405" text-anchor="middle" font-size="9.5" fill="#4b5563">2</text>
+<line x1="129.5" y1="44" x2="129.5" y2="389" stroke="#f1f5f9" stroke-width="0.8"/>
+<text x="129.5" y="405" text-anchor="middle" font-size="9.5" fill="#4b5563">3</text>
+<line x1="177.5" y1="44" x2="177.5" y2="389" stroke="#f1f5f9" stroke-width="0.8"/>
+<text x="177.5" y="405" text-anchor="middle" font-size="9.5" fill="#4b5563">4</text>
+<line x1="225.4" y1="44" x2="225.4" y2="389" stroke="#f1f5f9" stroke-width="0.8"/>
+<text x="225.4" y="405" text-anchor="middle" font-size="9.5" fill="#4b5563">5</text>
+<line x1="273.4" y1="44" x2="273.4" y2="389" stroke="#f1f5f9" stroke-width="0.8"/>
+<text x="273.4" y="405" text-anchor="middle" font-size="9.5" fill="#4b5563">6</text>
+<line x1="321.3" y1="44" x2="321.3" y2="389" stroke="#f1f5f9" stroke-width="0.8"/>
+<text x="321.3" y="405" text-anchor="middle" font-size="9.5" fill="#4b5563">7</text>
+<line x1="369.3" y1="44" x2="369.3" y2="389" stroke="#f1f5f9" stroke-width="0.8"/>
+<text x="369.3" y="405" text-anchor="middle" font-size="9.5" fill="#4b5563">8</text>
+<line x1="417.2" y1="44" x2="417.2" y2="389" stroke="#f1f5f9" stroke-width="0.8"/>
+<text x="417.2" y="405" text-anchor="middle" font-size="9.5" fill="#4b5563">9</text>
+<line x1="465.1" y1="44" x2="465.1" y2="389" stroke="#f1f5f9" stroke-width="0.8"/>
+<text x="465.1" y="405" text-anchor="middle" font-size="9.5" fill="#4b5563">10</text>
+<line x1="513.1" y1="44" x2="513.1" y2="389" stroke="#f1f5f9" stroke-width="0.8"/>
+<text x="513.1" y="405" text-anchor="middle" font-size="9.5" fill="#4b5563">11</text>
+<line x1="561.0" y1="44" x2="561.0" y2="389" stroke="#f1f5f9" stroke-width="0.8"/>
+<text x="561.0" y="405" text-anchor="middle" font-size="9.5" fill="#4b5563">12</text>
+<rect x="72" y="44" width="513" height="345" fill="none" stroke="#9ca3af" stroke-width="1"/>
+<circle cx="333.8" cy="276.8" r="3.8" fill="#2563eb" fill-opacity="0.45" stroke="#2563eb" stroke-width="1"/>
+<circle cx="378.8" cy="220.5" r="3.8" fill="#2563eb" fill-opacity="0.45" stroke="#2563eb" stroke-width="1"/>
+<circle cx="384.6" cy="72.2" r="5.2" fill="#dc2626" fill-opacity="0.88" stroke="#7f1d1d" stroke-width="1.3"/>
+<text x="376.6" y="75.7" text-anchor="end" font-size="9.5" font-weight="600" fill="#b91c1c">Bordeaux 2021 (8.3, 413)</text>
+<circle cx="290.6" cy="309.5" r="3.8" fill="#2563eb" fill-opacity="0.45" stroke="#2563eb" stroke-width="1"/>
+<circle cx="455.6" cy="202.5" r="3.8" fill="#2563eb" fill-opacity="0.45" stroke="#2563eb" stroke-width="1"/>
+<circle cx="478.6" cy="244.2" r="3.8" fill="#2563eb" fill-opacity="0.45" stroke="#2563eb" stroke-width="1"/>
+<circle cx="266.7" cy="345.5" r="3.8" fill="#059669" fill-opacity="0.45" stroke="#059669" stroke-width="1"/>
+<circle cx="271.4" cy="339.0" r="3.8" fill="#059669" fill-opacity="0.45" stroke="#059669" stroke-width="1"/>
+<circle cx="369.3" cy="326.0" r="3.8" fill="#059669" fill-opacity="0.45" stroke="#059669" stroke-width="1"/>
+<circle cx="177.5" cy="318.0" r="3.8" fill="#059669" fill-opacity="0.45" stroke="#059669" stroke-width="1"/>
+<circle cx="241.7" cy="340.0" r="3.8" fill="#059669" fill-opacity="0.45" stroke="#059669" stroke-width="1"/>
+<circle cx="544.7" cy="245.4" r="3.8" fill="#059669" fill-opacity="0.45" stroke="#059669" stroke-width="1"/>
+<circle cx="186.1" cy="341.8" r="3.8" fill="#d97706" fill-opacity="0.45" stroke="#d97706" stroke-width="1"/>
+<circle cx="210.1" cy="340.9" r="3.8" fill="#d97706" fill-opacity="0.45" stroke="#d97706" stroke-width="1"/>
+<circle cx="305.0" cy="294.5" r="3.8" fill="#d97706" fill-opacity="0.45" stroke="#d97706" stroke-width="1"/>
+<circle cx="177.5" cy="225.4" r="5.2" fill="#dc2626" fill-opacity="0.88" stroke="#7f1d1d" stroke-width="1.3"/>
+<text x="185.5" y="228.9" text-anchor="start" font-size="9.5" font-weight="600" fill="#b91c1c">Champagne 2022 (4.0, 213)</text>
+<circle cx="201.4" cy="347.5" r="3.8" fill="#d97706" fill-opacity="0.45" stroke="#d97706" stroke-width="1"/>
+<circle cx="429.7" cy="323.6" r="3.8" fill="#d97706" fill-opacity="0.45" stroke="#d97706" stroke-width="1"/>
+<circle cx="102.7" cy="331.7" r="3.8" fill="#7c3aed" fill-opacity="0.45" stroke="#7c3aed" stroke-width="1"/>
+<circle cx="243.6" cy="349.1" r="3.8" fill="#7c3aed" fill-opacity="0.45" stroke="#7c3aed" stroke-width="1"/>
+<circle cx="372.1" cy="332.4" r="3.8" fill="#7c3aed" fill-opacity="0.45" stroke="#7c3aed" stroke-width="1"/>
+<circle cx="266.7" cy="310.5" r="3.8" fill="#7c3aed" fill-opacity="0.45" stroke="#7c3aed" stroke-width="1"/>
+<circle cx="258.0" cy="333.1" r="3.8" fill="#7c3aed" fill-opacity="0.45" stroke="#7c3aed" stroke-width="1"/>
+<circle cx="504.5" cy="331.7" r="3.8" fill="#7c3aed" fill-opacity="0.45" stroke="#7c3aed" stroke-width="1"/>
+<polyline points="273.4,276.7 321.3,282.8 369.3,298.2 513.1,315.8" fill="none" stroke="#111827" stroke-width="2.4"/>
+<circle cx="273.4" cy="276.7" r="4.5" fill="#111827" stroke="#ffffff" stroke-width="1"/>
+<text x="273.4" y="266.7" text-anchor="middle" font-size="9.5" font-weight="600" fill="#111827">14d</text>
+<circle cx="321.3" cy="282.8" r="4.5" fill="#111827" stroke="#ffffff" stroke-width="1"/>
+<text x="321.3" y="272.8" text-anchor="middle" font-size="9.5" font-weight="600" fill="#111827">12d</text>
+<circle cx="369.3" cy="298.2" r="4.5" fill="#111827" stroke="#ffffff" stroke-width="1"/>
+<text x="375.3" y="289.2" text-anchor="middle" font-size="9.5" font-weight="600" fill="#111827">10d</text>
+<circle cx="513.1" cy="315.8" r="4.5" fill="#111827" stroke="#ffffff" stroke-width="1"/>
+<text x="513.1" y="305.8" text-anchor="middle" font-size="9.5" font-weight="600" fill="#111827">7d</text>
+<line x1="310.4" y1="302.8" x2="310.4" y2="288.7" stroke="#059669" stroke-width="1.6"/>
+<polygon points="310.4,289.4 316.9,295.9 310.4,302.4 303.9,295.9" fill="#059669" stroke="#ffffff" stroke-width="1.1"/>
+<line x1="250.0" y1="291.7" x2="250.0" y2="275.4" stroke="#d97706" stroke-width="1.6"/>
+<rect x="245.0" y="278.7" width="10" height="10" fill="#d97706" stroke="#ffffff" stroke-width="1.1"/>
+<line x1="291.7" y1="298.7" x2="291.7" y2="283.5" stroke="#0284c7" stroke-width="1.6"/>
+<polygon points="291.7,285.3 297.7,296.3 285.7,296.3" fill="#0284c7" stroke="#ffffff" stroke-width="1.1"/>
+<text x="320.4" y="317.9" font-size="9.2" font-weight="600" fill="#047857">om_v1: −19.0 vs. frontier</text>
+<rect x="593" y="44" width="182" height="278" rx="4" fill="#fafafa" stroke="#e5e7eb"/>
+<text x="599" y="60" font-size="10.5" font-weight="700" fill="#0f172a">Pooled Means (N = 1,200)</text>
+<line x1="599" y1="75" x2="617" y2="75" stroke="#111827" stroke-width="2.4"/>
+<circle cx="608" cy="75" r="3.5" fill="#111827"/>
+<text x="623" y="78" font-size="9.5" fill="#1f2937">Fixed calendars (6–11 sp)</text>
+<polygon points="608,90 613,95 608,100 603,95" fill="#059669"/>
+<text x="623" y="98" font-size="9.3" fill="#1f2937">om_v1_T10 (6.77, 121.4)</text>
+<rect x="603.5" y="110.5" width="9" height="9" fill="#d97706"/>
+<text x="623" y="118" font-size="9.3" fill="#1f2937">om_v2_T10 (5.51, 137.3)</text>
+<polygon points="608,130 613,139 603,139" fill="#0284c7"/>
+<text x="623" y="138" font-size="9.3" fill="#1f2937">st_v1_T10 (6.38, 127.5)</text>
+<line x1="599" y1="162" x2="769" y2="162" stroke="#e5e7eb"/>
+<text x="599" y="176" font-size="10.5" font-weight="700" fill="#0f172a">24 Cohorts (om_v1_T10)</text>
+<circle cx="608" cy="191" r="3.8" fill="#2563eb" fill-opacity="0.55" stroke="#2563eb"/>
+<text x="623" y="194" font-size="9.3" fill="#374151">Bordeaux (6 yrs)</text>
+<circle cx="608" cy="209" r="3.8" fill="#059669" fill-opacity="0.55" stroke="#059669"/>
+<text x="623" y="212" font-size="9.3" fill="#374151">Alsace (6 yrs)</text>
+<circle cx="608" cy="227" r="3.8" fill="#d97706" fill-opacity="0.55" stroke="#d97706"/>
+<text x="623" y="230" font-size="9.3" fill="#374151">Champagne (6 yrs)</text>
+<circle cx="608" cy="245" r="3.8" fill="#7c3aed" fill-opacity="0.55" stroke="#7c3aed"/>
+<text x="623" y="248" font-size="9.3" fill="#374151">Bourgogne (6 yrs)</text>
+<circle cx="608" cy="265" r="4.6" fill="#dc2626" stroke="#7f1d1d"/>
+<text x="623" y="268" font-size="9.3" font-weight="600" fill="#b91c1c">Highlighted failure cases</text>
+</svg>

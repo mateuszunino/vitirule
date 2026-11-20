@@ -1,4 +1,7 @@
-# Metodologia Aberta de Avaliação para DSS Preventivo de Míldio da Videira (*Plasmopara viticola*)
+# `grapevine-downy-mildew-eval` — Metodologia Aberta de Avaliação para DSS Preventivo de Míldio da Videira (*Plasmopara viticola*)
+
+**Autor:** Mateus Zunino Espindola — Universidade Federal de Santa Catarina (UFSC)  
+**Relatório técnico (inglês, com Resumo em português):** [docs/technical_report.md](docs/technical_report.md) · [docs/technical_report.pdf](docs/technical_report.pdf)
 
 Repositório aberto e reprodutível focado na **avaliação rigorosa de regras agrometeorológicas preventivas** para o míldio da videira (*Plasmopara viticola*), combinando:
 1. **validação empírica de estimadores de molhamento foliar (LWD)** contra `80.392` horas de sensores reais (decompondo erro da fórmula vs. erro da reanálise);

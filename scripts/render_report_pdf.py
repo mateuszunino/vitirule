@@ -31,17 +31,21 @@ def _inline_fmt(text: str) -> str:
     def _math_sub(m: re.Match) -> str:
         expr = m.group(1)
         reps = [
-            (r"\Delta", "Δ"), (r"\tau", "τ"), (r"\beta_{\max}", "β<sub>max</sub>"),
-            (r"\phi", "φ"), (r"\mathcal{N}", "N"), (r"\ge", "≥"), (r"\le", "≤"),
-            (r"\cdot", "·"), (r"\times", "×"), (r"\in", "∈"), (r"\mid", "|"),
-            (r"\sum_{6\text{y}}", "Σ<sub>6y</sub>"), (r"\text{", ""), (r"}", ""),
-            (r"\,", " "), (r"\;", " "), (r"^\circ", "°"),
+            (r"\Delta", "Δ"), (r"\tau", "τ"), (r"\beta", "β"), (r"\phi", "φ"),
+            (r"\mathcal{N}", "N"), (r"\ge", "≥"), (r"\le", "≤"), (r"\sim", "~"),
+            (r"\dots", "…"), (r"\to", "→"), (r"\cdot", "·"), (r"\times", "×"),
+            (r"\in", "∈"), (r"\mid", "|"), (r"\max", "max"), (r"\min", "min"),
+            (r"\text{", ""), (r"\,", " "), (r"\;", " "), (r"^\circ", "°"),
         ]
         for a, b in reps:
             expr = expr.replace(a, b)
+        # Brace-grouped sub/superscripts first
+        expr = re.sub(r"_\{([^}]+)\}", r"<sub>\1</sub>", expr)
+        expr = re.sub(r"\^\{([^}]+)\}", r"<sup>\1</sup>", expr)
+        # Single-token sub/superscripts
         expr = re.sub(r"_([A-Za-z0-9,]+)", r"<sub>\1</sub>", expr)
         expr = re.sub(r"\^([A-Za-z0-9.-]+)", r"<sup>\1</sup>", expr)
-        expr = expr.replace("{", "").replace("\\", "")
+        expr = expr.replace("{", "").replace("}", "").replace("\\", "")
         return f"<span class='math'>{expr}</span>"
     s = re.sub(r"\$([^$]+)\$", _math_sub, s)
     return s
@@ -106,18 +110,27 @@ def md_to_html(md_text: str, base_dir: Path) -> str:
                     break
                 imgs.append((m2.group(1), m2.group(2)))
                 i += 1
+            # Optional shared caption line immediately following: *Figure N. ...*
+            shared_cap = None
+            if i < len(lines) and re.match(r"^\*\*Figure\s+\d+\.?\*\*", lines[i].strip()):
+                shared_cap = lines[i].strip()
+                i += 1
             if len(imgs) == 2:
                 parts = []
                 for cap, rel in imgs:
                     img_path = (base_dir / rel).resolve()
                     if img_path.suffix.lower() == ".svg" and img_path.is_file():
-                        parts.append(f"<figure class='fig-half'>{img_path.read_text(encoding='utf-8')}<figcaption>{_inline_fmt(cap)}</figcaption></figure>")
-                out.append("<div class='fig-row'>" + "".join(parts) + "</div>")
+                        subcap = f"<div class='subcap'>{_inline_fmt(cap)}</div>" if (cap and not shared_cap) else ""
+                        parts.append(f"<div class='fig-half'>{img_path.read_text(encoding='utf-8')}{subcap}</div>")
+                cap_html = f"<figcaption>{_inline_fmt(shared_cap)}</figcaption>" if shared_cap else ""
+                out.append("<figure class='fig-group'><div class='fig-row'>" + "".join(parts) + "</div>" + cap_html + "</figure>")
             else:
                 for cap, rel in imgs:
                     img_path = (base_dir / rel).resolve()
                     if img_path.suffix.lower() == ".svg" and img_path.is_file():
-                        out.append(f"<figure class='fig'>{img_path.read_text(encoding='utf-8')}<figcaption>{_inline_fmt(cap)}</figcaption></figure>")
+                        cls = "fig fig-tall" if "timeline" in img_path.name else "fig"
+                        cap_text = shared_cap if shared_cap else cap
+                        out.append(f"<figure class='{cls}'>{img_path.read_text(encoding='utf-8')}<figcaption>{_inline_fmt(cap_text)}</figcaption></figure>")
             continue
 
         # Headings
@@ -169,14 +182,23 @@ def md_to_html(md_text: str, base_dir: Path) -> str:
             i += 1
             continue
 
-        # Paragraph
+        # Paragraph (preserving explicit trailing two-space Markdown line breaks)
         close_lists()
-        para = [stripped]
+        para_raw = [ln]
         i += 1
         while i < len(lines) and lines[i].strip() and not lines[i].strip().startswith(("#", "|", "* ", "- ", "---", "![", "$$")) and not re.match(r"^\d+\.\s+", lines[i].strip()):
-            para.append(lines[i].strip())
+            para_raw.append(lines[i])
             i += 1
-        out.append(f"<p>{_inline_fmt(' '.join(para))}</p>")
+        parts_p = []
+        for idx_p, raw_ln in enumerate(para_raw):
+            fmt_ln = _inline_fmt(raw_ln.strip())
+            if idx_p < len(para_raw) - 1 and raw_ln.endswith("  "):
+                parts_p.append(fmt_ln + "<br/>")
+            elif idx_p < len(para_raw) - 1:
+                parts_p.append(fmt_ln + " ")
+            else:
+                parts_p.append(fmt_ln)
+        out.append(f"<p>{''.join(parts_p)}</p>")
 
     close_lists()
     return "\n".join(out)
@@ -185,7 +207,7 @@ def md_to_html(md_text: str, base_dir: Path) -> str:
 CSS = """
 @page {
   size: A4;
-  margin: 14mm 14mm 16mm 14mm;
+  margin: 13mm 13mm 15mm 13mm;
   @bottom-center {
     content: counter(page) " / " counter(pages);
     font-family: Georgia, serif;
@@ -195,8 +217,8 @@ CSS = """
 }
 body {
   font-family: "Georgia", "Times New Roman", serif;
-  font-size: 9.2pt;
-  line-height: 1.40;
+  font-size: 9.0pt;
+  line-height: 1.38;
   color: #111827;
   max-width: 100%;
 }
@@ -275,33 +297,51 @@ figure.fig {
   page-break-inside: avoid;
 }
 figure.fig svg {
-  max-width: 82%;
-  max-height: 250px;
+  width: 92%;
+  max-width: 92%;
   height: auto;
   border: 1px solid #e5e7eb;
+}
+figure.fig-tall svg {
+  width: 98%;
+  max-width: 98%;
+  height: auto;
+  border: 1px solid #e5e7eb;
+}
+figure.fig-group {
+  margin: 7pt 0 9pt 0;
+  page-break-inside: avoid;
 }
 .fig-row {
   display: flex;
   gap: 8pt;
   justify-content: space-between;
-  margin: 7pt 0 9pt 0;
-  page-break-inside: avoid;
 }
-figure.fig-half {
+.fig-half {
   flex: 1;
   margin: 0;
   text-align: center;
 }
-figure.fig-half svg {
+.fig-half svg {
   width: 100%;
   height: auto;
   border: 1px solid #e5e7eb;
 }
 figcaption {
   font-family: "Segoe UI", Arial, sans-serif;
-  font-size: 7.8pt;
-  color: #4b5563;
-  margin-top: 3pt;
+  font-size: 7.9pt;
+  line-height: 1.32;
+  color: #374151;
+  margin-top: 4pt;
+  text-align: justify;
+}
+.blank-box {
+  border: 1px dashed #9ca3af;
+  background: #f9fafb;
+  padding: 10pt 12pt;
+  color: #6b7280;
+  font-style: italic;
+  margin: 4pt 0 8pt 0;
 }
 hr { border: none; border-top: 1px solid #e5e7eb; margin: 7pt 0; }
 """
