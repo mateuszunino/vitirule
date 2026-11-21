@@ -1,4 +1,4 @@
-# vitirule
+<img src="docs/brand/vitirule-logo.svg" alt="vitirule" width="160">
 
 Protocolo aberto e reprodutível para testar regras de pulverização contra o míldio da videira (*Plasmopara viticola*) antes de levá-las a campo.
 

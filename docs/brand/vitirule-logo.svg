@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 96" width="360" height="96" style="font-family:Inter, 'Source Sans 3', 'Segoe UI', Arial, sans-serif">
+  <g transform="translate(4 4) scale(0.6875)">
+    <path d="M 64 11 C 68 18, 76 28, 79 37 C 89 34, 102 35, 112 42 C 108 53, 100 62, 91 67 C 100 74, 104 84, 101 95 C 91 101, 79 100, 70 93 L 64 88 L 58 93 C 49 100, 37 101, 27 95 C 24 84, 28 74, 37 67 C 28 62, 20 53, 16 42 C 26 35, 39 34, 49 37 C 52 28, 60 18, 64 11 Z" fill="#0f766e"/>
+<line x1="64" y1="86" x2="64" y2="117" stroke="#0f766e" stroke-width="8" stroke-linecap="round"/>
+<path d="M 75.0 38.0 C 84.1 56.0, 91.5 65.2, 91.5 70.8 A 16.5 12.2 0 1 1 58.5 70.8 C 58.5 65.2, 65.9 56.0, 75.0 38.0 Z" fill="#c2410c" stroke="#ffffff" stroke-width="5.5" stroke-linejoin="round"/>
+  </g>
+  <text x="104" y="67" font-size="56" font-weight="700" letter-spacing="-1.6" fill="#0f172a">vitirule</text>
+</svg>

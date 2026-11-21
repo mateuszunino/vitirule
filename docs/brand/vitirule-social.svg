@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" style="font-family:Inter, 'Source Sans 3', 'Segoe UI', Arial, sans-serif;background:#f8fafc">
+<rect width="1280" height="640" fill="#f8fafc"/>
+<rect x="0" y="0" width="921" height="7" fill="#0f766e"/>
+<rect x="921" y="0" width="359" height="7" fill="#c2410c"/>
+<g transform="translate(54 70) scale(0.76)"><path d="M 64 11 C 68 18, 76 28, 79 37 C 89 34, 102 35, 112 42 C 108 53, 100 62, 91 67 C 100 74, 104 84, 101 95 C 91 101, 79 100, 70 93 L 64 88 L 58 93 C 49 100, 37 101, 27 95 C 24 84, 28 74, 37 67 C 28 62, 20 53, 16 42 C 26 35, 39 34, 49 37 C 52 28, 60 18, 64 11 Z" fill="#0f766e"/>
+<line x1="64" y1="86" x2="64" y2="117" stroke="#0f766e" stroke-width="8" stroke-linecap="round"/>
+<path d="M 75.0 38.0 C 84.1 56.0, 91.5 65.2, 91.5 70.8 A 16.5 12.2 0 1 1 58.5 70.8 C 58.5 65.2, 65.9 56.0, 75.0 38.0 Z" fill="#c2410c" stroke="#ffffff" stroke-width="5.5" stroke-linejoin="round"/></g>
+<text x="168" y="140" font-size="68" font-weight="800" letter-spacing="-2" fill="#0f172a">vitirule</text>
+<text x="54" y="232" font-size="31" font-weight="700" fill="#0f172a">Testing weather-driven spray rules</text>
+<text x="54" y="274" font-size="31" font-weight="700" fill="#0f172a">against grapevine downy mildew</text>
+<text x="54" y="316" font-size="31" font-weight="700" fill="#0f766e">before the field</text>
+<line x1="54" y1="352" x2="150" y2="352" stroke="#c2410c" stroke-width="4" stroke-linecap="round"/>
+<text x="54" y="398" font-size="18.5" font-weight="500" fill="#64748b">Open, reproducible protocol · 80,392 sensor hours</text>
+<text x="54" y="426" font-size="18.5" font-weight="500" fill="#64748b">5 wine regions · 2016–2025</text>
+<text x="54" y="576" font-size="15.5" font-weight="600" fill="#64748b">github.com/mateuszunino/vitirule</text>
+<rect x="724" y="62" width="502" height="516" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+<text x="748" y="94" font-size="15.5" font-weight="700" fill="#0f172a">Semi-real INRAE sensor OSSE (N = 1,200)</text>
+<text x="748" y="113" font-size="12" fill="#64748b">Pooled fixed calendars vs. frozen rule (T = 10)</text>
+<line x1="786" y1="472.2" x2="1198" y2="472.2" stroke="#f1f5f9" stroke-width="1.2"/>
+<text x="776" y="476.2" text-anchor="end" font-size="11.5" fill="#64748b">90</text>
+<line x1="786" y1="377.7" x2="1198" y2="377.7" stroke="#f1f5f9" stroke-width="1.2"/>
+<text x="776" y="381.7" text-anchor="end" font-size="11.5" fill="#64748b">110</text>
+<line x1="786" y1="283.2" x2="1198" y2="283.2" stroke="#f1f5f9" stroke-width="1.2"/>
+<text x="776" y="287.2" text-anchor="end" font-size="11.5" fill="#64748b">130</text>
+<line x1="786" y1="188.7" x2="1198" y2="188.7" stroke="#f1f5f9" stroke-width="1.2"/>
+<text x="776" y="192.7" text-anchor="end" font-size="11.5" fill="#64748b">150</text>
+<line x1="825.9" y1="510" x2="825.9" y2="515" stroke="#cbd5e1" stroke-width="1.2"/>
+<text x="825.9" y="530" text-anchor="middle" font-size="11.5" fill="#64748b">6</text>
+<line x1="892.3" y1="510" x2="892.3" y2="515" stroke="#cbd5e1" stroke-width="1.2"/>
+<text x="892.3" y="530" text-anchor="middle" font-size="11.5" fill="#64748b">7</text>
+<line x1="958.8" y1="510" x2="958.8" y2="515" stroke="#cbd5e1" stroke-width="1.2"/>
+<text x="958.8" y="530" text-anchor="middle" font-size="11.5" fill="#64748b">8</text>
+<line x1="1025.2" y1="510" x2="1025.2" y2="515" stroke="#cbd5e1" stroke-width="1.2"/>
+<text x="1025.2" y="530" text-anchor="middle" font-size="11.5" fill="#64748b">9</text>
+<line x1="1091.7" y1="510" x2="1091.7" y2="515" stroke="#cbd5e1" stroke-width="1.2"/>
+<text x="1091.7" y="530" text-anchor="middle" font-size="11.5" fill="#64748b">10</text>
+<line x1="1158.1" y1="510" x2="1158.1" y2="515" stroke="#cbd5e1" stroke-width="1.2"/>
+<text x="1158.1" y="530" text-anchor="middle" font-size="11.5" fill="#64748b">11</text>
+<line x1="786" y1="132" x2="786" y2="510" stroke="#cbd5e1" stroke-width="1.3"/>
+<line x1="786" y1="510" x2="1198" y2="510" stroke="#cbd5e1" stroke-width="1.3"/>
+<text x="992.0" y="554" text-anchor="middle" font-size="12.5" font-weight="600" fill="#64748b">Mean sprays / season</text>
+<text x="742" y="321.0" text-anchor="middle" font-size="12.5" font-weight="600" fill="#64748b" transform="rotate(-90 742 321.0)">Mean AUDPC</text>
+<polyline points="825.9,205.3 892.3,242.7 958.8,337.6 1158.1,446.4" fill="none" stroke="#0f172a" stroke-width="3.2"/>
+<circle cx="825.9" cy="205.3" r="5.8" fill="#0f172a" stroke="#ffffff" stroke-width="1.8"/>
+<text x="825.9" y="191.3" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">14d</text>
+<circle cx="892.3" cy="242.7" r="5.8" fill="#0f172a" stroke="#ffffff" stroke-width="1.8"/>
+<text x="898.3" y="229.7" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">12d</text>
+<circle cx="958.8" cy="337.6" r="5.8" fill="#0f172a" stroke="#ffffff" stroke-width="1.8"/>
+<text x="968.8" y="325.6" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">10d</text>
+<circle cx="1158.1" cy="446.4" r="5.8" fill="#0f172a" stroke="#ffffff" stroke-width="1.8"/>
+<text x="1156.1" y="432.4" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">7d</text>
+<line x1="877.2" y1="234.2" x2="877.2" y2="323.7" stroke="#c2410c" stroke-width="2.2" stroke-dasharray="4,3"/>
+<polygon points="877.2,313.7 887.2,323.7 877.2,333.7 867.2,323.7" fill="#0f766e" stroke="#ffffff" stroke-width="2"/>
+<line x1="877.2" y1="334.7" x2="862.0" y2="444.0" stroke="#0f766e" stroke-width="1.4" stroke-dasharray="3,2"/>
+<rect x="800.0" y="444.0" width="184" height="52" rx="8" fill="#f8fafc" stroke="#0f766e" stroke-width="1.5"/>
+<text x="812.0" y="465.0" font-size="13" font-weight="700" fill="#0f766e">om_v1_T10 (6.77 sprays)</text>
+<text x="812.0" y="484.0" font-size="12" font-weight="600" fill="#0f172a">−19.0 AUDPC (−13.5%)</text>
+</svg>
