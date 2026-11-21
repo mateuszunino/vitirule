@@ -87,7 +87,9 @@ Com `r_prior_gompertz` separada em [epidemiology_assimilation.py](epidemiology_a
 
 ## 5. Dados brutos, licenças e como reproduzir
 
-Os dados brutos de sensores (`data/`) **não são versionados no Git** (`.gitignore`), respeitando as licenças dos repositórios originais — em particular **Politecnico di Torino / iXem Labs** (`doi:10.17632/sd4b8vpvyb.1`, licença **CC BY-NC 4.0**) e **INRAE AgroClim** (`doi:10.57745/BQ0BWB`, Recherche Data Gouv). Use o script [scripts/download_sensor_datasets.py](scripts/download_sensor_datasets.py) para baixá-los diretamente pelos DOIs oficiais antes de reproduzir as análises:
+* **Código deste repositório:** [MIT License](LICENSE) (Copyright © 2026 Mateus Zunino Espindola).
+* **Relatório técnico (`docs/technical_report.*`):** CC BY 4.0.
+* **Dados brutos de sensores (`data/`):** **não são versionados no Git** (`.gitignore`), permanecendo sujeitos às licenças dos repositórios originais — **Politecnico di Torino / iXem Labs** (`doi:10.17632/sd4b8vpvyb.1`, **CC BY-NC 4.0**) e **INRAE AgroClim** (`doi:10.57745/BQ0BWB`, Recherche Data Gouv). Use o script [scripts/download_sensor_datasets.py](scripts/download_sensor_datasets.py) para baixá-los diretamente pelos DOIs oficiais antes de reproduzir as análises:
 
 ```powershell
 # Testes automatizados (sem rede, sem banco, sem GPU)
