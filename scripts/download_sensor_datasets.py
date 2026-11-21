@@ -107,8 +107,12 @@ def fetch_polito(dry_run: bool = False, force: bool = False) -> None:
     lic_url = lic.get("url", "") if isinstance(lic, dict) else ""
     print(f"[Politecnico di Torino | doi:10.17632/sd4b8vpvyb.1] License: {lic_name} ({lic_url})")
 
-    f_resp = requests.get(POLITO_FILES_URL, headers=HEADERS, timeout=30)
-    f_resp.raise_for_status()
+    try:
+        f_resp = requests.get(POLITO_FILES_URL, headers=HEADERS, timeout=30)
+        f_resp.raise_for_status()
+    except requests.RequestException as exc:
+        print(f"  [warn] Could not list Politecnico files ({exc}).")
+        return
     for item in f_resp.json():
         fname = item.get("filename", "")
         dl_url = (item.get("content_details") or {}).get("download_url")

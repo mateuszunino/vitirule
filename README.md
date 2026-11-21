@@ -85,11 +85,13 @@ Com `r_prior_gompertz` separada em [epidemiology_assimilation.py](epidemiology_a
 
 ---
 
-## 5. Dados brutos, licenças e como reproduzir
+## 5. Dados brutos, licenças, atribuição e como reproduzir
 
 * **Código deste repositório:** [MIT License](LICENSE) (Copyright © 2026 Mateus Zunino Espindola).
-* **Relatório técnico (`docs/technical_report.*`):** CC BY 4.0.
-* **Dados brutos de sensores (`data/`):** **não são versionados no Git** (`.gitignore`), permanecendo sujeitos às licenças dos repositórios originais — **Politecnico di Torino / iXem Labs** (`doi:10.17632/sd4b8vpvyb.1`, **CC BY-NC 4.0**) e **INRAE AgroClim** (`doi:10.57745/BQ0BWB`, Recherche Data Gouv). Use o script [scripts/download_sensor_datasets.py](scripts/download_sensor_datasets.py) para baixá-los diretamente pelos DOIs oficiais antes de reproduzir as análises:
+* **Relatório técnico (`docs/technical_report.*`):** CC BY 4.0. **Figuras e tabelas derivadas dos dados do Politecnico di Torino seguem também os termos da CC BY-NC 4.0.**
+* **Dados brutos de sensores (`data/`):** **não são versionados no Git** (`.gitignore`) e nunca entraram no histórico do repositório. Use [scripts/download_sensor_datasets.py](scripts/download_sensor_datasets.py) para baixá-los diretamente pelos DOIs oficiais antes de reproduzir as análises:
+  * **INRAE AgroClim (França):** Furusho-Percot, C., Maury, O., Minet, V., De Decker, T., Roux, D., Beauvois, C., Le Roux, R., Décome, J., Launay, M., & García de Cortázar-Atauri, I. (2025). *French agroclimatic research network dataset*. *Data in Brief*, 61, 111809 (`doi:10.1016/j.dib.2025.111809`, artigo CC BY 4.0). Dataset: *Daily and hourly climatic data from 54 stations of the INRAE Agroclim network*, Recherche Data Gouv, `doi:10.57745/BQ0BWB` (sujeito à licença declarada no portal Recherche Data Gouv — verificar via `--dry-run`).
+  * **Politecnico di Torino / iXem Labs (Itália):** Colucci, G. P., Filipescu, E., Scatozza, F., & Trinchero, D. (2025). *Leaf Wetness and Agrometeorological Dataset*. Mendeley Data, V1, `doi:10.17632/sd4b8vpvyb.1` — **CC BY-NC 4.0** (uso não comercial com atribuição).
 
 ```powershell
 # Testes automatizados (sem rede, sem banco, sem GPU)
