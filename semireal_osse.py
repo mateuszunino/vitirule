@@ -6,7 +6,7 @@ semireal_osse.py
 OSSE **semirreal** nas 4 estações vitícolas da rede INRAE AgroClim
 (DOI: 10.57745/BQ0BWB) e teste com erro de molhamento calibrado em Moselle (LU).
 
-Objetivo (regra congelada em `a562ccc`, NENHUM parâmetro alterado):
+Objetivo (regra congelada em `f74010d`, NENHUM parâmetro alterado):
 1. **Verdade SEIR semirreal:** epidemia movida por temperatura, chuva e
    **molhamento foliar MEDIDO PELO SENSOR REAL** da estação INRAE (`h` em [0, 1]).
 2. **Entrada operacional da regra (`om_v1_T10`, `om_v2_T10`):** a regra lê

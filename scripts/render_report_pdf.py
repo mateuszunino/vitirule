@@ -27,6 +27,7 @@ def _inline_fmt(text: str) -> str:
     s = re.sub(r"`([^`]+)`", r"<code>\1</code>", s)
     s = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", s)
     s = re.sub(r"\*([^*]+)\*", r"<em>\1</em>", s)
+    s = re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", r"<a href='\2'>\1</a>", s)
     # Converte notação LaTeX inline simples ($...$) para texto tipográfico limpo
     def _math_sub(m: re.Match) -> str:
         expr = m.group(1)
@@ -351,16 +352,22 @@ def main() -> int:
     body = md_to_html(MD_PATH.read_text(encoding="utf-8"), MD_PATH.parent)
     doc = (
         "<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'/>"
-        "<title>Technical Report — Grapevine Downy Mildew Evaluation Protocol</title>"
+        "<title>vitirule: Technical Report on Grapevine Downy Mildew Spray Rules</title>"
         f"<style>{CSS}</style></head><body>{body}</body></html>"
     )
     HTML_PATH.write_text(doc, encoding="utf-8")
+
+    import shutil
 
     browser = next(
         (p for p in (
             r"C:\Program Files\Google\Chrome\Application\chrome.exe",
             r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
-        ) if Path(p).is_file()),
+            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            shutil.which("google-chrome") or "",
+            shutil.which("chromium") or "",
+            shutil.which("chromium-browser") or "",
+        ) if p and Path(p).is_file()),
         None,
     )
     if not browser:

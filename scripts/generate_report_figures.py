@@ -683,7 +683,7 @@ def build_fig3_economics() -> tuple[Path, Path]:
     p2 = _write_english_econ_svg(
         eco["sensitivity_eu_copper_2018_1981"],
         "(b) EU 2018/1981 Copper-Compliant Net Return",
-        "Pooled <= 28 kg Cu/ha over 7 yr at 0.50 kg Cu/ha/spray",
+        "Pooled ≤ 28 kg Cu/ha over 7 yr at 0.50 kg Cu/ha/spray",
         FIG_DIR / "fig3b_econ_eu_copper.svg",
     )
     return p1, p2

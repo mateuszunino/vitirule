@@ -1,26 +1,46 @@
-# `grapevine-downy-mildew-eval` — Metodologia Aberta de Avaliação para DSS Preventivo de Míldio da Videira (*Plasmopara viticola*)
+# vitirule
 
-**Autor:** Mateus Zunino Espindola — Universidade Federal de Santa Catarina (UFSC)  
-**Relatório técnico (inglês, com Resumo em português):** [docs/technical_report.md](docs/technical_report.md) · [docs/technical_report.pdf](docs/technical_report.pdf)
+Protocolo aberto e reprodutível para testar regras de pulverização contra o míldio da videira (*Plasmopara viticola*) antes de levá-las a campo.
 
-Repositório aberto e reprodutível focado na **avaliação rigorosa de regras agrometeorológicas preventivas** para o míldio da videira (*Plasmopara viticola*), combinando:
-1. **validação empírica de estimadores de molhamento foliar (LWD)** contra `80.392` horas de sensores reais (decompondo erro da fórmula vs. erro da reanálise);
-2. **OSSE com modelo SEIR mal-especificado e OSSE semirreal movido por sensor real de campo** (quebra do "crime inverso", lavagem por chuva e previsão de 7 dias ruidosa);
-3. **ablação com orçamento igual** e **fronteira de Pareto** (aplicações vs. AACPD) com congelamento em commit e validação em anos e regiões inéditos;
-4. **análise econômica com superfície de sensibilidade** (inclinação do dano × receita bruta) e restrição regulatória real de cobre orgânico na União Europeia (**Regulamento de Execução (UE) 2018/1981**).
+*English: an open, reproducible protocol for stress-testing weather-driven spray rules against grapevine downy mildew before field trials. The full technical report is in English: [docs/technical_report.pdf](docs/technical_report.pdf).*
 
-### Posicionamento frente a sistemas operacionais existentes
-Sistemas consolidados como o **VitiMeteo** (*VitiMeteo-Plasmopara*, usado em Luxemburgo/Moselle, Alemanha, Suíça e leste da França) e o **RIMpro** já operam em viticultura europeia. Este projeto **não pretende competir como produto comercial** com essas plataformas. Sua contribuição é a **metodologia aberta de avaliação** (simulador mal-especificado, teste semirreal com sensor, ablação causal, fronteira de Pareto, congelamento fora da amostra em commits e sensibilidade econômica), etapa raramente publicada de forma reprodutível em sistemas de alerta fitossanitário.
+**Autor:** Mateus Zunino Espindola, Universidade Federal de Santa Catarina (UFSC)  
+**Relatório técnico** em inglês, com resumo em português: [docs/technical_report.md](docs/technical_report.md) · [docs/technical_report.pdf](docs/technical_report.pdf)
 
-> **Histórico e módulos desligados por padrão:** O projeto começou como um DSS em circuito fechado com visão computacional (`vision_pipeline.py`) e assimilação bayesiana de severidade foliar (`epidemiology_assimilation.py`). Uma ablação congelada fora da amostra (`N = 360`, commit `2e8aea8`) mostrou que **a assimilação de severidade não superou a regra puramente climática com previsão de 7 dias e lavagem por chuva** (`Δ AACPD = +0,99`, IC 95 % `[-1,81 ; +3,91]`, Wilcoxon `p = 0,462`). Os módulos de visão e assimilação permanecem testados no repositório, **desligados por padrão**, para eventual uso quando houver dados experimentais de campo.
+![Regra congelada contra calendários fixos, com o sensor real do INRAE como verdade](docs/figures/fig1_semireal_pareto.svg)
+
+## O que o projeto faz
+
+O vitirule avalia regras agrometeorológicas preventivas para o míldio da videira em quatro frentes:
+
+1. compara quatro estimadores de molhamento foliar (LWD) com 80.392 horas de sensores reais, separando o erro da fórmula do erro da reanálise;
+2. roda OSSEs com um modelo SEIR mal-especificado e um OSSE semirreal em que a verdade vem do sensor de campo. Isso evita o "crime inverso" e inclui lavagem por chuva e previsão de 7 dias com ruído;
+3. faz ablações com orçamento igual e traça a fronteira de Pareto entre número de aplicações e AACPD. Cada regra foi congelada em commit antes de ser testada em anos e regiões que ela nunca viu;
+4. mede a sensibilidade econômica em uma superfície de inclinação do dano por receita bruta, sob o teto de cobre da agricultura orgânica europeia, o Regulamento de Execução (UE) 2018/1981.
+
+### O que o projeto não é
+
+O VitiMeteo (*VitiMeteo-Plasmopara*) já funciona em Luxemburgo e no Mosela, na Alemanha, na Suíça e no leste da França. O RIMpro também é usado na viticultura europeia. O vitirule não quer competir com eles como produto. A contribuição é o método de avaliação aberto: simulador mal-especificado, teste semirreal com sensor, ablação causal, fronteira de Pareto, congelamento fora da amostra em commits e sensibilidade econômica. Essa etapa quase nunca é publicada de forma reprodutível em sistemas de alerta fitossanitário.
+
+> **Histórico e módulos desligados por padrão.** O projeto começou como um DSS em circuito fechado, com visão computacional (`vision_pipeline.py`) e assimilação bayesiana da severidade foliar (`epidemiology_assimilation.py`). Uma ablação congelada fora da amostra (`N = 360`, commit `668573a`) mostrou que a assimilação da severidade não superou a regra puramente climática com previsão de 7 dias e lavagem por chuva: `Δ AACPD = +0,99`, IC 95 % `[-1,81 ; +3,91]`, Wilcoxon `p = 0,462`. Os módulos de visão e assimilação continuam testados no repositório e ficam desligados por padrão, para quando houver dados de campo.
+
+## Quatro resultados
+
+1. **Assimilar a severidade das folhas não ajudou.** Na ablação congelada, a regra com assimilação empatou com a mesma regra sem assimilação.
+2. **A fonte do dado meteorológico pesa mais que a fórmula de molhamento.** Na reanálise Open-Meteo, os quatro estimadores empatam. Trocar a estação local pela reanálise acrescenta até 1,48 h/dia de erro; em seis dos oito pares de rede e estimador, mais de 1,2 h/dia.
+3. **O ganho vem de dimensionar a campanha de cada safra, não de acertar melhor o dia da aplicação.** Com o sensor real do INRAE como verdade, o ganho sobre os calendários fixos caiu de `-101,6` para `-18,95` de AACPD. Dentro de uma mesma safra, a regra empata com o calendário. As falhas mais graves foram em Champagne 2022 e Bordeaux 2021.
+4. **Quem ganha no dinheiro depende de três hipóteses ao mesmo tempo:** a receita do vinhedo, a inclinação suposta do dano e a dose de cobre por aplicação.
+
+![Erro diário de molhamento foliar por estimador e por fonte de dado](docs/figures/fig0_lwd_source_vs_formula.svg)
 
 ---
 
-## 1. Validação de molhamento foliar (LWD) contra sensores reais (`80.392` horas)
+## 1. Molhamento foliar contra sensores reais (80.392 horas)
 
-Implementada em [lwd_sensor_validation.py](lwd_sensor_validation.py) sobre duas redes independentes abertas:
-* **INRAE AgroClim** (`doi:10.57745/BQ0BWB`; Furusho-Percot et al., *Data in Brief* 2025, `PMC12266558`): 4 estações vitícolas francesas (Bordeaux-Couhins `33080002`, Alsace-Colmar `68066002`, Champagne-Fagnières `51242002`, Bourgogne-Bretenière `21106002`; abril–setembro 2022–2024, **52.675 h**).
-* **Politecnico di Torino / iXem Labs** (Mendeley Data, `doi:10.17632/sd4b8vpvyb.1`): 7 estações italianas com sensor capacitivo dupla face (abril–setembro, **27.717 h** totais; **23.735 h** nas 6 estações sem deriva — `site2.csv` apresentou `99,9 % > 0`).
+A validação está em [lwd_sensor_validation.py](lwd_sensor_validation.py) e usa duas redes abertas e independentes:
+
+* **INRAE AgroClim** (`doi:10.57745/BQ0BWB`; Furusho-Percot et al., *Data in Brief* 2025, `PMC12266558`): quatro estações vitícolas francesas, Bordeaux-Couhins `33080002`, Alsace-Colmar `68066002`, Champagne-Fagnières `51242002` e Bourgogne-Bretenière `21106002`, de abril a setembro de 2022 a 2024, num total de 52.675 h.
+* **Politecnico di Torino / iXem Labs** (Mendeley Data, `doi:10.17632/sd4b8vpvyb.1`): sete estações italianas com sensor capacitivo de dupla face, de abril a setembro, num total de 27.717 h. Sobram 23.735 h nas seis estações sem deriva, porque o `site2.csv` ficou acima de zero em 99,9 % das horas.
 
 | Rede (abril–setembro) | Estimador | Estação: Acc / F1 / CSI / MAE (h/d) / Viés | Open-Meteo: Acc / F1 / CSI / MAE (h/d) / Viés | Δ MAE da reanálise |
 |---|---|---|---|---:|
@@ -33,65 +53,79 @@ Implementada em [lwd_sensor_validation.py](lwd_sensor_validation.py) sobre duas 
 | | `rh90_hysteresis` | 0,869 / 0,636 / 0,472 / 2,85 / -0,70 | **0,791** / 0,516 / 0,351 / 4,06 / +1,05 | +1,21 h/d |
 | | `cart_kim2002` | 0,861 / 0,672 / 0,513 / 2,95 / +1,15 | 0,779 / 0,507 / 0,343 / 4,28 / +1,40 | +1,33 h/d |
 
-**Conclusão empírica principal:**
-* **Na entrada operacional (Open-Meteo), os 4 estimadores praticamente empatam** e trocam de posição conforme a métrica (`dpd_hysteresis` lidera em F1 `0,608`, `cart_kim2002` tem o menor MAE `3,82 h/d`, `rh90_hysteresis` lidera em acurácia `0,779`).
-* **A fonte do dado meteorológico domina o erro**, não a fórmula de molhamento: sair da estação real para a reanálise Open-Meteo derruba `F1` em ~`0,13` e eleva o erro diário de ~`2,6` para **`4,0 h/dia`** (viés úmido de `+1,6` a `+2,2 h/dia`, autocorrelação horária lag-1 de `0,68`). Consequência operacional direta: um sistema em Luxemburgo deveria ler as estações da rede agrometeorológica local (**ASTA / agrimeteo.lu**), não reanálise.
+Na entrada que um sistema operacional usaria, o Open-Meteo, os quatro estimadores praticamente empatam e trocam de lugar conforme a métrica. O `dpd_hysteresis` lidera em F1 (`0,608`), o `cart_kim2002` tem o menor MAE (`3,82 h/d`) e o `rh90_hysteresis` lidera em acurácia (`0,779`).
+
+O erro vem sobretudo da fonte do dado. Passar da estação real para a reanálise derruba o F1 em cerca de `0,13` e leva o erro diário de cerca de `2,6` para `4,0 h/dia`, com viés úmido de `+1,6` a `+2,2 h/dia` e autocorrelação horária lag-1 de `0,68`. Na prática, um sistema em Luxemburgo deveria ler as estações da ASTA, a rede agrometeorológica local (agrimeteo.lu), em vez da reanálise.
 
 ---
 
-## 2. Resultado negativo da assimilação, fronteira de Pareto e OSSE semirreal com sensor
+## 2. Assimilação, fronteira de Pareto e OSSE semirreal com sensor
 
-### 2.1 Ablação congelada (`commit 2e8aea8`, 2022–2024, Moselle & Bordeaux, `N = 360`)
-* **`(d)` DSS com assimilação − `(c)` Previsão + lavagem (sem assimilação):** `+0,99` AACPD (`IC 95 %: [-1,81 ; +3,91]`, Wilcoxon `p = 0,462`, `141/360` vitórias) — **empate estatístico**.
-* **`(c)` Previsão + lavagem − `(b)` Clima observado reativo:** `-44,68` AACPD (`IC 95 %: [-51,40 ; -37,91]`, `p < 1e-6`, `293/360` vitórias).
+### 2.1 Ablação congelada (commit `668573a`, 2022–2024, Mosela e Bordeaux, `N = 360`)
 
-### 2.2 Fronteira de Pareto puramente simulada vs. **OSSE semirreal movido pelo sensor INRAE**
-Para verificar quanto do ganho simulado sobrevive sob o erro real de `~4 h/dia` da reanálise, executamos [semireal_osse.py](semireal_osse.py) com a **regra congelada (`T = 10,0`, sem nenhum reajuste)** sobre **24 estação-safras reais do INRAE (`2019–2024`, 4 regiões vitícolas, `N = 1.200` talhão-safras)** onde a verdade SEIR é movida pelo **sensor real de molhamento foliar (`h`)** e a regra lê apenas o **Open-Meteo** (`om_*`) ou o clima da **estação local sem sensor** (`st_*`), além de **Moselle `2016–2018` (`N = 180`)** com perturbação AR(1) calibrada nos erros reais (`MAE = 3,99 h/d`, `viés = +1,59 h/d`, `lag-1 = 0,68`):
+* **DSS com assimilação `(d)` menos previsão com lavagem e sem assimilação `(c)`:** `+0,99` de AACPD, IC 95 % `[-1,81 ; +3,91]`, Wilcoxon `p = 0,462`, `141/360` vitórias. É um empate estatístico.
+* **Previsão com lavagem `(c)` menos clima observado reativo `(b)`:** `-44,68` de AACPD, IC 95 % `[-51,40 ; -37,91]`, `p < 1e-6`, `293/360` vitórias.
+
+### 2.2 Da fronteira simulada ao OSSE semirreal com o sensor do INRAE
+
+Para saber quanto do ganho simulado sobrevive ao erro real de cerca de 4 h/dia da reanálise, rodamos [semireal_osse.py](semireal_osse.py) com a regra congelada em `T = 10,0`, sem nenhum reajuste, em dois cenários:
+
+* **24 estação-safras reais do INRAE**, de 2019 a 2024, em quatro regiões vitícolas, somando `N = 1.200` talhão-safras. A verdade SEIR é movida pelo sensor real de molhamento foliar `h`. A regra lê só o Open-Meteo (`om_*`) ou o clima da estação local sem o sensor (`st_*`).
+* **Mosela, de 2016 a 2018** (`N = 180`), com uma perturbação AR(1) calibrada nos erros reais: `MAE = 3,99 h/d`, `viés = +1,59 h/d`, `lag-1 = 0,68`.
 
 | Experimento (regra congelada `T = 10,0`) | Estratégia | Aplic. | AACPD média (IC 95 %) | Δ vs. fronteira de calendários | Pareado vs. calendário próximo |
 |---|---|---:|---:|---:|---|
-| **INRAE Semirreal (verdade = SENSOR REAL, `N = 1.200`)** | `cal_7d` / `10d` / `12d` / `14d` | 11 / 8 / 7 / 6 | 95,5 / 118,5 / 138,6 / 146,5 | referência | — |
+| **INRAE semirreal (verdade = sensor real, `N = 1.200`)** | `cal_7d` / `10d` / `12d` / `14d` | 11 / 8 / 7 / 6 | 95,5 / 118,5 / 138,6 / 146,5 | referência | — |
 | | **`om_v1_T10`** *(só Open-Meteo)* | **6,77** | **121,42 `[112,5 ; 130,9]`** | **-18,95 (-13,5 %)** | **-17,15 vs `cal_12d`** (`-0,23` aplic., `p < 1e-6`, `814/1200`) |
 | | `om_v2_T10` *(alternativa econômica)* | **5,51** | **137,31 `[126,9 ; 148,2]`** | abaixo de `cal_14d` | **-9,18 vs `cal_14d`** (`-0,49` aplic., `p < 1e-6`, `652/1200`) |
-| | `st_v1_T10` *(clima estação, sem sensor)* | **6,38** | **127,48 `[117,8 ; 137,7]`** | **-15,99 (-11,1 %)** | **-19,01 vs `cal_14d`** (`+0,38` aplic., `p < 1e-6`, `788/1200`) |
-| **Moselle erro calibrado (`2016–2018`, `N = 180`)** | `cal_12d` / `cal_14d` | 7 / 6 | 302,1 / 367,6 | referência | — |
+| | `st_v1_T10` *(clima da estação, sem sensor)* | **6,38** | **127,48 `[117,8 ; 137,7]`** | **-15,99 (-11,1 %)** | **-19,01 vs `cal_14d`** (`+0,38` aplic., `p < 1e-6`, `788/1200`) |
+| **Mosela com erro calibrado (2016–2018, `N = 180`)** | `cal_12d` / `cal_14d` | 7 / 6 | 302,1 / 367,6 | referência | — |
 | | **`om_v1_T10`** | **7,22** | **277,37 `[243,1 ; 315,9]`** | **-22,70 (-7,6 %)** | **-24,70 vs `cal_12d`** (`p = 4,7e-5`, `120/180`) |
 | | `om_v2_T10` | **5,83** | **346,54 `[303,6 ; 394,1]`** | abaixo de `cal_14d` | **-21,03 vs `cal_14d`** (`-0,17` aplic., `p = 0,021`, `99/180`) |
 
-**Quanto do ganho sobrevive:**
-* Como esperado, os ganhos absolutos de `-101` AACPD no simulador puramente de reanálise estavam inflados pelo viés úmido do Open-Meteo (`+1,6 h/d`) e pelo acoplamento excessivo entre verdade e entrada.
-* Sob **sensor real do INRAE (`N = 1.200`)** e **erro calibrado em Moselle (`N = 180`)**, o ganho absoluto cai para **`-19` a `-23` AACPD (`-7,6 %` a `-13,5 %` abaixo da fronteira de calendários fixos)** — menor, porém **estatisticamente robusto (`p < 1e-4`) e em dominância estrita de Pareto** (`om_v1_T10` entrega menos doença *e* menos aplicações que `cal_12d`).
-* `v2` (`ResidualGateConfig`, piso 6 d e $P_{\text{est}} \le 0,45$) atua como **outro ponto mais econômico na mesma curva de Pareto** (`5,5` vs. `6,8` aplic.), não como melhoria absoluta sobre `v1`.
+**Quanto do ganho sobrevive.** O ganho de `-101` de AACPD no simulador movido só pela reanálise estava inflado. A causa era o viés úmido do Open-Meteo (`+1,6 h/d`) e o acoplamento excessivo entre a verdade e a entrada. Com o sensor real do INRAE (`N = 1.200`) e com o erro calibrado no Mosela (`N = 180`), o ganho cai para `-19` a `-23` de AACPD, de 7,6 % a 13,5 % abaixo da fronteira de calendários fixos. É menor, mas estatisticamente sólido (`p < 1e-4`). No conjunto agregado, o `om_v1_T10` domina o `cal_12d` no sentido de Pareto: menos doença com menos aplicações.
+
+O `v2` (`ResidualGateConfig`, piso de 6 dias e $P_{\text{est}} \le 0,45$) não melhora o `v1`. Ele é outro ponto da mesma curva de Pareto, mais econômico, com `5,5` aplicações contra `6,8`.
+
+**Dentro de cada safra o quadro muda.** Nas coortes que caem dentro da faixa dos calendários, de 6 a 11 aplicações, a regra empata com a fronteira interpolada: média `+1,01` e mediana `-0,33` de AACPD. O ganho agregado vem de ajustar o tamanho da campanha de um ano para outro (`r = 0,595`, `p = 0,0022`). As duas piores falhas, Champagne 2022 e Bordeaux 2021, estão abaixo, dia a dia.
+
+![Linhas do tempo diárias das duas coortes em que a regra mais falhou](docs/figures/fig2_failure_timelines.svg)
 
 ---
 
 ## 3. Sensibilidade econômica (€/ha) e teto europeu de cobre ([economics.py](economics.py))
 
-Como a inclinação da curva de dano foliar → cacho ($L = 0{,}85(1 - e^{-k\cdot\text{AACPD}})$) não foi calibrada em campo, avaliamos **126 combinações** de $k \in [0{,}0002 ; 0{,}0015]$ × receita bruta de `3.000` a `30.000 €/ha` (`55 €/ha` por aplicação) sobre o **OSSE semirreal INRAE (`N = 1.200`)**, gerando os mapas de decisão [economics_map_unconstrained.svg](data/fase2/economics_map_unconstrained.svg) e [economics_map_eu_copper.svg](data/fase2/economics_map_eu_copper.svg):
+A inclinação da curva que liga o dano foliar à perda nos cachos, $L = 0{,}85(1 - e^{-k\cdot\text{AACPD}})$, não foi calibrada em campo. Por isso avaliamos 126 combinações de $k \in [0{,}0002 ; 0{,}0015]$ com receita bruta de `3.000` a `30.000 €/ha`, a `55 €/ha` por aplicação, sobre o OSSE semirreal do INRAE (`N = 1.200`).
 
-* **Sem restrição de cobre (126 células):**
-  * `cal_7d` vence em **`40,5 %`** da superfície (vinhedos de alta receita + dano severo — reproduzindo o comportamento real de viticultores de vinhos premium);
-  * **`om_v1_T10` vence em `27,0 %`** e **`om_v2_T10` em `19,8 %`** (total: **`46,8 %`** nas faixas intermediárias/econômicas);
-  * `testemunha` vence em `12,7 %` (apenas receita mínima + dano mínimo);
-  * **`cal_10d`, `cal_12d` e `cal_14d` vencem em `0,0 %` da superfície** — sempre que não se aplica semanalmente, a regra preventiva domina os calendários fixos espaçados.
-* **Sob o teto europeu de cobre para viticultura orgânica — Regulamento de Execução (UE) 2018/1981 (`28 kg Cu/ha` em 7 anos = média de `4,0 kg Cu/ha/ano`):**
-  * A uma dose típica de `0,50 kg Cu/ha` por aplicação, `cal_7d` (`11,0` aplic. = `5,50 kg Cu/ha/ano`) **ultrapassa o limite legal europeu**, enquanto `om_v1_T10` (`3,39 kg/ha/ano`) e `om_v2_T10` (`2,76 kg/ha/ano`) **cumprem integralmente o regulamento**.
-  * Dentro do espaço conforme ao Reg. (UE) 2018/1981, **`om_v1_T10` lidera em `61,1 %`** e **`om_v2_T10` em `19,8 %`** (**`80,9 %` da superfície** contra `6,3 %` do `cal_10d`).
+**Sem restrição de cobre (126 células):**
+* o `cal_7d` vence em `40,5 %` da superfície, nos vinhedos de receita alta com dano severo, o que bate com o comportamento de quem produz vinho premium;
+* o `om_v1_T10` vence em `27,0 %` e o `om_v2_T10` em `19,8 %`, somando `46,8 %` nas faixas intermediárias e econômicas;
+* a `testemunha` vence em `12,7 %`, só com receita mínima e dano mínimo;
+* o `cal_10d`, o `cal_12d` e o `cal_14d` não vencem em nenhuma célula. Quando não se pulveriza toda semana, a regra preventiva sempre supera os calendários espaçados.
+
+**Sob o teto europeu de cobre para viticultura orgânica**, o Regulamento de Execução (UE) 2018/1981, que permite `28 kg Cu/ha` em 7 anos, ou `4,0 kg Cu/ha/ano` em média:
+* com uma dose típica de `0,50 kg Cu/ha` por aplicação, o `cal_7d` (`11,0` aplicações, `5,50 kg Cu/ha/ano`) passa do limite legal. O `om_v1_T10` (`3,39 kg/ha/ano`) e o `om_v2_T10` (`2,76 kg/ha/ano`) cumprem o regulamento;
+* dentro do espaço permitido, o `om_v1_T10` lidera em `61,1 %` e o `om_v2_T10` em `19,8 %` da superfície, somando `80,9 %`, contra `6,3 %` do `cal_10d`.
+
+| Sem restrição de cobre | Sob o Reg. (UE) 2018/1981 |
+|---|---|
+| ![Estratégia de maior retorno líquido sem restrição de cobre](docs/figures/fig3a_econ_unconstrained.svg) | ![Estratégia de maior retorno líquido dentro do teto europeu de cobre](docs/figures/fig3b_econ_eu_copper.svg) |
 
 ---
 
-## 4. Calibração da posteriori de `r` (módulo de assimilação)
-Com `r_prior_gompertz` separada em [epidemiology_assimilation.py](epidemiology_assimilation.py), a cobertura do IC 95 % de `r` dentro do modelo escolhido passou de ~75 % (mistura de escalas logística/Gompertz) para **97,9 % (logística)** e **95,8 % (Gompertz)**.
+## 4. Calibração da posteriori de `r` no módulo de assimilação
+
+Com a `r_prior_gompertz` separada em [epidemiology_assimilation.py](epidemiology_assimilation.py), a cobertura do IC 95 % de `r` dentro do modelo escolhido passou de cerca de 75 %, quando as escalas logística e Gompertz se misturavam, para 97,9 % no modelo logístico e 95,8 % no Gompertz.
 
 ---
 
 ## 5. Dados brutos, licenças, atribuição e como reproduzir
 
-* **Código deste repositório:** [MIT License](LICENSE) (Copyright © 2026 Mateus Zunino Espindola).
+* **Código deste repositório:** [licença MIT](LICENSE), Copyright © 2026 Mateus Zunino Espindola.
 * **Relatório técnico (`docs/technical_report.*`):** CC BY 4.0. **Figuras e tabelas derivadas dos dados do Politecnico di Torino seguem também os termos da CC BY-NC 4.0.**
-* **Dados brutos de sensores (`data/`):** **não são versionados no Git** (`.gitignore`) e nunca entraram no histórico do repositório. Use [scripts/download_sensor_datasets.py](scripts/download_sensor_datasets.py) para baixá-los diretamente pelos DOIs oficiais antes de reproduzir as análises:
-  * **INRAE AgroClim (França):** Furusho-Percot, C., Maury, O., Minet, V., De Decker, T., Roux, D., Beauvois, C., Le Roux, R., Décome, J., Launay, M., & García de Cortázar-Atauri, I. (2025). *French agroclimatic research network dataset*. *Data in Brief*, 61, 111809 (`doi:10.1016/j.dib.2025.111809`, artigo CC BY 4.0). Dataset: *Daily and hourly climatic data from 54 stations of the INRAE Agroclim network*, Recherche Data Gouv, `doi:10.57745/BQ0BWB` (sujeito à licença declarada no portal Recherche Data Gouv — verificar via `--dry-run`).
-  * **Politecnico di Torino / iXem Labs (Itália):** Colucci, G. P., Filipescu, E., Scatozza, F., & Trinchero, D. (2025). *Leaf Wetness and Agrometeorological Dataset*. Mendeley Data, V1, `doi:10.17632/sd4b8vpvyb.1` — **CC BY-NC 4.0** (uso não comercial com atribuição).
+* **Dados brutos de sensores (`data/`):** ficam fora do Git pelo `.gitignore` e nunca entraram no histórico do repositório. Use [scripts/download_sensor_datasets.py](scripts/download_sensor_datasets.py) para baixá-los pelos DOIs oficiais antes de reproduzir as análises:
+  * **INRAE AgroClim (França):** Furusho-Percot, C., Maury, O., Minet, V., De Decker, T., Roux, D., Beauvois, C., Le Roux, R., Décome, J., Launay, M., & García de Cortázar-Atauri, I. (2025). *French agroclimatic research network dataset*. *Data in Brief*, 61, 111809 (`doi:10.1016/j.dib.2025.111809`, artigo CC BY 4.0). Dataset: *Daily and hourly climatic data from 54 stations of the INRAE Agroclim network*, Recherche Data Gouv, `doi:10.57745/BQ0BWB`, sujeito à licença declarada no portal Recherche Data Gouv, que pode ser conferida com `--dry-run`.
+  * **Politecnico di Torino / iXem Labs (Itália):** Colucci, G. P., Filipescu, E., Scatozza, F., & Trinchero, D. (2025). *Leaf Wetness and Agrometeorological Dataset*. Mendeley Data, V1, `doi:10.17632/sd4b8vpvyb.1`, **CC BY-NC 4.0**: uso não comercial, com atribuição.
 
 ```powershell
 # Testes automatizados (sem rede, sem banco, sem GPU)
@@ -114,5 +148,6 @@ Com `r_prior_gompertz` separada em [epidemiology_assimilation.py](epidemiology_a
 
 # 4. Figuras em inglês e compilação do relatório técnico (PDF de 12 páginas)
 .venv\Scripts\python.exe scripts/generate_report_figures.py
+.venv\Scripts\python.exe scripts/make_lwd_source_figure.py
 .venv\Scripts\python.exe scripts/render_report_pdf.py
 ```
