@@ -4,7 +4,7 @@
 
 Author: Mateus Zunino Espindola, Universidade Federal de Santa Catarina (UFSC)  
 Date: 22 November 2026  
-Frozen tags: `v1.0`, `v1.0.1`, `v1.0.2`, `v2-rules`, `v2-freeze`, `v2-freeze-br`  
+Frozen tags: `v1.0`, `v1.0.2`, `v2-rules`, `v2-freeze`, `v2-freeze-br`  
 Confirmatory status: the European confirmatory run (`v2-confirmatory`) is pending. The INRAE portal on Recherche Data Gouv (`entrepot.recherche.data.gouv.fr`) still returned HTTP 503 on 22 November 2026.
 
 > *Scope: vitirule v2 does not measure field control efficacy. It measures the reliability of the meteorological input to a disease-warning system.*
@@ -17,7 +17,7 @@ Free gridded weather data, such as reanalyses, archived forecasts and NASA POWER
 
 In Europe the reference was each rule fed with on-site station data, including a physical leaf wetness duration (LWD) sensor. These results come from an exploratory set of four INRAE AgroClim stations (2022-2025), plus two Politecnico di Torino stations reported descriptively under CC BY-NC 4.0; the confirmatory set has not run yet. In the exploratory set, no free gridded source met the preregistered usability criterion (missed alerts ≤ 20%, false alarm ratio ≤ 30%, median signed lag ≤ 1 day, upper 95% CI of missed alerts < 30%) for any of the four rules. Gridded sources missed 25.2% to 34.5% of Rule 3-10 and Goidànich alerts and 31.7% to 61.9% of Mills events.
 
-A local station without the LWD sensor, using the `rh90_rain` estimator, met the criterion for revised Mills (16.9% missed, 95% CI 11.9 to 20.7; FAR 12.7%; F1 0.852). The same comparison does not apply to Rule 3-10 and Goidànich, because neither rule uses LWD, so the station input is identical to the reference. TOM-CAST failed even with the local station. A mean input deficit of -1.02 DSV per interval shifted the later spray resets, which produced 57.5% missed alerts and 50.0% FAR when the station ran on its own resets. Wet biases in ERA5 combined and NASA POWER raised TOM-CAST spray counts 2.1 to 4.1 times. Real 1-3 day forecasts (Open-Meteo Previous Runs, 2024-2025) did worse than the quasi-analysis archive, and the cost-loss value of Mills alerts fell to -0.06 at day 3.
+A local station without the LWD sensor, using the `rh90_rain` estimator, met the criterion for revised Mills (16.9% missed, 95% CI 11.9 to 20.7; FAR 12.7%; F1 0.852). The same comparison does not apply to Rule 3-10 and Goidànich, because neither rule uses LWD, so the station input is identical to the reference. TOM-CAST failed even with the local station. A mean input deficit of -1.02 DSV per interval shifted the later spray resets, which produced 57.5% missed alerts and 50.0% FAR when the station ran on its own resets. Wet biases in ERA5 combined and NASA POWER raised TOM-CAST spray counts 2.1 to 4.1 times. Forecasts 1 to 3 days ahead (Open-Meteo Previous Runs, 2024-2025) did worse than the quasi-analysis archive, and the cost-loss value of Mills alerts fell to -0.06 at day 3.
 
 In Santa Catarina, Brazil, 11 of the 24 INMET automatic stations were selected blindly under `v2-freeze-br`. INMET stations have no LWD sensor, so these results measure divergence between gridded sources and the station. For Mills, gridded sources left 37.6% to 59.2% of station events unmatched, with the lowest agreement at São Joaquim (1,400 m), the state's main apple-growing area. This divergence becomes an error estimate only if the European confirmatory set repeats the exploratory result. Against the same stations, gridded inputs raised TOM-CAST spray counts 1.8 to 2.5 times.
 
@@ -27,11 +27,11 @@ We also release a browser tool built on Pyodide. It runs the frozen rules on a g
 
 ## Resumo em português
 
-Dados meteorológicos gratuitos em grade, como reanálises e previsões arquivadas, costumam ser usados para alimentar alertas de doenças em propriedades sem estação ou sem sensor de molhamento foliar. O vitirule v2 mede quanto se pode confiar nesses alertas e onde eles falham. O protocolo foi pré-registrado e congelado nas tags `v2-freeze` e `v2-freeze-br`. Avaliamos quatro regras publicadas, escritas como funções puras em Python: a regra 3-10 e o calendário de incubação de Goidànich para o míldio da videira, a tabela de Mills revisada para a sarna da macieira e o TOM-CAST para a pinta-preta do tomateiro. O projeto não mede eficácia de controle no campo. Ele mede a confiabilidade da entrada meteorológica de um sistema de alerta.
+Dados meteorológicos gratuitos em grade, como reanálises e previsões arquivadas, costumam ser usados para alimentar alertas de doenças em propriedades sem estação ou sem sensor de molhamento foliar. O vitirule v2 mede quanto se pode confiar num alerta de doença calculado com dado meteorológico gratuito. O protocolo foi pré-registrado e congelado nas tags `v2-freeze` e `v2-freeze-br`. Avaliamos quatro regras publicadas, escritas como funções puras em Python: a regra 3-10 e o calendário de incubação de Goidànich para o míldio da videira, a tabela de Mills revisada para a sarna da macieira e o TOM-CAST para a pinta-preta do tomateiro. O projeto não mede eficácia de controle no campo. Ele mede a confiabilidade da entrada meteorológica de um sistema de alerta.
 
 Na Europa, a referência é a regra alimentada com os dados da própria estação, incluindo o sensor físico de molhamento. Os resultados vêm de um conjunto exploratório com quatro estações do INRAE na França, entre 2022 e 2025, mais duas estações do Politecnico di Torino, apresentadas só de forma descritiva. O conjunto confirmatório ainda não rodou, porque o portal do INRAE segue fora do ar. No conjunto exploratório, nenhuma fonte gratuita em grade passou no critério de uso pré-registrado em nenhuma das quatro regras. As grades perderam de 25,2% a 34,5% dos alertas da 3-10 e do Goidànich. Em Mills, perderam de 31,7% a 61,9% dos eventos.
 
-A estação local sem o sensor de molhamento passou no critério em Mills. Ela perdeu 16,9% dos eventos, com razão de alarmes falsos de 12,7% e F1 de 0,852. Na 3-10 e no Goidànich essa comparação não se aplica: as duas regras não usam molhamento, então a estação recebe exatamente a entrada da referência. O TOM-CAST falhou até com a estação local. Um viés pequeno, de -1,02 DSV por intervalo, desloca os zeramentos seguintes e leva a 57,5% de alertas perdidos quando a estação segue as próprias aplicações. Com o ERA5 combinado e o NASA POWER, o viés úmido multiplica as pulverizações de 2,1 a 4,1 vezes. Com previsões reais de 1 a 3 dias, o desempenho piora. O valor econômico dos alertas de Mills cai para -0,06 no terceiro dia.
+A estação local sem o sensor de molhamento passou no critério em Mills. Ela perdeu 16,9% dos eventos, com razão de alarmes falsos de 12,7% e F1 de 0,852. Na 3-10 e no Goidànich essa comparação não se aplica: as duas regras não usam molhamento, então a estação recebe exatamente a entrada da referência. O TOM-CAST falhou até com a estação local. Um viés pequeno, de -1,02 DSV por intervalo, desloca os zeramentos seguintes e leva a 57,5% de alertas perdidos quando a estação segue as próprias aplicações. Com o ERA5 combinado e o NASA POWER, o viés úmido multiplica as pulverizações de 2,1 a 4,1 vezes. Com previsões com 1 a 3 dias de antecedência, o desempenho piora. O valor econômico dos alertas de Mills cai para -0,06 no terceiro dia.
 
 Em Santa Catarina, 11 das 24 estações automáticas do INMET entraram por seleção às cegas, sob a tag `v2-freeze-br`. Essas estações não têm sensor de molhamento, então o resultado é a divergência entre a grade e a estação. Em Mills, as grades deixaram sem par de 37,6% a 59,2% dos eventos da estação. A pior concordância apareceu em São Joaquim, a 1.400 metros, principal polo de maçã do estado. Essa divergência só pode ser lida como erro da grade se o conjunto confirmatório europeu repetir o resultado exploratório. No TOM-CAST, as grades multiplicaram as pulverizações de 1,8 a 2,5 vezes em relação à estação.
 
@@ -43,9 +43,9 @@ O projeto entrega uma página que roda as regras congeladas no navegador, sobre 
 
 Plant disease warning rules turn hourly or daily weather into spray timing. Physical LWD sensors need maintenance and calibration, and many small farms have no weather station at all, so decision-support tools often replace station data with free gridded products such as ERA5, archived numerical forecasts or NASA POWER. This report asks one question:
 
-> **How much can a grower trust a disease alert calculated from free weather data, and where does it fail?**
+> **How far can a disease alert computed from free weather data be trusted?**
 
-The first version of this repository (`vitirule v1`, frozen at tag `v1.0`, with errata in `v1.0.2`) evaluated downy mildew spray rules inside an epidemic simulator. Version 2 drops the simulator and measures input fidelity directly against station data. The v1 grapevine protocol stays in the repository as Case Study 1.
+Case Study 1, the v1 protocol, at tag `v1.0.2`, evaluated downy mildew spray rules inside an epidemic simulator. Version 2 drops the simulator and measures input fidelity directly against station data.
 
 v2 does not measure field disease control, fungicide deposition or cultivar resistance. It measures how disease alerts change when the sensor-equipped station is replaced by the same station without its LWD sensor, or by free gridded weather.
 
@@ -80,7 +80,7 @@ The European reference is the on-site station with its physical LWD sensor. All 
 2. ERA5 combined: temperature and RH from ERA5-Land at 0.1°, with precipitation, wind and radiation from ERA5 at 0.25°, from the Open-Meteo archive (`models=era5_seamless`, CC BY 4.0);
 3. Open-Meteo Historical Forecast (`models=best_match`, CC BY 4.0), a quasi-analysis stitched from the most recent model runs;
 4. NASA POWER (MERRA-2, 0.5° × 0.625°), requested with `time-standard=UTC` and checked for `header.time_standard == "UTC"`;
-5. Open-Meteo Previous Runs, used only in secondary analysis B (2024-2025) for real forecasts 1, 2 and 3 days ahead.
+5. Open-Meteo Previous Runs, used only in secondary analysis B (2024-2025) for forecasts 1, 2 and 3 days ahead.
 
 LWD estimators live in `vitirule_v2/lwd.py`. The primary estimator is `rh90_rain` (RH ≥ 90% or rain > 0). The secondary estimators use published fixed parameters: `dpd_hysteresis` (Gillespie et al., 1993; wetness starts at a dew point depression ≤ 1.8 °C and ends at ≥ 3.8 °C) and `cart_kim2002` (Kim et al., 2002, with FAO-56 scaling of wind from 10 m to 2 m where needed).
 
@@ -155,10 +155,10 @@ The aggregates below derive from CC BY-NC 4.0 data (DOI `10.17632/sd4b8vpvyb.1`)
 ### 3.4 Secondary analyses
 
 1. **Other LWD estimators.** With `dpd_hysteresis` and `cart_kim2002`, the station without the LWD sensor still passed Mills (F1 0.840 and 0.846). No gridded source passed Mills or TOM-CAST (TOM-CAST FAR 74.3% to 81.3%).
-2. **Real forecasts.** Moving from Historical Forecast to real 1-3 day forecasts (Previous Runs, 2024-2025) raised missed alerts from 24.7% to 35.1%-36.4% for Rule 3-10, from 29.0% to 39.1% for Goidànich and from 30.2% to 38.0% for Mills. For Mills, FAR rose to 50.0% and $V(0.10)$ fell from +0.20 to -0.06 at day 3 (Figure 3).
+2. **Lead-time forecasts.** Moving from Historical Forecast to 1-3 day ahead forecasts (Previous Runs, 2024-2025) raised missed alerts from 24.7% to 35.1%-36.4% for Rule 3-10, from 29.0% to 39.1% for Goidànich and from 30.2% to 38.0% for Mills. For Mills, FAR rose to 50.0% and $V(0.10)$ fell from +0.20 to -0.06 at day 3 (Figure 3).
 3. **Long series, strict QC and daily-mean 3-10.** The 2019-2025 series without Historical Forecast, the `reject_24h` QC policy and Rule 3-10 with the daily mean all gave the same source ranking and the same usability verdicts.
 
-![Quasi-analysis vs real forecast degradation](figures/fig3_previous_runs_degradation.svg)
+![Quasi-analysis vs 1-3 day forecast lead-time degradation](figures/fig3_previous_runs_degradation.svg)
 
 ---
 
@@ -236,7 +236,7 @@ This diagnosis is exploratory under Section 9.3 of `v2-freeze-br`. Santa Catarin
 
 These points rest on the European exploratory set and on divergence in Santa Catarina. They need the European confirmatory set before they can be stated as findings.
 
-1. For these four rules, free gridded weather data should not drive spray decisions on their own. The main problems were rain placed in the wrong spot on 0.25° to 0.625° grids and a wet bias in humidity. Real 1-3 day forecasts did worse than the archive.
+1. For these four rules, free gridded weather data should not drive spray decisions on their own. The main problems were rain placed in the wrong spot on 0.25° to 0.625° grids and a wet bias in humidity. Forecasts 1 to 3 days ahead did worse than the archive.
 2. For revised Mills, a local station with temperature, humidity and rain, using `rh90_rain` in place of the LWD sensor, met the usability criterion in the European exploratory set.
 3. For Rule 3-10 and Goidànich, gridded data missed 25% to 35% of the station's alerts in Europe and left 20.5% to 29.5% unmatched in Santa Catarina. Whether a station represents the vineyard around it is outside what this study measures.
 4. For TOM-CAST, none of the three tested LWD estimators substituted for the physical sensor.
@@ -256,7 +256,7 @@ These points rest on the European exploratory set and on divergence in Santa Cat
 4. **Station-based reference for rules without LWD.** For Rule 3-10 and Goidànich the station is the reference, so the study cannot assess how well a station represents a nearby vineyard.
 5. **Stations are not crop fields.** The INRAE and Politecnico stations are not apple orchards or tomato fields, so the Mills and TOM-CAST results describe input fidelity, not local crop risk.
 6. **No LWD sensors in Santa Catarina yet.** Measuring grid error against physical sensors in southern Brazil depends on a data request to Epagri/Ciram. No Epagri/Ciram reader will be written until the files and their format arrive.
-7. **Case Study 1.** The v1 downy mildew protocol stays frozen at `v1.0`, with the analysis-by-analysis errata in `v1.0.2`.
+7. **Case Study 1.** Case Study 1, the v1 protocol, at tag `v1.0.2`, stays in the repository alongside this report.
 
 ---
 

@@ -4,16 +4,17 @@
 scripts/generate_report_figures.py
 ==================================
 Generates publication-ready, English-only vector SVG figures for
-`docs/technical_report.md` directly from frozen simulation outputs and
-reproduced semi-real timelines (no rule or parameter changes):
+`docs/technical_report.md` directly from audited clean-sample outputs
+(`data/v2_v102_errata_audit.json`) and reproduced sensor-driven timelines
+(no rule or parameter changes):
 
   1. docs/figures/fig1_semireal_pareto.svg
-     Semi-real INRAE sensor-truth Pareto frontier (2019-2024, N = 1,200)
-     showing fixed calendars, pooled rule means, and all 24 individual
+     Sensor-driven INRAE Pareto frontier (2019-2024, N = 950)
+     showing fixed calendars, pooled rule means, and all 19 clean
      station-year cohorts (marking interpolation [6-11] vs extrapolation).
   2. docs/figures/fig2_failure_timelines.svg
-     Diagnostic daily timelines of Champagne 2022 and Bordeaux 2021:
-     real sensor LWD, Open-Meteo LWD, station rainfall, simulated daily
+     Diagnostic daily timelines of Champagne 2022 and Champagne 2019:
+     measured sensor LWD, Open-Meteo LWD, station rainfall, simulated daily
      SEIR new infections (S -> E1), mean severity trajectories, and
      spray dates of `om_v1_T10` vs. reference fixed calendars.
   3. docs/figures/fig3a_econ_unconstrained.svg
@@ -51,13 +52,15 @@ FIG_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ---------------------------------------------------------------------------
-# Figure 1: Semi-real INRAE Pareto Frontier with 24 Cohorts
+# Figure 1: Sensor-Driven INRAE Pareto Frontier with 19 Clean Cohorts
 # ---------------------------------------------------------------------------
 def build_fig1_semireal_pareto() -> Path:
-    raw = json.loads((ROOT / "data" / "fase2" / "semireal_inrae_osse.json").read_text(encoding="utf-8"))
-    sr = raw["inrae_semireal_sensor_truth"]
+    raw = json.loads((ROOT / "data" / "v2_v102_errata_audit.json").read_text(encoding="utf-8"))
+    sr = raw["semireal"]["inrae_semireal"]
     pooled = sr["pooled"]
     cohorts = sr["cohorts"]
+    n_cohorts = len(cohorts)
+    n_total = sr["total_plot_seasons"]
 
     cals = sorted(pooled["calendars"], key=lambda c: c["sprays_mean"])
     rules = {r["strategy"]: r for r in pooled["rules"]}
@@ -67,7 +70,7 @@ def build_fig1_semireal_pareto() -> Path:
     pw, ph = W - ml - mr, H - mt - mb
 
     xmin, xmax = 1.8, 12.5
-    ymin, ymax = 0.0, 450.0
+    ymin, ymax = 0.0, 260.0
 
     def sx(v: float) -> float:
         return ml + (v - xmin) / (xmax - xmin) * pw
@@ -81,6 +84,10 @@ def build_fig1_semireal_pareto() -> Path:
         "Champagne": "#d97706",
         "Bourgogne": "#7c3aed",
     }
+    reg_counts: dict[str, int] = {}
+    for c in cohorts:
+        reg_short = c["name"].split(" ")[0]
+        reg_counts[reg_short] = reg_counts.get(reg_short, 0) + 1
 
     elems = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" style="font-family:Segoe UI,Arial,sans-serif;background:#ffffff">',
@@ -92,13 +99,13 @@ def build_fig1_semireal_pareto() -> Path:
         f'<text x="{(sx(xmin)+sx(6.0))/2:.1f}" y="{mt+15}" text-anchor="middle" font-size="9.5" fill="#6b7280">Extrapolation (&lt;6 sprays)</text>',
         f'<text x="{(sx(6.0)+sx(11.0))/2:.1f}" y="{mt+15}" text-anchor="middle" font-size="9.5" fill="#4b5563">Fixed-calendar range (6–11 sprays)</text>',
         # Title & axes labels
-        f'<text x="{ml+pw/2:.1f}" y="25" text-anchor="middle" font-size="13.5" font-weight="600" fill="#0f172a">Semi-Real INRAE Sensor OSSE (2019–2024, N = 1,200; 24 Cohorts)</text>',
+        f'<text x="{ml+pw/2:.1f}" y="25" text-anchor="middle" font-size="13.5" font-weight="600" fill="#0f172a">Sensor-Driven INRAE OSSE (2019–2024, N = {n_total}; {n_cohorts} Cohorts)</text>',
         f'<text x="{ml+pw/2:.1f}" y="{H-14}" text-anchor="middle" font-size="11.5" fill="#1f2937">Mean fungicide applications per season</text>',
         f'<text x="20" y="{mt+ph/2:.1f}" text-anchor="middle" font-size="11.5" fill="#1f2937" transform="rotate(-90 20 {mt+ph/2:.1f})">Mean foliar AUDPC (% × day)</text>',
     ]
 
     # Grid & ticks
-    for yv in range(0, 451, 50):
+    for yv in range(0, 261, 50):
         yy = sy(yv)
         elems.append(f'<line x1="{ml}" y1="{yy:.1f}" x2="{ml+pw}" y2="{yy:.1f}" stroke="#e5e7eb" stroke-width="0.8"/>')
         elems.append(f'<text x="{ml-8}" y="{yy+3.5:.1f}" text-anchor="end" font-size="9.5" fill="#4b5563">{yv}</text>')
@@ -110,26 +117,29 @@ def build_fig1_semireal_pareto() -> Path:
     # Plot frame
     elems.append(f'<rect x="{ml}" y="{mt}" width="{pw}" height="{ph}" fill="none" stroke="#9ca3af" stroke-width="1"/>')
 
-    # 24 individual cohorts for om_v1_T10
+    # 19 individual cohorts for om_v1_T10
     for c in cohorts:
         r = {x["strategy"]: x for x in c["summary"]["rules"]}["om_v1_T10"]
         reg_short = c["name"].split(" ")[0]
         col = reg_colors.get(reg_short, "#64748b")
         cx, cy = sx(r["sprays_mean"]), sy(r["aacpd_mean"])
-        is_fail = (reg_short == "Champagne" and c["year"] == 2022) or (reg_short == "Bordeaux" and c["year"] == 2021)
+        is_fail = (reg_short == "Champagne" and c["year"] in (2022, 2019))
         if is_fail:
             elems.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="5.2" fill="#dc2626" fill-opacity="0.88" stroke="#7f1d1d" stroke-width="1.3"/>')
             lbl = f"{reg_short} {c['year']} ({r['sprays_mean']:.1f}, {r['aacpd_mean']:.0f})"
-            lx_off = cx + 8 if reg_short == "Champagne" else cx - 8
-            anchor = "start" if reg_short == "Champagne" else "end"
-            elems.append(f'<text x="{lx_off:.1f}" y="{cy+3.5:.1f}" text-anchor="{anchor}" font-size="9.5" font-weight="600" fill="#b91c1c">{lbl}</text>')
+            if c["year"] == 2022:
+                lx_off, ly_off, anchor = cx + 8, cy + 3.5, "start"
+            else:
+                lx_off, ly_off, anchor = cx - 8, cy + 16.0, "end"
+                elems.append(f'<line x1="{cx:.1f}" y1="{cy:.1f}" x2="{lx_off+2:.1f}" y2="{ly_off-3:.1f}" stroke="#b91c1c" stroke-width="0.7" opacity="0.7"/>')
+            elems.append(f'<text x="{lx_off:.1f}" y="{ly_off:.1f}" text-anchor="{anchor}" font-size="9.5" font-weight="600" fill="#b91c1c">{lbl}</text>')
         else:
             elems.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="3.8" fill="{col}" fill-opacity="0.45" stroke="{col}" stroke-width="1"/>')
 
     # Pooled fixed calendar frontier
     cal_pts = " ".join(f"{sx(c['sprays_mean']):.1f},{sy(c['aacpd_mean']):.1f}" for c in cals)
     elems.append(f'<polyline points="{cal_pts}" fill="none" stroke="#111827" stroke-width="2.4"/>')
-    cal_label_offsets = {"cal_14d": (0, -10), "cal_12d": (0, -10), "cal_10d": (6, -9), "cal_7d": (0, -10)}
+    cal_label_offsets = {"cal_14d": (-4, -10), "cal_12d": (4, -10), "cal_10d": (6, -9), "cal_7d": (0, -10)}
     for c in cals:
         cx, cy = sx(c["sprays_mean"]), sy(c["aacpd_mean"])
         dx, dy = cal_label_offsets.get(c["strategy"], (0, -9))
@@ -159,12 +169,13 @@ def build_fig1_semireal_pareto() -> Path:
 
     # Zoom callout annotations for pooled points
     r_v1 = rules["om_v1_T10"]
-    elems.append(f'<text x="{sx(r_v1["sprays_mean"])+10:.1f}" y="{sy(r_v1["aacpd_mean"])+22:.1f}" font-size="9.2" font-weight="600" fill="#047857">om_v1: −19.0 vs. frontier</text>')
+    delta_v1 = r_v1["delta_vs_calendar_frontier"]
+    elems.append(f'<text x="{sx(r_v1["sprays_mean"])+10:.1f}" y="{sy(r_v1["aacpd_mean"])+26:.1f}" font-size="9.2" font-weight="600" fill="#047857">om_v1: {delta_v1:+.1f} vs. frontier</text>')
 
     # Legend (right panel, plenty of room, zero clipping)
     lx, ly = ml + pw + 14, mt + 6
     elems.append(f'<rect x="{lx-6}" y="{ly-6}" width="182" height="278" rx="4" fill="#fafafa" stroke="#e5e7eb"/>')
-    elems.append(f'<text x="{lx}" y="{ly+10}" font-size="10.5" font-weight="700" fill="#0f172a">Pooled Means (N = 1,200)</text>')
+    elems.append(f'<text x="{lx}" y="{ly+10}" font-size="10.5" font-weight="700" fill="#0f172a">Pooled Means (N = {n_total})</text>')
 
     # Calendar line legend
     yy = ly + 28
@@ -188,14 +199,14 @@ def build_fig1_semireal_pareto() -> Path:
 
     yy = ly + 122
     elems.append(f'<line x1="{lx}" y1="{yy-10}" x2="{lx+170}" y2="{yy-10}" stroke="#e5e7eb"/>')
-    elems.append(f'<text x="{lx}" y="{yy+4}" font-size="10.5" font-weight="700" fill="#0f172a">24 Cohorts (om_v1_T10)</text>')
+    elems.append(f'<text x="{lx}" y="{yy+4}" font-size="10.5" font-weight="700" fill="#0f172a">{n_cohorts} Cohorts (om_v1_T10)</text>')
     for idx, (reg, col) in enumerate(reg_colors.items()):
         ry = yy + 22 + idx * 18
         elems.append(f'<circle cx="{lx+9}" cy="{ry-3}" r="3.8" fill="{col}" fill-opacity="0.55" stroke="{col}"/>')
-        elems.append(f'<text x="{lx+24}" y="{ry}" font-size="9.3" fill="#374151">{reg} (6 yrs)</text>')
+        elems.append(f'<text x="{lx+24}" y="{ry}" font-size="9.3" fill="#374151">{reg} ({reg_counts.get(reg, 0)} yrs)</text>')
     ry = yy + 22 + 4 * 18 + 2
     elems.append(f'<circle cx="{lx+9}" cy="{ry-3}" r="4.6" fill="#dc2626" stroke="#7f1d1d"/>')
-    elems.append(f'<text x="{lx+24}" y="{ry}" font-size="9.3" font-weight="600" fill="#b91c1c">Highlighted failure cases</text>')
+    elems.append(f'<text x="{lx+24}" y="{ry}" font-size="9.3" font-weight="600" fill="#b91c1c">Worst tail-risk cohorts</text>')
 
     elems.append("</svg>")
     out = FIG_DIR / "fig1_semireal_pareto.svg"
@@ -448,23 +459,34 @@ def build_fig2_failure_timelines(recompute: bool = False) -> tuple[Path, dict]:
     summary_path = FIG_DIR / "failure_timelines_summary.json"
     if not recompute and summary_path.is_file():
         cached = json.loads(summary_path.read_text(encoding="utf-8"))
-        ch, bd = cached["champagne_2022"], cached["bordeaux_2021"]
-    else:
-        ch = _extract_cohort_timeline("Champagne", 2022, ref_cal_interval=14)
-        bd = _extract_cohort_timeline("Bordeaux", 2021, ref_cal_interval=10)
-        summary_path.write_text(json.dumps({"champagne_2022": ch, "bordeaux_2021": bd}, indent=2), encoding="utf-8")
+        if "champagne_2022" in cached and "champagne_2019" in cached:
+            ch22, ch19 = cached["champagne_2022"], cached["champagne_2019"]
+        else:
+            recompute = True
+    if recompute or not summary_path.is_file():
+        ch22 = _extract_cohort_timeline("Champagne", 2022, ref_cal_interval=14)
+        ch19 = _extract_cohort_timeline("Champagne", 2019, ref_cal_interval=14)
+        summary_path.write_text(json.dumps({"champagne_2022": ch22, "champagne_2019": ch19}, indent=2), encoding="utf-8")
 
     W, H = 780, 658
     ml, mr = 64, 58
     pw = W - ml - mr
     elems = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" style="font-family:Segoe UI,Arial,sans-serif;background:#ffffff">',
-        f'<text x="{W/2:.1f}" y="22" text-anchor="middle" font-size="13.5" font-weight="700" fill="#0f172a">Daily Diagnostic Timelines of Tail-Risk Failure Cohorts (Real INRAE Sensor Truth)</text>',
+        f'<text x="{W/2:.1f}" y="22" text-anchor="middle" font-size="13.5" font-weight="700" fill="#0f172a">Daily Diagnostic Timelines of Tail-Risk Failure Cohorts (Measured INRAE Sensor Truth)</text>',
     ]
 
     panels = [
-        ("A. Champagne (Fagnières, 2022) — om_v1_T10 (4.0 sp, AUDPC 213.3) vs. cal_14d (6.0 sp, AUDPC 178.9)", ch, 40),
-        ("B. Bordeaux (Couhins, 2021) — om_v1_T10 (8.3 sp, AUDPC 413.2) vs. cal_10d (8.0 sp, AUDPC 365.7)", bd, 332),
+        (
+            f"A. Champagne (Fagnières, 2022): om_v1_T10 ({ch22['om_sprays_mean']:.1f} sp, AUDPC {ch22['om_aacpd_mean']:.1f}) vs. cal_14d (6.0 sp, AUDPC {ch22['cal_aacpd_mean']:.1f})",
+            ch22,
+            40,
+        ),
+        (
+            f"B. Champagne (Fagnières, 2019): om_v1_T10 ({ch19['om_sprays_mean']:.2f} sp, AUDPC {ch19['om_aacpd_mean']:.1f}) vs. cal_14d (6.0 sp, AUDPC {ch19['cal_aacpd_mean']:.1f})",
+            ch19,
+            332,
+        ),
     ]
 
     tick_days = [(0, "May 1"), (14, "May 15"), (31, "Jun 1"), (45, "Jun 15"), (61, "Jul 1"), (75, "Jul 15")]
@@ -597,7 +619,7 @@ def build_fig2_failure_timelines(recompute: bool = False) -> tuple[Path, dict]:
     elems.append("</svg>")
     out = FIG_DIR / "fig2_failure_timelines.svg"
     out.write_text("\n".join(elems), encoding="utf-8")
-    return out, {"champagne_2022": ch, "bordeaux_2021": bd}
+    return out, {"champagne_2022": ch22, "champagne_2019": ch19}
 
 
 # ---------------------------------------------------------------------------
@@ -625,10 +647,10 @@ def _write_english_econ_svg(sens: dict, title: str, subtitle: str, out_path: Pat
         "cal_10d": "cal_10d (8.0 sp)",
         "cal_12d": "cal_12d (7.0 sp)",
         "cal_14d": "cal_14d (6.0 sp)",
-        "om_v1_T10": "om_v1_T10 (6.8 sp)",
-        "om_v2_T10": "om_v2_T10 (5.5 sp)",
-        "st_v1_T10": "st_v1_T10 (6.4 sp)",
-        "st_v2_T10": "st_v2_T10 (5.4 sp)",
+        "om_v1_T10": "om_v1_T10 (6.2 sp)",
+        "om_v2_T10": "om_v2_T10 (5.2 sp)",
+        "st_v1_T10": "st_v1_T10 (6.0 sp)",
+        "st_v2_T10": "st_v2_T10 (5.2 sp)",
     }
 
     W, H = 560, 390
@@ -673,15 +695,16 @@ def _write_english_econ_svg(sens: dict, title: str, subtitle: str, out_path: Pat
 
 
 def build_fig3_economics() -> tuple[Path, Path]:
-    eco = json.loads((ROOT / "data" / "fase2" / "economics_semireal_inrae.json").read_text(encoding="utf-8"))
+    raw = json.loads((ROOT / "data" / "v2_v102_errata_audit.json").read_text(encoding="utf-8"))
+    eco = raw["semireal"]["economics_pooled"]
     p1 = _write_english_econ_svg(
-        eco["sensitivity_unconstrained"],
+        eco["unconstrained"],
         "(a) Unconstrained Net Return (€/ha)",
         "No copper cap; spray cost €55/ha",
         FIG_DIR / "fig3a_econ_unconstrained.svg",
     )
     p2 = _write_english_econ_svg(
-        eco["sensitivity_eu_copper_2018_1981"],
+        eco["eu_copper_050"],
         "(b) EU 2018/1981 Copper-Compliant Net Return",
         "Pooled ≤ 28 kg Cu/ha over 7 yr at 0.50 kg Cu/ha/spray",
         FIG_DIR / "fig3b_econ_eu_copper.svg",

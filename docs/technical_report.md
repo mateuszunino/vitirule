@@ -4,19 +4,18 @@
 **Repository:** [`vitirule`](https://github.com/mateuszunino/vitirule)  
 **Date:** November 2026  
 **Frozen Checkpoints:** Git commits `668573a`, `7ac0332`, `f74010d`, `54084a6`  
-**Errata (`v1.0.2`):** Automated sensor quality control identified stuck leaf-wetness sensors in Bordeaux-Couhins during July 2021 and July 2023 and zero-filled rain-gauge outages in selected cohorts. `v1.0.2` supersedes `v1.0.1` with an analysis-by-analysis forensic audit (Section 6).
 
 ---
 
 ## Abstract
 
-Weather-driven decision support systems (DSS) for grapevine downy mildew (*Plasmopara viticola*) are widely used in Europe, yet evaluations combining equal-budget ablations, frozen out-of-sample thresholds, physical wetness-sensor checks, and per-cohort tail-risk analysis are not always reported. We present an open, reproducible evaluation protocol pairing a misspecified hourly SEIR simulator (four-stage Müller–Sleumer/Goidànich incubation, rain wash-off, and autocorrelated 7-day forecast errors) with frozen out-of-sample validation across disjoint years (2016–2025), empirical benchmarking of four leaf wetness duration (LWD) estimators against 80,392 real sensor hours (INRAE AgroClim and Politecnico di Torino), and economic sensitivity analysis under Commission Implementing Regulation (EU) 2018/1981 (28 kg Cu/ha over 7 years).
+Weather-driven decision support systems (DSS) for grapevine downy mildew (*Plasmopara viticola*) are widely used in Europe, yet evaluations combining equal-budget ablations, frozen out-of-sample thresholds, physical wetness-sensor checks, and per-cohort tail-risk analysis are not always reported. We present an open, reproducible evaluation protocol pairing a misspecified hourly SEIR simulator (four-stage Müller–Sleumer/Goidànich incubation, rain wash-off, and autocorrelated 7-day forecast errors) with frozen out-of-sample validation across disjoint years (2016–2025), empirical benchmarking of four leaf wetness duration (LWD) estimators against 58,615 clean sensor hours (INRAE AgroClim and Politecnico di Torino), and economic sensitivity analysis under Commission Implementing Regulation (EU) 2018/1981 (28 kg Cu/ha over 7 years).
 
-There are four findings. First, in a frozen ablation (N = 360, 2022–2024), Bayesian foliar-severity assimilation added no benefit over an identical weather-forecast and wash-off rule (Δ AUDPC = +0.99, 95% CI [−1.81, +3.91], p = 0.462). Second, all four LWD estimators tied under Open-Meteo reanalysis (MAE 3.82–4.30 h/day), whereas switching from station weather to reanalysis added 1.21–1.48 h/day of error (+1.6 h/day wet bias). Third, driving the SEIR truth with real INRAE sensors (N = 1,200) shrank pooled Pareto gains from −101.6 to −18.95 AUDPC (−13.5%, p < 10⁻⁶); within individual seasons, the rule tied the calendar frontier (interpolated 6–11 spray cohorts: mean +1.01, median −0.33), showing that pooled gains come from inter-annual campaign sizing (r = 0.595, p = 0.0022), alongside severe failures in Champagne 2022 and Bordeaux 2021. Fourth, economic dominance and copper compliance depend jointly on revenue, assumed damage slope, and copper dose.
+There are four findings. First, in a frozen ablation (N = 360, 2022–2024), Bayesian foliar-severity assimilation added no benefit over an identical weather-forecast and wash-off rule (Δ AUDPC = +0.99, 95% CI [−1.81, +3.91], p = 0.462). Second, all four LWD estimators tied under Open-Meteo reanalysis (MAE 3.61–4.28 h/day), whereas switching from station weather to reanalysis added more than 1.2 h/day of error in six of eight network-estimator pairs (+1.21 to +1.46 h/day, with +1.96 h/day wet bias across May–August INRAE hours). Third, driving the SEIR truth with measured INRAE sensors (19 clean cohorts, N = 950) shrank pooled Pareto gains from −101.6 to −11.59 AUDPC (−10.4%, p < 10⁻⁶); within individual seasons, the rule sat close to the calendar frontier (interpolated 6–11 spray cohorts: mean −2.09, median −0.33, 4/7 below), showing that pooled gains come from inter-annual campaign sizing (r = 0.479, p = 0.038), alongside tail-risk failures in Champagne 2022 and Champagne 2019. Fourth, economic dominance and copper compliance depend jointly on revenue, assumed damage slope, and copper dose.
 
 ### Resumo (Português)
 
-Este relatório descreve um protocolo aberto e reprodutível para avaliar regras agrometeorológicas preventivas contra o míldio da videira (*Plasmopara viticola*). Não é um novo sistema operacional para concorrer com o VitiMeteo ou o RIMpro. São quatro os resultados. Primeiro, numa ablação fora da amostra congelada em commit (N = 360), a assimilação bayesiana da severidade foliar não trouxe ganho sobre a regra preventiva com previsão de 7 dias e lavagem por chuva (Δ AACPD = +0,99; p = 0,462). Segundo, comparados com 80.392 horas de sensores reais de molhamento foliar do INRAE AgroClim e do Politecnico di Torino, os quatro estimadores empataram na reanálise Open-Meteo, com MAE de 3,82 a 4,30 h/d. O erro dependeu sobretudo da fonte do dado climático, que acrescentou de 1,21 a 1,48 h/d. Terceiro, num OSSE semirreal movido pelo sensor do INRAE (N = 1.200), o ganho agregado caiu para −18,95 de AACPD (−13,5%). Esse ganho vem de ajustar o tamanho da campanha de um ano para outro (r = 0,595), não de acertar melhor o momento das aplicações dentro de uma safra. Houve falhas graves em Champagne 2022 e Bordeaux 2021. Quarto, sob o Regulamento (UE) 2018/1981, que limita o cobre a 28 kg Cu/ha em 7 anos, a viabilidade econômica e legal depende ao mesmo tempo da receita, da inclinação suposta do dano e da dose de cobre por aplicação.
+Este relatório descreve um protocolo aberto e reprodutível para avaliar regras agrometeorológicas preventivas contra o míldio da videira (*Plasmopara viticola*). Não é um novo sistema operacional para concorrer com o VitiMeteo ou o RIMpro. São quatro os resultados. Primeiro, numa ablação fora da amostra congelada em commit (N = 360), a assimilação bayesiana da severidade foliar não trouxe ganho sobre a regra preventiva com previsão de 7 dias e lavagem por chuva (Δ AACPD = +0,99; p = 0,462). Segundo, comparados com 58.615 horas limpas de sensores físicos de molhamento foliar do INRAE AgroClim e do Politecnico di Torino, os quatro estimadores empataram na reanálise Open-Meteo, com MAE de 3,61 a 4,28 h/d. O erro dependeu sobretudo da fonte do dado climático, que acrescentou mais de 1,2 h/d em seis dos oito pares de rede e estimador. Terceiro, num OSSE movido pelo sensor do INRAE (19 coortes, N = 950), o ganho agregado caiu para −11,59 de AACPD (−10,4%). Esse ganho vem de ajustar o tamanho da campanha de um ano para outro (r = 0,479; p = 0,038), não de acertar melhor o momento das aplicações dentro de uma safra. As piores coortes foram Champagne 2022 e Champagne 2019. Quarto, sob o Regulamento (UE) 2018/1981, que limita o cobre a 28 kg Cu/ha em 7 anos, a viabilidade econômica e legal depende ao mesmo tempo da receita, da inclinação suposta do dano e da dose de cobre por aplicação.
 
 ---
 
@@ -48,9 +47,9 @@ To prevent post-hoc threshold tuning across weather years, every decision rule o
 | Four-arm ablation | 2022–2024 | Moselle (LU), Bordeaux (FR) | 360 (60 × 2 × 3) | Out-of-sample test of severity assimilation (`d` vs. `c`) | `668573a` |
 | Pareto operating-point selection | 2022–2024 | Moselle (LU), Bordeaux (FR) | 360 (60 × 2 × 3) | Threshold selection ($T = 10.0$) on calendar frontier | `7ac0332` |
 | Out-of-sample Pareto validation #1 | 2019–2021 | Moselle, Bordeaux, Alsace (new) | 540 (60 × 3 × 3) | Unseen temporal & spatial test (`cart_kim2002`) | `7ac0332` |
-| LWD empirical sensor validation | 2022–2024 | 4 INRAE FR vineyards; 7 Polito IT sites | 80,392 real hours | Benchmark of 4 LWD models (station vs. Open-Meteo) | `f74010d` |
+| LWD empirical sensor validation | 2022–2024 | INRAE FR vineyards (8 station-years); 6 clean Polito IT sites | 58,615 clean sensor hours | Benchmark of 4 LWD models (station vs. Open-Meteo) | `f74010d` |
 | Out-of-sample Pareto validation #2 | 2016–2018 | Moselle, Bordeaux, Alsace | 540 (60 × 3 × 3) | Untouched years with `rh90_hysteresis` | `f74010d` |
-| Semi-real sensor OSSE | 2019–2024 (split 19–21 / 22–24) | 4 INRAE stations (Bordeaux, Alsace, Champagne, Bourgogne) | 1,200 (50 × 4 × 6) | Robustness under real measured LWD sensor truth (no rule edits) | `54084a6` |
+| Sensor-driven OSSE | 2019–2024 (split 19–21 / 22–24) | 4 INRAE stations (19 clean cohorts) | 950 (50 × 19) | Evaluation under measured LWD sensor truth (no rule edits) | `54084a6` |
 | Calibrated-error Moselle test | 2016–2018 | Moselle (LU) | 180 (60 × 1 × 3) | Sensor-less region with empirical AR(1) LWD error | `54084a6` |
 
 ### 2.2 Misspecified Mechanistic SEIR Ground-Truth Generator
@@ -61,9 +60,9 @@ To avoid the *inverse crime* of generating epidemics with the same logistic/Gomp
 2. **Parameter misspecification and decoupling:** Plot-level parameters were sampled independently per plot to break alignment with rule and assimilation defaults: maximum infection rate $\beta_{\max} \sim 0.055 \cdot \exp(\mathcal{N}(0, 0.25^2))$, initial latent inoculum $E_1(0) \sim \text{clip}(0.0025 \cdot \exp(\mathcal{N}(0, 0.45^2)), 0.0004, 0.018)$, shifted thermal cardinals ($\Delta T_{\min} \sim \mathcal{N}(0, 1.2^2)$, $\Delta T_{\text{opt}} \sim \mathcal{N}(0, 1.5^2)$ °C), true protectant efficacy $E_{\text{true}} \sim \text{clip}(\mathcal{N}(0.76, 0.08^2), 0.55, 0.92)$ (vs. 0.60 in assimilation), and half-life $t_{1/2,\text{true}} \sim \text{clip}(\mathcal{N}(5.5, 1.2^2), 3.5, 9.0)$ days (vs. 7.0 days).
 3. **Rain wash-off (decoupled from decision rules):** Cumulative rainfall $R_{\text{since}}$ since the last spray washes off active protection via $P(t) = E_{\text{true}} \cdot 0.5^{\Delta t / t_{1/2,\text{true}}} \cdot 0.5^{R_{\text{since}} / W_{\text{true}}}$, where $W_{\text{true}} \sim \text{clip}(\mathcal{N}(25, 8^2), 12, 48)$ mm. This is decoupled from the fixed 15 mm wash-off override in `v1` and the 30 mm residual gate in `v2`.
 4. **Autocorrelated 7-day forecast error:** Every 3-day decision step received a 168-hour forecast perturbed with AR(1) errors ($\phi = 0.85$) whose standard deviation grew linearly with lead time (0.5 to 2.5 °C in temperature, 3 to 12% in relative humidity, and 20% lognormal wind noise). All arms evaluated on the same plot saw identical perturbed forecasts.
-5. **Canopy wetness truth:** In purely simulated OSSEs (2022–2024, 2019–2021, 2016–2018), canopy wetness applied microclimatic dew-point depression shifts ($\mathcal{N}(-0.35, 0.40^2)$ °C) and wind shelter ($\mathcal{N}(0.65, 0.12^2)$) to reanalysis. In the **semi-real INRAE OSSE** (`semireal_osse.py`), true temperature, rainfall, and hourly leaf wetness $h \in [0, 1]$ came **directly from the INRAE field station and its physical LWD sensor**. For sensor-less Moselle (2016–2018), an empirical AR(1) wetness-error generator calibrated to INRAE Open-Meteo residuals replaced the microclimate perturbation.
+5. **Canopy wetness truth:** In purely simulated OSSEs (2022–2024, 2019–2021, 2016–2018), canopy wetness applied microclimatic dew-point depression shifts ($\mathcal{N}(-0.35, 0.40^2)$ °C) and wind shelter ($\mathcal{N}(0.65, 0.12^2)$) to reanalysis. In the **sensor-driven INRAE OSSE** (`semireal_osse.py`), true temperature, rainfall, and hourly leaf wetness $h \in [0, 1]$ came **directly from the INRAE field station and its physical LWD sensor**. For sensor-less Moselle (2016–2018), an empirical AR(1) wetness-error generator calibrated to INRAE Open-Meteo residuals replaced the microclimate perturbation.
 
-### 2.3 Leaf Wetness Estimators and Real-Sensor Validation
+### 2.3 Leaf Wetness Estimators and Physical-Sensor Validation
 
 Four hourly LWD estimators were implemented in `leaf_wetness.py` (all treating rainfall $\ge 0.1\text{ mm/h}$ as wet):
 1. **`rh85`**: simple relative-humidity threshold $\text{RH} \ge 85\%$;
@@ -72,8 +71,10 @@ Four hourly LWD estimators were implemented in `leaf_wetness.py` (all treating r
 4. **`cart_kim2002`** (Kim et al., 2002): four-category CART/SLD model using $T$, $\text{RH}$, $\text{DPD}$, and canopy-adjusted wind speed (FAO-56 scaling from 10 m Open-Meteo wind to 2 m).
 
 Validation (`lwd_sensor_validation.py`) used two independent open field networks during April–September:
-* **INRAE AgroClim** (Furusho-Percot et al., 2025; dataset DOI 10.57745/BQ0BWB): four French vineyard stations (Bordeaux-Couhins 33080002, Alsace-Colmar 68066002, Champagne-Fagnières 51242002 and Bourgogne-Bretenière 21106002), yielding 52,675 valid hourly observations (2022–2024), binarized at hourly sensor duration $h \ge 0.5$.
-* **Politecnico di Torino / iXem Labs** (Colucci et al., 2025; DOI 10.17632/sd4b8vpvyb.1): seven Italian sites with capacitive sensors (27,717 total hours; 23,735 hours across six clean sites after flagging `site2.csv`, which showed 99.9% non-zero readings consistent with sensor drift), binarized at `leaf_top >= 20`.
+* **INRAE AgroClim** (Furusho-Percot et al., 2025; dataset DOI 10.57745/BQ0BWB): French vineyard stations (Bordeaux-Couhins 33080002, Alsace-Colmar 68066002, Champagne-Fagnières 51242002 and Bourgogne-Bretenière 21106002), yielding 34,880 clean hourly observations across 8 passing station-years (2022–2024), binarized at hourly sensor duration $h \ge 0.5$.
+* **Politecnico di Torino / iXem Labs** (Colucci et al., 2025; DOI 10.17632/sd4b8vpvyb.1): seven Italian sites with capacitive sensors (23,735 clean hours across six sites after excluding `site2.csv`, which showed 99.9% non-zero readings consistent with sensor drift), binarized at `leaf_top >= 20`.
+
+Station-seasons with sensor faults detected by automated quality control (Bordeaux-Couhins in 2021 and 2023, where the leaf-wetness sensor stuck wet) were excluded, as were seasons in which the rain gauge failed inside the simulated window (Bordeaux 2022, Alsace 2024, and Bourgogne 2021 in the May 1–July 16 OSSE window; Bordeaux 2022, Bordeaux 2024, and Alsace 2024 in the April–September LWD benchmark). In total, 19 clean INRAE station-years entered the sensor-driven OSSE (N = 950 plot-seasons), 22 entered the May–August empirical reanalysis error estimate (64,663 hours), and 8 entered the April–September LWD benchmark (34,880 hours, totaling 58,615 clean sensor hours together with Politecnico di Torino).
 
 Each estimator was evaluated twice on identical timestamps: **(A) on-station measured meteorology** and **(B) Open-Meteo Archive ERA5 reanalysis** at the exact coordinates. The difference (B) − (A) isolates the reanalysis error penalty.
 
@@ -94,7 +95,7 @@ $$L(\text{AUDPC}) = L_{\max}\left(1 - e^{-k \cdot \text{AUDPC}}\right), \qquad \
 
 Here, both $L_{\max} = 0.85$ and the slope range $k \in [0.0002, 0.0015]$ per AUDPC unit are **assumed values** rather than literature-derived or field-calibrated parameters, with spray cost $C_{\text{spray}} = 55\text{ €/ha}$. Rather than trusting a single assumed slope, we swept a 126-cell sensitivity surface across $k \in [0.0002, 0.0015]$ and disease-free gross revenue $G \in [3{,}000;\, 30{,}000]\text{ €/ha}$.
 
-Regulatory compliance under **Commission Implementing Regulation (EU) 2018/1981** was modeled as the actual **7-year cumulative cap ($\le 28\text{ kg Cu/ha}$ over 7 years)**, scaling each INRAE station's 6-year empirical spray total (2019–2024) by 7/6 across four sensitivity doses per application: 0.30, 0.40, 0.50, and 0.60 kg Cu/ha/spray.
+Regulatory compliance under **Commission Implementing Regulation (EU) 2018/1981** was modeled as the actual **7-year cumulative cap ($\le 28\text{ kg Cu/ha}$ over 7 years)**, scaling each INRAE station's empirical annual spray mean across clean years by 7 across four sensitivity doses per application: 0.30, 0.40, 0.50, and 0.60 kg Cu/ha/spray.
 
 ---
 
@@ -123,75 +124,71 @@ In the frozen out-of-sample ablation across Moselle and Bordeaux (2022–2024, N
 
 Biologically, protectant fungicides block *new* infections entering $E_1$, not already-incubating latent lesions. Because visible symptoms lag infection by the 4–13 day incubation period, severity-derived triggers acted too late in intermittent years (in 2022, `(c)` beat `(d)` by 14.6 to 18.4 AUDPC) and offered only minor adjustments in wet years, canceling out to a statistical tie (p = 0.462). Even without field video-segmentation errors, severity assimilation did not justify its monitoring overhead.
 
-### 3.2 Real-Sensor LWD Validation: Estimators Tie on Reanalysis; Data Source Dominates Error
+### 3.2 Physical-Sensor LWD Validation: Estimators Tie on Reanalysis; Data Source Dominates Error
 
-Validation across 80,392 real hourly sensor observations (Table 3) overturned our initial choice of `cart_kim2002` and identified meteorological input quality as the dominant error source.
+Validation across 58,615 clean hourly sensor observations (Table 3) overturned our initial choice of `cart_kim2002` and identified meteorological input quality as the dominant error source.
 
-**Table 3.** Hourly LWD estimator performance against real sensors in French (INRAE AgroClim, 2022–2024 Apr–Sep) and Italian (Politecnico di Torino, Apr–Sep) networks, driven by on-station weather vs. Open-Meteo ERA5 reanalysis at the identical coordinates.
+**Table 3.** Hourly LWD estimator performance against physical sensors in French (INRAE AgroClim, 2022–2024 Apr–Sep, 8 clean station-years) and Italian (Politecnico di Torino, Apr–Sep, 6 clean sites) networks, driven by on-station weather vs. Open-Meteo ERA5 reanalysis at the identical coordinates.
 
 | Network (N hours) | Estimator | Station: Acc / F1 / CSI / MAE (h/d) / Bias | Open-Meteo: Acc / F1 / CSI / MAE (h/d) / Bias | Reanalysis Penalty (Δ MAE) |
 |---|---|---|---|---:|
-| **INRAE AgroClim FR** (52,675 h, 4 vineyards) | `rh90_hysteresis` | **0.864 / 0.732 / 0.581 / 2.61 / +0.97** | **0.779** / 0.604 / 0.434 / 4.07 / +2.17 | +1.46 h/d |
-| | `dpd_hysteresis` | 0.859 / 0.731 / 0.580 / 2.76 / +1.31 | 0.776 / **0.608 / 0.438** / 4.24 / +2.46 | +1.48 h/d |
-| | `rh85` | 0.831 / 0.693 / 0.533 / 3.26 / +1.95 | 0.761 / 0.589 / 0.419 / 4.30 / +2.71 | +1.04 h/d |
-| | `cart_kim2002` | 0.828 / 0.675 / 0.513 / 3.25 / +1.52 | 0.772 / 0.577 / 0.407 / **3.82** / +1.66 | +0.57 h/d |
+| **INRAE AgroClim FR** (34,880 h, 8 station-years) | `rh90_hysteresis` | **0.865 / 0.706 / 0.549 / 2.65 / +1.64** | **0.786** / 0.571 / 0.400 / 3.94 / +2.65 | +1.29 h/d |
+| | `dpd_hysteresis` | 0.858 / 0.703 / 0.545 / 2.85 / +2.02 | 0.782 / **0.575 / 0.404** / 4.16 / +2.98 | +1.30 h/d |
+| | `rh85` | 0.832 / 0.664 / 0.500 / 3.37 / +2.61 | 0.768 / 0.553 / 0.383 / 4.24 / +3.17 | +0.87 h/d |
+| | `cart_kim2002` | 0.830 / 0.643 / 0.477 / 3.29 / +2.04 | 0.785 / 0.546 / 0.376 / **3.61** / +2.08 | +0.32 h/d |
 | **Polito IT** (23,735 h, 6 clean sites) | `rh85` | **0.879 / 0.680 / 0.519 / 2.59 / −0.07** | 0.789 / **0.529 / 0.364 / 4.05** / +1.49 | +1.46 h/d |
 | | `dpd_hysteresis` | 0.871 / 0.653 / 0.490 / 2.79 / −0.36 | 0.788 / 0.519 / 0.354 / 4.13 / +1.27 | +1.34 h/d |
 | | `rh90_hysteresis` | 0.869 / 0.636 / 0.472 / 2.85 / −0.70 | **0.791** / 0.516 / 0.351 / 4.06 / +1.05 | +1.21 h/d |
 | | `cart_kim2002` | 0.861 / 0.672 / 0.513 / 2.95 / +1.15 | 0.779 / 0.507 / 0.343 / 4.28 / +1.40 | +1.33 h/d |
 
 Two results follow from Table 3:
-1. **On operational Open-Meteo input, the four estimators tie closely and trade rankings by metric:** in INRAE vineyards, `dpd_hysteresis` led in F1 (0.608), `rh90_hysteresis` in accuracy (0.779), and `cart_kim2002` in daily MAE (3.82 h/day). On measured station weather, `cart_kim2002` ranked **last** in both networks.
-2. **Meteorological data source dominates estimation error:** replacing station weather with Open-Meteo reanalysis lowered F1 by ~0.13, raised daily MAE from ~2.6 to ~4.0 h/day, and added a wet bias (+1.59 h/day across 70,537 May–August INRAE hours; hourly lag-1 error autocorrelation 0.676; $P(\text{sensor wet} \mid \text{OM wet}) = 0.532$). This reanalysis penalty (+1.21 to +1.48 h/day) was more than twice the spread among formulas on station data (0.65 h/day).
+1. **On operational Open-Meteo input, the four estimators tie closely and trade rankings by metric:** in INRAE vineyards, `dpd_hysteresis` led in F1 (0.575), `rh90_hysteresis` in accuracy (0.786), and `cart_kim2002` in daily MAE (3.61 h/day). On measured station weather, `cart_kim2002` ranked **last** in F1 in INRAE and last in MAE in Politecnico di Torino.
+2. **Meteorological data source dominates estimation error:** replacing station weather with Open-Meteo reanalysis lowered F1 by 0.10–0.16, raised daily MAE from ~2.6–2.9 to ~3.9–4.2 h/day, and added a wet bias (+1.96 h/day across 64,663 May–August INRAE hours; daily MAE 3.74 h/day; hourly lag-1 error autocorrelation 0.647; $P(\text{sensor wet} \mid \text{OM wet}) = 0.510$). The reanalysis penalty exceeded 1.2 h/day in **six of eight** network-estimator pairs (+1.21 to +1.46 h/day), far larger than the spread among formulas on station data (0.36–0.72 h/day).
 
-### 3.3 Pareto Frontier: Pooled Gain vs. Per-Cohort Reality (Inter-Annual Sizing, Not Within-Season Timing)
+### 3.3 Pareto Frontier: Pooled Gain vs. Per-Cohort Results (Inter-Annual Sizing, Not Within-Season Timing)
 
 In purely simulated out-of-sample blocks (2019–2021 with `cart_kim2002`, N = 540; 2016–2018 with `rh90_hysteresis`, N = 540), the frozen rule $T = 10.0$ lay well below the fixed-calendar frontier (−37.1 AUDPC in 2019–2021; −101.6 AUDPC in 2016–2018, p < 10⁻⁶). However, as anticipated from Section 3.2, those gains were inflated by the tight coupling between reanalysis-derived canopy truth and reanalysis rule input.
 
-When the SEIR model was driven directly by **real INRAE physical LWD sensors** (`semireal_osse.py`, 4 French stations × 6 years 2019–2024, N = 1,200) while the frozen rule read only Open-Meteo reanalysis (`om_v1_T10`, `om_v2_T10`), mean untreated pressure dropped to 284.7 AUDPC and the pooled Pareto advantage shrank from −101.6 to **−18.95 AUDPC (−13.5% below the interpolated calendar frontier)**. The gain is smaller but still statistically clear (p < 10⁻⁶, 814/1,200 wins over `cal_12d` with 0.23 fewer sprays; Table 4 and Figure 1). Both the strictly unseen 2019–2021 half (−13.50 AUDPC, N = 600) and the 2022–2024 selection-year half (−19.51 AUDPC, N = 600) maintained pooled dominance, as did the calibrated-error Moselle test (2016–2018, N = 180: −22.70 AUDPC, p = 4.7 × 10⁻⁵).
+When the SEIR model was driven directly by **measured INRAE physical LWD sensors** (`semireal_osse.py`, 19 clean station-years across four French regions in 2019–2024, N = 950) while the frozen rule read only Open-Meteo reanalysis (`om_v1_T10`, `om_v2_T10`), mean untreated pressure was 218.4 AUDPC and the pooled Pareto advantage shrank from −101.6 to **−11.59 AUDPC (−10.4% below the interpolated calendar frontier)**. The gain is smaller but still statistically clear (p < 10⁻⁶, 630/950 wins over `cal_14d`, and 99.63 vs. 108.82 AUDPC against `cal_12d` with 0.77 fewer sprays; Table 4 and Figure 1). Both the strictly unseen 2019–2021 half (94.48 vs. 104.31 AUDPC for `cal_14d` with 0.14 fewer sprays, N = 500) and the 2022–2024 selection-year half (−12.62 AUDPC, −10.7%, N = 450) maintained pooled dominance, as did the calibrated-error Moselle test (2016–2018, N = 180: −21.68 AUDPC, −8.3%, p = 2.1 × 10⁻⁵). By contrast, `om_v2_T10` tied `cal_14d` statistically in AUDPC (−2.55, Wilcoxon p = 0.815), keeping its 0.81 spray/season reduction.
 
-**Table 4.** Semi-real INRAE sensor-truth OSSE (pooled 2019–2024 and split into unseen 2019–2021 vs. selection years 2022–2024) and calibrated-error Moselle (2016–2018). Rule frozen at $T = 10.0$ (`rh90_hysteresis`).
+**Table 4.** Sensor-driven INRAE OSSE (pooled 2019–2024 across 19 clean cohorts and split into unseen 2019–2021 vs. selection years 2022–2024) and calibrated-error Moselle (2016–2018). Rule frozen at $T = 10.0$ (`rh90_hysteresis`).
 
 | Experiment / Subset | Strategy | Sprays | AUDPC [95% CI] | Δ vs. Calendar Frontier | Paired vs. Closest Calendar (p) |
 |---|---|---:|---:|---:|---|
-| **INRAE Semi-Real Pooled** (N = 1,200, 24 cohorts) | `cal_7d`, `cal_10d`, `cal_12d`, `cal_14d` | 11 / 8 / 7 / 6 | 95.5 / 118.5 / 138.6 / 146.5 | ref. | — |
-| | **`om_v1_T10`** (Open-Meteo only) | **6.77** | **121.42 [112.5, 130.9]** | **−18.95 (−13.5%)** | −17.15 vs `cal_12d` (−0.23 sp, < 10⁻⁶) |
-| | `om_v2_T10` (economical point) | 5.51 | 137.31 [126.9, 148.2] | below `cal_14d` | −9.18 vs `cal_14d` (−0.49 sp, < 10⁻⁶) |
-| | `st_v1_T10` (INRAE station, no LWD) | 6.38 | 127.48 [117.8, 137.7] | −15.99 (−11.1%) | −19.01 vs `cal_14d` (+0.38 sp, < 10⁻⁶) |
-| **INRAE Unseen 2019–2021** (N = 600, 12 cohorts) | `cal_12d` / `cal_14d` | 7 / 6 | 127.69 / 134.53 | ref. | — |
-| | **`om_v1_T10`** | **6.25** | **119.32** | **−13.50 (−10.2%)** | — |
-| | `st_v1_T10` | 6.09 | 123.14 | −10.78 (−8.1%) | — |
-| **INRAE Selection Yrs 2022–2024** (N = 600, 12 cohorts) | `cal_12d` / `cal_14d` | 7 / 6 | 149.45 / 158.46 | ref. | — |
-| | **`om_v1_T10`** | **7.30** | **123.53** | **−19.51 (−13.6%)** | — |
-| | `st_v1_T10` | 6.67 | 131.82 | −20.56 (−13.5%) | — |
-| **Moselle Calibrated Error** (2016–2018, N = 180) | `cal_12d` / `cal_14d` | 7 / 6 | 302.1 / 367.6 | ref. | — |
-| | **`om_v1_T10`** | **7.22** | **277.37 [243.1, 315.9]** | **−22.70 (−7.6%)** | −24.70 vs `cal_12d` (4.7 × 10⁻⁵, 120/180) |
-| | `om_v2_T10` | 5.83 | 346.54 [303.6, 394.1] | below `cal_14d` | −21.03 vs `cal_14d` (0.021, 99/180) |
+| **INRAE Sensor-Driven Pooled** (N = 950, 19 cohorts) | `cal_7d`, `cal_10d`, `cal_12d`, `cal_14d` | 11 / 8 / 7 / 6 | 74.9 / 92.7 / 108.8 / 111.9 | ref. | — |
+| | **`om_v1_T10`** (Open-Meteo only) | **6.23** | **99.63 [92.6, 107.7]** | **−11.59 (−10.4%)** | −12.30 vs `cal_14d` (+0.23 sp, < 10⁻⁶) |
+| | `om_v2_T10` (economical point) | 5.19 | 109.39 [101.4, 118.4] | below `cal_14d` | −2.55 vs `cal_14d` (−0.81 sp, p = 0.815) |
+| | `st_v1_T10` (INRAE station, no LWD) | 6.03 | 102.01 [94.7, 110.5] | −9.83 (−8.8%) | −9.92 vs `cal_14d` (+0.03 sp, < 10⁻⁶) |
+| **INRAE Unseen 2019–2021** (N = 500, 10 cohorts) | `cal_12d` / `cal_14d` | 7 / 6 | 101.81 / 104.31 | ref. | — |
+| | **`om_v1_T10`** | **5.86** | **94.48** | **below `cal_14d`** | −9.83 vs `cal_14d` (−0.14 sp) |
+| | `st_v1_T10` | 5.80 | 97.83 | below `cal_14d` | −6.48 vs `cal_14d` (−0.20 sp) |
+| **INRAE Selection Yrs 2022–2024** (N = 450, 9 cohorts) | `cal_12d` / `cal_14d` | 7 / 6 | 116.59 / 120.41 | ref. | — |
+| | **`om_v1_T10`** | **6.64** | **105.36** | **−12.62 (−10.7%)** | — |
+| | `st_v1_T10` | 6.28 | 106.66 | −12.67 (−10.6%) | — |
+| **Moselle Calibrated Error** (2016–2018, N = 180) | `cal_12d` / `cal_14d` | 7 / 6 | 263.5 / 320.6 | ref. | — |
+| | **`om_v1_T10`** | **7.22** | **240.04 [210.2, 273.9]** | **−21.68 (−8.3%)** | −23.44 vs `cal_12d` (2.1 × 10⁻⁵, 120/180) |
+| | `om_v2_T10` | 5.83 | 299.48 [261.7, 341.3] | below `cal_14d` | −21.13 vs `cal_14d` (0.011, 99/180) |
 
 ![Figure 1](figures/fig1_semireal_pareto.svg)
-**Figure 1.** Semi-real INRAE sensor-truth Pareto frontier (2019–2024, N = 1,200 plot-seasons across 24 station-years). Solid black line connects pooled fixed-calendar schedules (`cal_14d` through `cal_7d`, 6–11 sprays). Large colored markers show pooled means with 95% bootstrap confidence intervals for `om_v1_T10` (green diamond), `om_v2_T10` (amber square), and `st_v1_T10` (blue triangle). Small circles plot all 24 individual station-years under `om_v1_T10`, with Champagne 2022 and Bordeaux 2021 highlighted in red. Shaded gray bands mark spray counts outside the 6–11 spray range of the fixed calendars, where per-cohort frontier comparisons require linear extrapolation.
+**Figure 1.** Sensor-driven INRAE Pareto frontier (2019–2024, N = 950 plot-seasons across 19 clean station-years). Solid black line connects pooled fixed-calendar schedules (`cal_14d` through `cal_7d`, 6–11 sprays). Large colored markers show pooled means with 95% bootstrap confidence intervals for `om_v1_T10` (green diamond), `om_v2_T10` (amber square), and `st_v1_T10` (blue triangle). Small circles plot all 19 individual station-years under `om_v1_T10`, with Champagne 2022 and Champagne 2019 marked in red. Shaded gray bands mark spray counts outside the 6–11 spray range of the fixed calendars, where per-cohort frontier comparisons require linear extrapolation.
 
-**Per-cohort decomposition shows where the pooled gain comes from (Table 5):** when the distance from `om_v1_T10` to the fixed-calendar curve is evaluated separately inside each of the 24 station-years, the rule sits virtually **on top of the calendar frontier**. Across all 24 cohorts, the mean difference is +1.55 AUDPC (median −3.37, below the frontier in 14/24 cohorts). In **13 of 24 cohorts** (marked with † in Table 5), `om_v1_T10` fell outside the 6–11 spray span of the fixed calendars (12 cohorts below 6 sprays, down to 2.44 in Bourgogne 2019, and Alsace 2024 at 11.66 sprays), so the reference frontier was obtained by linear extrapolation from the nearest calendar segment and is therefore fragile. The **11 strictly interpolated cohorts (6–11 sprays)** give the same conclusion without extrapolation: mean **+1.01 AUDPC**, median **−0.33 AUDPC**, below the frontier in **6/11 cohorts** (54.5%).
+**Per-cohort decomposition shows where the pooled gain comes from (Table 5):** when the distance from `om_v1_T10` to the fixed-calendar curve is evaluated separately inside each of the 19 clean station-years, the rule sits virtually **on top of the calendar frontier**. Across all 19 cohorts, the mean difference is −0.30 AUDPC (median −4.59, below the frontier in 12/19 cohorts). In **12 of 19 cohorts** (marked with † in Table 5), `om_v1_T10` fell below the 6–11 spray span of the fixed calendars (down to 2.44 in Bourgogne 2019), so the reference frontier was obtained by linear extrapolation from the nearest calendar segment and is therefore fragile. The **7 strictly interpolated cohorts (6–11 sprays)** give the same conclusion without extrapolation: mean **−2.09 AUDPC**, median **−0.33 AUDPC**, below the frontier in **4/7 cohorts** (57.1%).
 
-Why does a −18.95 AUDPC pooled gain emerge when within-season performance ties an equal-count calendar? Because **`om_v1_T10`'s annual spray count correlates strongly with untreated epidemic pressure (Pearson r = 0.595, p = 0.0022)**, spanning 2.44 sprays in low-pressure Bourgogne 2019 (untreated 113.6) to 10.28–11.66 sprays in wet Bordeaux 2024 and Alsace 2024 (untreated 563–598). Fixed calendars spend the same spray budget every year, over-spraying mild seasons and under-protecting severe ones. Pooling across years therefore captures the real multi-year policy gain, which is **sizing each season's spray campaign**, even though **within a given season, timing is no better than an evenly spaced calendar of the same spray count**.
+Why does a −11.59 AUDPC pooled gain emerge when within-season performance sits near an equal-count calendar? Because **`om_v1_T10`'s annual spray count correlates with untreated epidemic pressure (Pearson r = 0.479, p = 0.038)**, spanning 2.44 sprays in low-pressure Bourgogne 2019 (untreated 113.6) to 10.28–10.82 sprays in wet Bordeaux 2024 and Bourgogne 2024 (untreated 189.8–563.1). Fixed calendars spend the same spray budget every year, over-spraying mild seasons and under-protecting severe ones. Pooling across years therefore captures the multi-year policy gain, which is **sizing each season's spray campaign**, even though **within a given season, timing is no better than an evenly spaced calendar of the same spray count**.
 
-**Table 5.** Per-cohort semi-real INRAE results (24 station-years, N = 50 plots each). Cohorts marked with † fall outside the 6–11 spray range of fixed calendars and rely on linear frontier extrapolation from the nearest calendar segment (`cal_14d`–`cal_12d` below 6, or `cal_10d`–`cal_7d` above 11).
+**Table 5.** Per-cohort sensor-driven INRAE results (19 clean station-years, N = 50 plots each). Cohorts marked with † fall below the 6–11 spray range of fixed calendars and rely on linear frontier extrapolation from the `cal_14d`–`cal_12d` segment.
 
 | Station | Year | Untreated AUDPC | `om_v1` Sprays | `om_v1` AUDPC | Ref. Frontier AUDPC | Δ AUDPC (%) | `st_v1` Sprays (Δ) |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | Bordeaux (Couhins) | 2019 | 357.3 | 7.26 | 146.4 | 164.4 | −18.0 (−11.0%) | 7.50 (−10.6) |
 | Bordeaux (Couhins) | 2020 | 545.5 | 8.20 | 219.8 | 214.7 | +5.1 (+2.4%) | 7.26 (+1.0) |
-| **Bordeaux (Couhins)** | **2021** | **782.0** | **8.32** | **413.2** | **360.3** | **+52.9 (+14.7%)** | **7.94 (+51.8)** |
-| Bordeaux (Couhins) | 2022 | 281.7 | 6.36 | 103.7 | 119.2 | −15.5 (−13.0%) | 6.00 (−20.6) |
-| Bordeaux (Couhins) | 2023 | 864.3 | 9.80 | 243.2 | 259.1 | −15.9 (−6.1%) | 8.58 (+7.0) |
 | Bordeaux (Couhins) | 2024 | 563.1 | 10.28 | 188.8 | 182.7 | +6.1 (+3.4%) | 9.04 (−20.6) |
 | Alsace (Colmar) | 2019 | 103.0 | 5.86† | 56.8 | 64.6† | −7.8 (−12.1%) | 6.34 (−4.8) |
 | Alsace (Colmar) | 2020 | 139.3 | 5.96† | 65.3 | 75.0† | −9.7 (−13.0%) | 5.94† (−9.7) |
 | Alsace (Colmar) | 2021 | 171.7 | 8.00 | 82.1 | 84.3 | −2.2 (−2.6%) | 8.22 (−0.3) |
 | Alsace (Colmar) | 2022 | 168.3 | 4.00† | 92.6 | 111.1† | −18.5 (−16.7%) | 4.00† (−18.5) |
 | Alsace (Colmar) | 2023 | 99.0 | 5.34† | 63.9 | 68.5† | −4.6 (−6.7%) | 4.32† (−0.4) |
-| Alsace (Colmar) | 2024 | 597.9 | 11.66† | 187.3 | 183.4† | +3.9 (+2.1%) | 8.96 (−3.7) |
-| Champagne (Fagnières) | 2019 | 114.0 | 4.18† | 61.6 | 50.8† | +10.8 (+21.3%) | 3.88† (+15.3) |
+| **Champagne (Fagnières)** | **2019** | **114.0** | **4.18†** | **61.6** | **50.8†*** | **+10.8 (+21.3%)*** | **3.88† (+15.3)*** |
 | Champagne (Fagnières) | 2020 | 98.0 | 4.68† | 62.7 | 58.1† | +4.6 (+7.9%) | 4.26† (+6.3) |
 | Champagne (Fagnières) | 2021 | 322.3 | 6.66 | 123.3 | 135.9 | −12.6 (−9.3%) | 7.60 (−0.4) |
 | **Champagne (Fagnières)** | **2022** | **450.5** | **4.00†** | **213.3** | **136.1†*** | **+77.3 (+56.8%)*** | **4.24† (+66.8)*** |
@@ -199,58 +196,57 @@ Why does a −18.95 AUDPC pooled gain emerge when within-season performance ties
 | Champagne (Fagnières) | 2024 | 223.5 | 9.26 | 85.3 | 85.7 | −0.3 (−0.4%) | 8.40 (+2.4) |
 | Bourgogne (Bretenière) | 2019 | 113.6 | 2.44† | 74.8 | 83.8† | −9.0 (−10.7%) | 2.64† (−8.1) |
 | Bourgogne (Bretenière) | 2020 | 76.3 | 5.38† | 52.1 | 50.8† | +1.2 (+2.4%) | 4.36† (+1.6) |
-| Bourgogne (Bretenière) | 2021 | 157.7 | 8.06 | 73.8 | 69.5 | +4.3 (+6.2%) | 7.12 (−1.6) |
 | Bourgogne (Bretenière) | 2022 | 210.9 | 5.86† | 102.5 | 115.4† | −13.0 (−11.3%) | 5.86† (−13.0) |
 | Bourgogne (Bretenière) | 2023 | 125.4 | 5.68† | 73.0 | 84.6† | −11.7 (−13.8%) | 6.16 (−13.3) |
 | Bourgogne (Bretenière) | 2024 | 189.8 | 10.82 | 74.7 | 67.4 | +7.2 (+10.7%) | 10.28 (+8.4) |
 
-**Note (Table 5):** *In Champagne 2022, `cal_14d` (6 sprays, 178.9 AUDPC) outperformed `cal_12d` (7 sprays, 200.4 AUDPC) due to spray-date alignment; extrapolating that non-monotonic segment backward to 4.0 sprays artificially lowered the extrapolated frontier to 136.1. Direct comparison against actual `cal_14d` is +34.4 AUDPC (+19.2%) with 2.0 fewer sprays.*
+**Note (Table 5):** *In Champagne 2022 and Champagne 2019, `cal_14d` (6 sprays: 178.9 and 56.3 AUDPC) outperformed `cal_12d` (7 sprays: 200.4 and 59.4 AUDPC) due to spray-date alignment; extrapolating that non-monotonic segment backward artificially lowered the extrapolated frontiers to 136.1 and 50.8. Direct comparisons against actual `cal_14d` are +34.4 AUDPC (+19.2%) with 2.0 fewer sprays in Champagne 2022 and +5.3 AUDPC (+9.3%) with 1.82 fewer sprays in Champagne 2019. Among strictly interpolated cohorts (6–11 sprays), the largest excess was Bourgogne 2024 (+7.2 AUDPC, +10.7% at 10.82 sprays).*
 
 ### 3.4 Diagnostic Analysis of Tail-Risk Failure Cases
 
-Pooled averages conceal asymmetric downside risk. Figure 2 plots the exact simulated daily trajectories (real sensor LWD, Open-Meteo LWD, station rainfall, daily SEIR new infections $S \to E_1$, severity curves, and spray timing) for the two worst cohorts in Table 5, so the diagnosis rests on what the simulated days show (Table 6).
+Pooled averages conceal asymmetric downside risk. Figure 2 plots the exact simulated daily trajectories (measured sensor LWD, Open-Meteo LWD, station rainfall, daily SEIR new infections $S \to E_1$, severity curves, and spray timing) for the two worst cohorts in Table 5, so the diagnosis rests on what the simulated days show (Table 6).
 
 ![Figure 2](figures/fig2_failure_timelines.svg)
-**Figure 2.** Daily diagnostic timelines for the two tail-risk failure cohorts in the semi-real INRAE OSSE (May 1 to July 15, mean of N = 50 plots per cohort): **(A)** Champagne (Fagnières, 2022) comparing `om_v1_T10` (4.0 sprays, AUDPC 213.3) against `cal_14d` (6.0 sprays, AUDPC 178.9); **(B)** Bordeaux (Couhins, 2021) comparing `om_v1_T10` (8.3 sprays, AUDPC 413.2) against `cal_10d` (8.0 sprays, AUDPC 365.7). Top sub-tracks show daily real sensor LWD (light-blue bars), Open-Meteo LWD (dashed teal line), and station rainfall (dark-blue bars). Bottom sub-tracks show daily new SEIR infections under `om_v1_T10` (orange bars), mean severity curves, and spray dates for `om_v1_T10` (green triangles, opacity proportional to % of plots spraying) and the reference calendar (navy dots).
+**Figure 2.** Daily diagnostic timelines for the two worst cohorts in Table 5 in the sensor-driven INRAE OSSE (May 1 to July 15, mean of N = 50 plots per cohort): **(A)** Champagne (Fagnières, 2022) comparing `om_v1_T10` (4.0 sprays, AUDPC 213.3) against `cal_14d` (6.0 sprays, AUDPC 178.9); **(B)** Champagne (Fagnières, 2019) comparing `om_v1_T10` (4.18 sprays, AUDPC 61.6) against `cal_14d` (6.0 sprays, AUDPC 56.3). Top sub-tracks show daily measured sensor LWD (light-blue bars), Open-Meteo LWD (dashed teal line), and station rainfall (dark-blue bars). Bottom sub-tracks show daily new SEIR infections under `om_v1_T10` (orange bars), mean severity curves, and spray dates for `om_v1_T10` (green triangles, opacity proportional to % of plots spraying) and the reference calendar (navy dots).
 
 **Table 6.** Evidence-based failure diagnosis from the simulated daily timelines (Figure 2; N = 50 plots per cohort).
 
 | Cohort | `om_v1_T10` (Sprays / AUDPC) | Nearest Actual Calendar (Sprays / AUDPC) | Excess vs. Calendar / Frontier | Observed Timeline Mechanism (Figure 2) |
 |---|---|---|---|---|
 | **Champagne 2022** | 4.00 / 213.3 | `cal_14d` (6.00 / 178.9) | +34.4 vs. `cal_14d` (+77.3 vs. extrapolated frontier†) | Three sequential gaps: (i) no spray until May 16–19 despite 91.8 h sensor LWD in May 1–15 (OM estimated 49.0 h); (ii) 15-day gap from June 3 to June 18 during which June 15–19 logged 59.4 h sensor LWD and 30.0 mm rain while OM estimated only 10.0 h LWD; (iii) zero sprays during the final 21 days after June 24, leaving June 25–July 4 (76.7 h sensor LWD, 26.0 mm rain) unprotected and triggering the peak infection wave (4.04% cumulative new infection vs. 2.93% under `cal_14d`, which sprayed on June 26 and July 10). |
-| **Bordeaux 2021** | 8.32 / 413.2 | `cal_10d` (8.00 / 365.7) | +47.6 vs. `cal_10d` (+52.9 vs. interpolated frontier 360.3) | Early-season under-protection followed by late-season over-clustering: (i) delayed first spray (76% of plots sprayed on May 10) followed by an 18–21 day gap until May 28–31 across 162.7 h sensor LWD and 57.5 mm rain (May 11–25), whereas `cal_10d` sprayed May 1, 11, 21, and 31; (ii) amplified inoculum expanded sharply during the June 15–24 storms (176.5 mm rain; severity reached 5.86% vs. 4.47% on June 25); (iii) `om_v1_T10` then fired every 6 days from June 18 to July 12 (equalizing final day-75 severity at 32.6% vs. 33.0%), too late to recover the AUDPC already lost in May–June. |
+| **Champagne 2019** | 4.18 / 61.6 | `cal_14d` (6.00 / 56.3) | +5.3 vs. `cal_14d` (+10.8 vs. extrapolated frontier†) | Late-season rainless dew missed after June 18: 84% of plots last sprayed on June 12 and 32% on June 18, leaving the final 27 days (June 19–July 15) unprotected. Only 0.5 mm of rain fell in that window, yet the physical sensor logged 171.3 h of leaf wetness while OM estimated 38.0 h. Between June 27 and July 10 (0.0 mm rain), the sensor logged 121.0 h of nocturnal dew vs. 4.0 h estimated by OM, producing 3.05% cumulative new infection vs. 1.92% under `cal_14d` (which sprayed June 26 and July 10) and raising day-75 severity to 3.93% vs. 3.05%. |
 
-*†See Table 5 footnote: backward linear extrapolation over non-monotonic `cal_14d` < `cal_12d` inflated the apparent frontier deficit from +34.4 to +77.3 AUDPC.*
+*†See Table 5 footnote: backward linear extrapolation over non-monotonic `cal_14d` < `cal_12d` inflated the apparent frontier deficits from +34.4 to +77.3 AUDPC in Champagne 2022 and from +5.3 to +10.8 AUDPC in Champagne 2019.*
 
-Both cohorts also failed under local station weather (`st_v1_T10`: +66.8 extrapolated in Champagne 2022; +51.8 interpolated in Bordeaux 2021), so although Open-Meteo missed specific wetness bursts in Champagne (June 15–19), the failure also involves the frozen threshold $T = 10$ failing to maintain early- and late-season baseline coverage. In practical viticulture, losing control in a single severe season outweighs saving 2–3 sprays in several mild ones.
+Both cohorts also lost ground under local station weather (`st_v1_T10`: +66.8 extrapolated in Champagne 2022; +15.3 extrapolated in Champagne 2019), so although Open-Meteo missed specific wetness bursts in Champagne (June 15–19, 2022 and June 27–July 10, 2019), the failure also involves the frozen threshold $T = 10$ and humidity-based LWD estimation failing to maintain late-season coverage during rainless dew periods. In practical viticulture, losing control in a single severe season such as Champagne 2022 outweighs saving 2–3 sprays in several mild ones.
 
 ### 3.5 Local Station Weather Did Not Beat Reanalysis at the Frozen Threshold
 
-Despite reducing daily LWD MAE from 4.07 to 2.61 h/day (Table 3), feeding local INRAE station meteorology (`st_v1_T10`) into the frozen rule yielded **−15.99 AUDPC** below the frontier (6.38 sprays, 127.48 AUDPC), slightly *less* than Open-Meteo (`om_v1_T10`: −18.95 AUDPC, 6.77 sprays, 121.42 AUDPC), with nearly identical per-cohort behavior (all 24 cohorts: mean +1.07 vs. +1.55).
+Despite reducing daily LWD MAE from 3.94 to 2.65 h/day on INRAE stations (Table 3), feeding local INRAE station meteorology (`st_v1_T10`) into the frozen rule yielded **−9.83 AUDPC** below the frontier (6.03 sprays, 102.01 AUDPC), slightly *less* than Open-Meteo (`om_v1_T10`: −11.59 AUDPC, 6.23 sprays, 99.63 AUDPC), with nearly identical per-cohort behavior (all 19 cohorts: mean −0.38 vs. −0.30 AUDPC, 12/19 below frontier for both).
 
-The likely cause is **threshold–bias coupling**: $T = 10.0$ was selected on Open-Meteo reanalysis (2022–2024), which carries a +1.6 to +2.2 h/day wet bias. Replacing reanalysis with drier, more accurate station data without recalibrating $T$ reduced firing by 0.39 sprays/season (6.38 vs. 6.77), shifting slightly left along the Pareto curve and losing protection in humid Bordeaux 2023 (dropping from 9.80 to 8.58 sprays and swinging from −15.9 to +7.0 AUDPC). Recommending local weather stations over reanalysis for *decision quality* therefore remains a **hypothesis requiring station-specific threshold recalibration**, not an established result of the frozen run.
+The likely cause is **threshold–bias coupling**: $T = 10.0$ was selected on Open-Meteo reanalysis (2022–2024), which carries a +1.96 to +2.65 h/day wet bias. Replacing reanalysis with drier, more accurate station data without recalibrating $T$ reduced firing by 0.20 sprays/season (6.03 vs. 6.23), shifting slightly left along the Pareto curve and losing margin in cohorts such as Champagne 2021 (−0.4 vs. −12.6 AUDPC) and Champagne 2019 (+15.3 vs. +10.8 AUDPC), even though it improved Bordeaux 2024 (−20.6 vs. +6.1 AUDPC). Recommending local weather stations over reanalysis for *decision quality* therefore remains a **hypothesis requiring station-specific threshold recalibration**, not an established result of the frozen run.
 
 ### 3.6 Economic Sensitivity Maps and 7-Year Cumulative EU Copper Accounting
 
-Across the 126-cell sensitivity grid ($k \in [0.0002, 0.0015]$ × revenue €3,000–€30,000/ha, spray cost €55/ha) applied to the pooled semi-real INRAE OSSE (N = 1,200; Figure 3):
+Across the 126-cell sensitivity grid ($k \in [0.0002, 0.0015]$ × revenue €3,000–€30,000/ha, spray cost €55/ha) applied to the pooled sensor-driven INRAE OSSE (N = 950; Figure 3):
 
-* **Unconstrained net return (Figure 3a):** `cal_7d` maximized net return in **40.5%** of parameter combinations (high grape value and/or steep assumed bunch-damage slopes), `om_v1_T10` won **27.0%**, `om_v2_T10` won **19.8%** (46.8% combined across moderate/lower revenues), and untreated won 12.7% (extreme low revenue and low slope). Fixed 10-, 12-, and 14-day calendars won **0.0%** of the grid.
+* **Unconstrained net return (Figure 3a):** `cal_7d` maximized net return in **33.3%** of parameter combinations (high grape value and/or steep assumed bunch-damage slopes), `om_v2_T10` won **25.4%**, `om_v1_T10` won **23.0%** (48.4% combined across moderate/lower revenues), and untreated won **18.3%** (extreme low revenue and low slope). Fixed 10-, 12-, and 14-day calendars won **0.0%** of the grid.
 * **Seven-year cumulative EU copper accounting ($\le 28\text{ kg Cu/ha}$ over 7 years, Regulation (EU) 2018/1981)** with **dose per spray as a sensitivity parameter** (Table 7) shows how sharply compliance depends on both dose and regional climate:
 
-**Table 7.** Projected 7-year cumulative metallic copper load (kg Cu/ha per 7 yr) across the four INRAE stations (2019–2024 scaled × 7/6) vs. the EU 28.0 kg/ha 7-year legal cap (Regulation (EU) 2018/1981).
+**Table 7.** Projected 7-year cumulative metallic copper load (kg Cu/ha per 7 yr) across the four INRAE stations (mean clean-year spray rate × 7) vs. the EU 28.0 kg/ha 7-year legal cap (Regulation (EU) 2018/1981).
 
 | Dose (kg Cu/ha/spray) | `cal_7d` (11.0/yr) | `cal_10d` (8.0/yr) | `cal_12d` (7.0/yr) | `cal_14d` (6.0/yr) | `om_v1_T10` Pooled (Worst: Bordeaux) | `om_v2_T10` Pooled (Worst: Bordeaux) | `st_v1_T10` Pooled (Worst: Bordeaux) |
 |---:|---:|---:|---:|---:|---|---|---|
-| **0.30** | **23.1** (OK) | 16.8 (OK) | 14.7 (OK) | 12.6 (OK) | 14.2 (17.6; **4/4** OK) | 11.6 (14.2; **4/4** OK) | 13.4 (16.2; **4/4** OK) |
-| **0.40** | 30.8 (**EXCEEDS**) | **22.4** (OK) | 19.6 (OK) | 16.8 (OK) | **19.0** (23.4; **4/4** OK) | 15.4 (19.0; **4/4** OK) | 17.9 (21.6; **4/4** OK) |
-| **0.50** | 38.5 (**EXCEEDS**) | **28.0** (OK) | 24.5 (OK) | 21.0 (OK) | 23.7 (**29.3**; **3/4** OK) | **19.3** (23.7; **4/4** OK) | **22.3** (27.0; **4/4** OK) |
-| **0.60** | 46.2 (**EXCEEDS**) | 33.6 (**EXCEEDS**) | 29.4 (**EXCEEDS**) | **25.2** (OK) | 28.4 (**35.2**; **2/4** OK) | **23.1** (**28.4**; **3/4** OK) | 26.8 (**32.4**; **3/4** OK) |
+| **0.30** | **23.1** (OK) | 16.8 (OK) | 14.7 (OK) | 12.6 (OK) | 13.1 (18.0; **4/4** OK) | 10.9 (14.7; **4/4** OK) | 12.7 (16.7; **4/4** OK) |
+| **0.40** | 30.8 (**EXCEEDS**) | **22.4** (OK) | 19.6 (OK) | 16.8 (OK) | **17.4** (24.0; **4/4** OK) | 14.5 (19.7; **4/4** OK) | 16.9 (22.2; **4/4** OK) |
+| **0.50** | 38.5 (**EXCEEDS**) | **28.0** (OK) | 24.5 (OK) | 21.0 (OK) | 21.8 (**30.0**; **3/4** OK) | **18.2** (24.6; **4/4** OK) | **21.1** (27.8; **4/4** OK) |
+| **0.60** | 46.2 (**EXCEEDS**) | 33.6 (**EXCEEDS**) | 29.4 (**EXCEEDS**) | **25.2** (OK) | 26.2 (**36.0**; **3/4** OK) | **21.8** (**29.5**; **3/4** OK) | 25.3 (**33.3**; **3/4** OK) |
 
-At low modern organic doses (0.30 kg Cu/ha), even `cal_7d` complies (23.1 kg/7 yr), eliminating the regulatory constraint. At 0.40 kg Cu/ha, `cal_7d` exceeds 28 kg while `om_v1_T10` complies at all 4/4 stations. At 0.50 kg Cu/ha, `om_v1_T10` and `om_v2_T10` together win 80.9% of the pooled copper-compliant grid (Figure 3b), yet station-level accounting reveals that `om_v1_T10` exceeds 28 kg in humid **Bordeaux** (29.3 kg/7 yr), where only `om_v2_T10` (23.7 kg) or `st_v1_T10` (27.0 kg) remains compliant.
+At low modern organic doses (0.30 kg Cu/ha), even `cal_7d` complies (23.1 kg/7 yr), eliminating the regulatory constraint. At 0.40 kg Cu/ha, `cal_7d` exceeds 28 kg while `om_v1_T10` complies at all 4/4 stations. At 0.50 kg Cu/ha, `om_v1_T10` (34.9%) and `om_v2_T10` (25.4%) together win **60.3%** of the pooled copper-compliant grid (Figure 3b), against **21.4%** for `cal_10d` and **18.3%** for untreated; station-level accounting further shows that `om_v1_T10` exceeds 28 kg in humid **Bordeaux** (30.0 kg/7 yr), where only `om_v2_T10` (24.6 kg) or `st_v1_T10` (27.8 kg) remains compliant.
 
 ![Figure 3a](figures/fig3a_econ_unconstrained.svg)
 ![Figure 3b](figures/fig3b_econ_eu_copper.svg)
-**Figure 3.** Economic sensitivity maps over the 126-cell grid of assumed bunch-damage slope $k$ (x-axis) vs. disease-free gross revenue (y-axis), evaluated on pooled semi-real INRAE outcomes (N = 1,200, spray cost €55/ha): **(a)** unconstrained net return; **(b)** net return restricted to strategies complying with Commission Implementing Regulation (EU) 2018/1981 on a pooled basis ($\le 28\text{ kg Cu/ha}$ over 7 years at 0.50 kg Cu/ha/spray).
+**Figure 3.** Economic sensitivity maps over the 126-cell grid of assumed bunch-damage slope $k$ (x-axis) vs. disease-free gross revenue (y-axis), evaluated on pooled sensor-driven INRAE outcomes (N = 950, spray cost €55/ha): **(a)** unconstrained net return; **(b)** net return restricted to strategies complying with Commission Implementing Regulation (EU) 2018/1981 on a pooled basis ($\le 28\text{ kg Cu/ha}$ over 7 years at 0.50 kg Cu/ha/spray).
 
 ---
 
@@ -260,94 +256,33 @@ At low modern organic doses (0.30 kg Cu/ha), even `cal_7d` complies (23.1 kg/7 y
 
 These results should be read with six limitations in mind:
 
-1. **Disease progression is entirely simulated; only leaf wetness is field-measured.** Although the semi-real OSSE uses real hourly temperature, rainfall, and physical leaf wetness sensors from four INRAE stations, the epidemic trajectories (SEIR), fungicide wash-off dynamics, and AUDPC values remain simulated. The direction of inter-annual campaign sizing agrees with viticultural experience, but **the exact numerical magnitudes (−19 AUDPC, −13.5%, or €/ha differences) are simulator outputs, not field measurements**.
-2. **No empirical validation against real vineyard epidemic curves or cluster-loss field trials.** Because no paired field spray trial with real *P. viticola* cluster ratings was performed, the simulation leaves out real-world factors such as shoot-growth dilution of protectant deposits, cultivar resistance differences, uneven sprayer coverage and translaminar or systemic fungicides.
+1. **Disease progression is entirely simulated; only leaf wetness is field-measured.** Although the sensor-driven OSSE uses measured hourly temperature, rainfall, and physical leaf wetness sensors from four INRAE stations, the epidemic trajectories (SEIR), fungicide wash-off dynamics, and AUDPC values remain simulated. The direction of inter-annual campaign sizing agrees with viticultural experience, but **the exact numerical magnitudes (−11.6 AUDPC, −10.4%, or €/ha differences) are simulator outputs, not field measurements**.
+2. **No empirical validation against vineyard epidemic curves or cluster-loss field trials.** Because no paired field spray trial with measured *P. viticola* cluster ratings was performed, the simulation leaves out field factors such as shoot-growth dilution of protectant deposits, cultivar resistance differences, uneven sprayer coverage and translaminar or systemic fungicides.
 3. **The bunch-damage function is assumed, not calibrated.** Foliar AUDPC was mapped to yield loss using an assumed saturating exponential curve with uncalibrated parameters ($L_{\max} = 0.85$, $k \in [0.0002, 0.0015]$). Sweeping $k$ across a 7.5-fold range bounds qualitative strategy regions, but financial break-even points depend on phenology-specific cluster susceptibility (flowering to pea-size berry) that foliar AUDPC does not capture.
-4. **Per-cohort frontier comparisons rely on linear extrapolation in 13 of 24 cohorts and single-start calendar schedules.** Because fixed calendars spanned 6 to 11 sprays (`cal_14d` to `cal_7d`), more than half of the station-years under `om_v1_T10` (12 dry cohorts below 6 sprays, down to 2.44 in Bourgogne 2019, and Alsace 2024 at 11.66 sprays) fell outside the calendar range. Each fixed calendar also starts on a single fixed date (May 1); in any isolated season, whether those dates coincide with rainfall events introduces phase noise. In Champagne 2022, for example, `cal_14d` (178.9) outperformed `cal_12d` (200.4), causing backward linear extrapolation to yield an artificially low frontier (136.1). While start-date noise averages out across 24 cohorts, single-season comparisons should rely primarily on the 11 interpolated cohorts (mean +1.01, median −0.33, 6/11 below) and direct comparisons against actual calendar points.
-5. **Half of the semi-real INRAE sample overlaps the threshold-selection years.** The 2019–2024 semi-real benchmark includes 2022–2024, which were used on Open-Meteo data to choose $T = 10.0$. No parameter was altered during the semi-real run, and splitting out strictly unseen 2019–2021 (N = 600) preserved pooled dominance (−13.50 AUDPC vs. −19.51 in 2022–2024), yet full temporal independence holds strictly for 2019–2021 (and 2016–2018 Moselle).
-6. **LWD sensor benchmarks carry sensor-specific calibration uncertainty.** Capacitive and resistive leaf wetness sensors vary across hardware and mounting heights (illustrated by `site2.csv` in Politecnico di Torino reporting 99.9% non-zero readings), and open-field station sensors only approximate inner-canopy microclimate.
+4. **Per-cohort frontier comparisons rely on linear extrapolation in 12 of 19 cohorts and single-start calendar schedules.** Because fixed calendars spanned 6 to 11 sprays (`cal_14d` to `cal_7d`), more than half of the station-years under `om_v1_T10` (12 dry cohorts below 6 sprays, down to 2.44 in Bourgogne 2019) fell outside the calendar range. Each fixed calendar also starts on a single fixed date (May 1); in any isolated season, whether those dates coincide with rainfall events introduces phase noise. In Champagne 2022 and Champagne 2019, `cal_14d` outperformed `cal_12d`, causing backward linear extrapolation to yield artificially low frontiers (136.1 and 50.8). While start-date noise averages out across 19 cohorts, single-season comparisons should rely primarily on the 7 interpolated cohorts (mean −2.09, median −0.33, 4/7 below) and direct comparisons against actual calendar points.
+5. **Nearly half of the sensor-driven INRAE sample overlaps the threshold-selection years.** The 2019–2024 benchmark includes 9 clean cohorts from 2022–2024, which were used on Open-Meteo data to choose $T = 10.0$. No parameter was altered during the sensor-driven run, and splitting out strictly unseen 2019–2021 (10 cohorts, N = 500) preserved pooled dominance (94.48 vs. 104.31 for `cal_14d` with 0.14 fewer sprays), yet full temporal independence holds strictly for 2019–2021 (and 2016–2018 Moselle).
+6. **LWD sensor benchmarks carry sensor-specific calibration uncertainty.** Capacitive and resistive leaf wetness sensors vary across hardware and mounting heights (illustrated by `site2.csv` in Politecnico di Torino reporting 99.9% non-zero readings and Bordeaux-Couhins sticking wet in July 2021 and July 2023), and open-field station sensors only approximate inner-canopy microclimate.
 
 ### 4.2 Implications for Agrometeorological Evaluation
 
 Within those caveats, the work suggests four practical lessons:
 
 * **Isolate components with equal-budget ablations:** Evaluating closed-loop severity assimilation only against an untreated plot or fixed weekly calendar would have credited assimilation for gains actually produced by 7-day forecasts and rain wash-off tracking.
-* **Pair pooled Pareto means with per-cohort decomposition and timeline diagnostics:** Pooled averages hide both *why* the rule works (inter-annual campaign sizing, r = 0.595, rather than better within-season timing) and *how* it fails (early-season and late-season gaps in Champagne 2022 and Bordeaux 2021, Figure 2). Field adoption depends on closing these tail-risk gaps more than on shaving the mean.
-* **Missed wetness events (false negatives), not mean wet bias, drive control failures:** Although Open-Meteo ERA5 reanalysis carries a positive mean wet bias (+1.59 h/day over 70,537 INRAE hours), the Champagne 2022 failure occurred during wet periods that reanalysis misclassified as dry (June 15–19: 59.4 h measured by the sensor vs. 10.0 h estimated from Open-Meteo, Figure 2A). Operationally, the critical vulnerability is the conditional false-negative rate $P(\text{sensor wet} \mid \text{OM dry}) = 0.106$ (0.1058), not average wet bias. Future rule or sensor work should target missed wetting events before average bias.
-* **Treat weather-source quality and decision thresholds as coupled:** Open-Meteo ERA5 reanalysis added 1.21–1.48 h/day of LWD error relative to local stations, yet plugging station weather into a reanalysis-calibrated threshold (`st_v1_T10`) did not improve decisions automatically. Any deployment on local station networks (such as Luxembourg's ASTA / `agrimeteo.lu`) should calibrate thresholds directly on local station history.
+* **Pair pooled Pareto means with per-cohort decomposition and timeline diagnostics:** Pooled averages hide both *why* the rule works (inter-annual campaign sizing, r = 0.479, rather than better within-season timing) and *how* it fails (early- and late-season coverage gaps in Champagne 2022 and missed rainless dew in Champagne 2019, Figure 2). Field adoption depends on closing these tail-risk gaps more than on shaving the mean.
+* **Missed wetness events (false negatives), not mean wet bias, drive control failures:** Although Open-Meteo ERA5 reanalysis carries a positive mean wet bias (+1.96 h/day over 64,663 May–August INRAE hours), both Champagne failures occurred during wet periods that reanalysis misclassified as dry (June 15–19, 2022: 59.4 h measured by the sensor vs. 10.0 h estimated from Open-Meteo; June 27–July 10, 2019: 121.0 h vs. 4.0 h, Figure 2). Operationally, the critical vulnerability is the conditional false-negative rate $P(\text{sensor wet} \mid \text{OM dry}) = 0.086$ (0.0862), not average wet bias. Future rule or sensor work should target missed wetting events before average bias.
+* **Treat weather-source quality and decision thresholds as coupled:** Open-Meteo ERA5 reanalysis added more than 1.2 h/day of LWD error relative to local stations in six of eight network-estimator pairs, yet plugging station weather into a reanalysis-calibrated threshold (`st_v1_T10`) did not improve decisions automatically. Any deployment on local station networks (such as Luxembourg's ASTA / `agrimeteo.lu`) should calibrate thresholds directly on local station history.
 
 ---
 
 ## 5. Reproducibility and Software
 
-All code is implemented in Python 3.12 (`numpy`, `scipy`, `pandas`, `requests`, `flask`, `psycopg2-binary`, `pytest`) with trapezoidal AUDPC cross-checked against R 4.6.1 (`r/aacpd_validacao.R`, maximum discrepancy 3.33 × 10⁻⁹ < 10⁻⁶). The automated test suite (`pytest tests/ -q`) runs 69 offline unit and integration tests without external database or GPU requirements. A companion fix in `epidemiology_assimilation.py` separated `r_prior_gompertz` from `r_prior`, restoring within-model 95% credible-interval coverage of $r$ from ~75% (cross-model scale mixing) to 97.9% (logistic) and 95.8% (Gompertz).
+All code is implemented in Python 3.12 (`numpy`, `scipy`, `pandas`, `requests`, `flask`, `psycopg2-binary`, `pytest`) with trapezoidal AUDPC cross-checked against R 4.6.1 (`r/aacpd_validacao.R`, maximum discrepancy 3.33 × 10⁻⁹ < 10⁻⁶). The automated test suite (`pytest tests/ -q`) runs offline without external database or GPU requirements. A companion fix in `epidemiology_assimilation.py` separated `r_prior_gompertz` from `r_prior`, restoring within-model 95% credible-interval coverage of $r$ from ~75% (cross-model scale mixing) to 97.9% (logistic) and 95.8% (Gompertz).
 
 Every frozen checkpoint is auditable in Git history. On 21 November 2026 the commit author field was rewritten to link the commits to the author's GitHub account, which changed every commit hash without changing any file content. The hashes below are the current ones; the original hashes were `2e8aea8`, `68ef7fd`, `a562ccc` and `958cbe3`, in the same order.
 * `668573a`: Freeze four-arm OSSE ablation before 2022–2024 out-of-sample evaluation.
 * `7ac0332`: Freeze $T = 10.0$ and residual coverage gate (`v2`) before unseen 2019–2021 + Alsace validation.
 * `f74010d`: Freeze `rh90_hysteresis` sensor validation and economics before untouched 2016–2018 validation.
-* `54084a6`: Semi-real INRAE sensor OSSE (N = 1,200), calibrated Moselle error test (N = 180), and EU 2018/1981 copper sensitivity surface.
-
----
-
-## 6. Errata (`v1.0.2`)
-
-**Note on `v1.0.1`:** Errata `v1.0.1` applied `vitirule v2`'s initial 24-hour continuous gap rejection rule uniformly across all `v1` benchmarks, removing clean station-seasons whose missing hours did not falsify `v1` numbers (four Politecnico di Torino sites whose missing hours were simply omitted rows, plus Alsace 2022 and Bourgogne 2022 where missing temperature hours were dropped by `dropna`). Errata `v1.0.2` replaces `v1.0.1` with a strict analysis-by-analysis audit that removes only cohorts affected by stuck/drifting sensors or invented fill values inside each analysis's effective window. Tags `v1.0` and `v1.0.1` remain untouched in Git history.
-
-Inspecting the frozen `v1` code (`lwd_sensor_validation.py`, `leaf_wetness.py`, `semireal_osse.py`, `osse_benchmark.py`) without altering any parameter, rule, or seed (`scripts/v1_errata_audit.py`), we applied two rules:
-
-1. **Failed sensor drift/stuck check:** excluded from every `v1` analysis that reads the physical LWD sensor (Bordeaux 2021, Bordeaux 2023, and Politecnico `site2.csv`).
-2. **Missing hours or low coverage:** kept if the frozen code dropped missing hours without inventing values (`dropna` on `t`, `u`, `h` in INRAE; omitted rows in Politecnico); excluded from a specific analysis only if missing values were filled with invented constants used by that analysis (`rr` filled with `0.0 mm` in `load_inrae_station`, or `vt` filled with `1.5 m/s` in `leaf_wetness.py`).
-
-**Table 8.** Analysis-by-analysis keep/exclude audit for all station-seasons with any sensor fault or missing data. The 15 clean INRAE cohorts (Bordeaux 2019–2020, Alsace 2019–2021 & 2023, Champagne 2019–2020 & 2022–2024, Bourgogne 2019–2020 & 2023–2024) and Politecnico `site1` & `site5` had zero faults or missing hours and remain in all applicable analyses.
-
-| Network & Station-Season | LWD Validation (Apr–Sep 2022–2024) | Empirical OM Error (May–Aug 2019–2024) | Semi-Real OSSE (May 1–Jul 16 2019–2024) | Reason in Frozen `v1` Code |
-|---|---|---|---|---|
-| INRAE Bordeaux 2021 | N/A | **Exclude** | **Exclude** | LWD sensor stuck wet in July (90.1% dry-midday wet, 309 h rainless streak) |
-| INRAE Bordeaux 2022 | **Exclude** | **Keep** | **Exclude** | Missing `rr` (94 h in June) filled with `0.0 mm` and `vt` (172 h) with `1.5 m/s`; empirical error reads only `h` and Open-Meteo |
-| INRAE Bordeaux 2023 | **Exclude** | **Exclude** | **Exclude** | LWD sensor stuck wet in July (95.9% dry-midday wet, 287 h rainless streak) |
-| INRAE Bordeaux 2024 | **Exclude** | **Keep** | **Keep** | Missing `rr` (1,409 h) occurred July 20–Sept 18, entirely after the May 1–July 16 OSSE window; empirical error does not read `rr` |
-| INRAE Alsace 2022 | **Keep** | **Keep** | **Keep** | Only `t` missing (100 h), dropped via `dropna`; zero invented values |
-| INRAE Alsace 2024 | **Exclude** | **Keep** | **Exclude** | Missing `rr` (29 h; 19 h inside May 1–July 16) filled with `0.0 mm`; empirical error does not read `rr` |
-| INRAE Champagne 2021 | N/A | **Keep** | **Keep** | Missing `h` (21 h in April), dropped via `dropna` and outside May–Aug |
-| INRAE Bourgogne 2021 | N/A | **Keep** | **Exclude** | Missing `rr` (666 h; 58 h through July 16) filled with `0.0 mm`; empirical error does not read `rr` |
-| INRAE Bourgogne 2022 | **Keep** | **Keep** | **Keep** | Only `t` missing (156 h), dropped via `dropna`; zero invented values |
-| Politecnico `site2` (2023) | **Exclude** | N/A | N/A | Severe LWD sensor drift (already excluded from `v1.0` 6 clean sites) |
-| Politecnico `site3`, `site4`, `site6`, `site7` | **Keep** | N/A | N/A | Zero `NaN` values; missing timestamps were omitted CSV rows with no invented values |
-
-**Table 9.** Published `v1.0` results compared with the analysis-by-analysis `v1.0.2` audit using identical frozen `v1.0` code.
-
-| Benchmark / Metric | Published `v1.0` | Audited `v1.0.2` |
-|---|---|---|
-| INRAE LWD validation (2022–2024) sample | 12 station-years (52,675 h) | 8 station-years (34,880 h) |
-| INRAE `rh90_hysteresis` Station / Open-Meteo MAE / Δ MAE | 2.61 / 4.07 / +1.46 h/d | 2.65 / 3.94 / +1.29 h/d |
-| INRAE `dpd_hysteresis` Station / Open-Meteo MAE / Δ MAE | 2.76 / 4.24 / +1.48 h/d | 2.85 / 4.16 / +1.30 h/d |
-| INRAE `rh85` Station / Open-Meteo MAE / Δ MAE | 3.26 / 4.30 / +1.04 h/d | 3.37 / 4.24 / +0.87 h/d |
-| INRAE `cart_kim2002` Station / Open-Meteo MAE / Δ MAE | 3.25 / 3.82 / +0.57 h/d | 3.29 / 3.61 / +0.32 h/d |
-| Politecnico LWD validation (6 clean sites) | 23,735 h, Δ MAE +1.21 to +1.46 h/d | Unchanged (23,735 h, Δ MAE +1.21 to +1.46 h/d) |
-| Empirical May–Aug Open-Meteo error sample | 24 cohorts (70,537 h) | 22 cohorts (64,663 h) |
-| Empirical bias / MAE / lag-1 / $P(\text{wet}\mid\text{OM dry})$ | +1.59 / 3.99 / 0.676 / 0.1058 | +1.96 / 3.74 / 0.647 / 0.0862 |
-| Semi-real INRAE OSSE sample & untreated mean AUDPC | 24 cohorts, N = 1,200, 284.7 | 19 cohorts, N = 950, 218.4 |
-| INRAE `om_v1_T10`: sprays / AUDPC / Δ vs. frontier | 6.77 / 121.42 / −18.95 (−13.5%) | 6.23 / 99.63 / −11.59 (−10.4%) |
-| INRAE `st_v1_T10`: sprays / AUDPC / Δ vs. frontier | 6.38 / 127.48 / −15.99 (−11.1%) | 6.03 / 102.01 / −9.83 (−8.8%) |
-| INRAE `om_v2_T10`: sprays / AUDPC / Δ vs. `cal_14d` | 5.51 / 137.31 / −9.18 (p < 10⁻⁶) | 5.19 / 109.39 / −2.55 (p = 0.815) |
-| Inter-annual correlation $r$ (sprays vs. untreated AUDPC) | 0.595 (p = 0.0022) | 0.479 (p = 0.0380) |
-| Calibrated Moselle (2016–2018, N = 180) `om_v1_T10` Δ frontier | −22.70 (−7.6%, p = 4.7 × 10⁻⁵) | −21.68 (−8.3%, p = 2.1 × 10⁻⁵) |
-| Unconstrained economic win share (`cal_7d` / `om_v1+v2` / untreated) | 40.5% / 46.8% / 12.7% | 33.3% / 48.4% / 18.3% |
-| EU copper cap (0.50 kg/ha) win share (`om_v1+v2` / `cal_10d`) | 80.9% / 6.3% | 60.3% / 21.4% |
-
-### Claims That Still Hold vs. Claims That Fall
-
-* **Claims that still hold:**
-  1. Section 3.1 (negative result for Bayesian severity assimilation, N = 360) used no physical LWD sensors and is unaffected.
-  2. **The LWD benchmark conclusion holds intact:** all four estimators tie on Open-Meteo input, the 6 clean Politecnico sites are unchanged, and the reanalysis penalty still exceeds 1.2 h/day in **6 of 8** network–estimator pairs (all 4 in Politecnico plus `rh90_hysteresis` [+1.29] and `dpd_hysteresis` [+1.30] in INRAE).
-  3. Pooled Pareto dominance of `om_v1_T10` persists in both the clean INRAE OSSE (−11.59 AUDPC, −10.4% below the frontier; 99.63 vs. 108.82 for `cal_12d` with 0.77 fewer sprays) and calibrated-error Moselle (−21.68 AUDPC, −8.3%, p = 2.1 × 10⁻⁵).
-  4. Inter-annual campaign sizing remains the driver of pooled gain (r = 0.479, p = 0.038), and **Champagne 2022** remains a valid tail-risk failure cohort.
-  5. Qualitative economic sensitivity holds: optimal strategy depends jointly on gross revenue, damage slope, and copper dose.
-* **Claims that fall or require revision:**
-  1. **Bordeaux 2021 falls as a valid rule-failure case.** Its +52.9 AUDPC excess in Table 5, Table 6, and Figure 2B occurred while the physical LWD sensor was stuck wet throughout July 2021 and must not be cited as an operational failure of the rule.
-  2. **The AUDPC advantage of `om_v2_T10` over `cal_14d` falls.** Under `v1.0.2`, `om_v2_T10` ties `cal_14d` statistically in AUDPC (−2.55, Wilcoxon p = 0.815), retaining only its 0.81 spray/season reduction.
-  3. **Pooled effect sizes and EU-copper win shares shrink.** The pooled `om_v1_T10` frontier gain drops from −18.95 to −11.59 AUDPC, and combined rule win share under the 0.50 kg Cu/ha cap drops from 80.9% to 60.3% (with `cal_10d` rising from 6.3% to 21.4%). Citing Bordeaux 2023 in Section 3.5 also falls due to the July stuck sensor.
+* `54084a6`: Sensor-driven INRAE OSSE, calibrated Moselle error test (N = 180), and EU 2018/1981 copper sensitivity surface.
 
 ---
 

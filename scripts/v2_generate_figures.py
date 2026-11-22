@@ -314,7 +314,7 @@ def plot_fig3_previous_runs(p3: dict[str, Any], out_dir: Path) -> Path:
     sec_b = p3["secondary_analyses"]["secondary_B_previous_runs_2024_2025_inrae"]["by_rule"]
     W, H = 980, 425
     els = _svg_header(W, H)
-    els.append(f'<text x="{W / 2}" y="26" text-anchor="middle" class="title">Quasi-Analysis vs. Real Forecast Lead Time (INRAE Exploratory, 2024–2025)</text>')
+    els.append(f'<text x="{W / 2}" y="26" text-anchor="middle" class="title">Quasi-Analysis vs. 1–3 Day Forecast Lead Time (INRAE Exploratory, 2024–2025)</text>')
 
     leads = ["historical_forecast", "previous_day1", "previous_day2", "previous_day3"]
     lead_labels = ["Hist. Forecast", "Lead 1 d", "Lead 2 d", "Lead 3 d"]
@@ -331,7 +331,7 @@ def plot_fig3_previous_runs(p3: dict[str, Any], out_dir: Path) -> Path:
 
     # Panel A: Missed Alerts (%)
     px, py, pw, ph = 70, 90, 395, 265
-    els.append(f'<text x="{px}" y="{py - 10}" class="panel-title">A. Missed Alerts Rise Under Real Forecasts</text>')
+    els.append(f'<text x="{px}" y="{py - 10}" class="panel-title">A. Missed Alerts Rise with Forecast Lead Time</text>')
     ymin_a, ymax_a = 15.0, 46.0
     for gy in (20, 25, 30, 35, 40, 45):
         y = py + ph - ((gy - ymin_a) / (ymax_a - ymin_a)) * ph
