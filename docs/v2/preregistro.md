@@ -140,3 +140,30 @@ Uma fonte meteorológica será classificada como **usável** para uma regra se, 
 - **O que aconteceu:** houve uma primeira rodada exploratória após `v2-freeze` com a coleta original em `models=era5_land`, cujo resultado foi visto e acusou zero alertas em 3-10, Goidànich e Mills para essa fonte. A inspeção dos arquivos em cache mostrou que `models=era5_land` no endpoint `archive-api.open-meteo.com/v1/archive` retorna `null` em 100% das horas de `precipitation`, `wind_speed_10m` e `shortwave_radiation`.
 - **O que mudou:** em `vitirule_v2/sources/open_meteo.py`, trocamos o parâmetro de coleta para `models=era5_seamless` com trava automática contra precipitação inteiramente nula, tratando o ajuste estritamente como correção de coleta, sem nenhuma mudança de regra, limiar, tolerância ou métrica.
 - **Descrição corrigida da fonte:** segundo a documentação do Open-Meteo, `era5_seamless` combina temperatura e umidade relativa do ERA5-Land na grade de `0,1 grau` com precipitação, vento e radiação do ERA5 na grade de `0,25 grau`. Por isso a fonte passa a ser designada como **ERA5 combinado: T e UR do ERA5-Land, chuva, vento e radiação do ERA5**, registrando em `grid_metadata` a distância horizontal e a diferença de altitude tanto do ponto ERA5-Land de `0,1 grau` quanto do ponto ERA5 de `0,25 grau` usado para a chuva.
+
+## 9. Adendo Brasil para a Fase 4, congelado em `v2-freeze-br`
+
+Este adendo define integralmente a regra de seleção de estações brasileiras e os limites de interpretação da Fase 4 antes de baixar ou inspecionar qualquer série meteorológica do Brasil. Ele é congelado na tag anotada `v2-freeze-br`.
+
+### 9.1 Regra de seleção das estações automáticas do INMET em Santa Catarina
+
+1. **Universo geográfico:** todas as estações meteorológicas automáticas oficiais do INMET sediadas no estado de Santa Catarina, presentes nos arquivos históricos anuais públicos do INMET (`portal.inmet.gov.br/uploads/dadoshistoricos/`) para os anos civis de `2022` a `2025`.
+2. **Filtro de municípios produtores, decidido antes de abrir dados do INMET:** entram apenas estações cujo município sede possua área colhida maior que zero hectare em pelo menos uma das três culturas do projeto, a saber maçã, uva ou tomate, segundo a edição mais recente disponível da Produção Agrícola Municipal do IBGE na tabela SIDRA `5457`. Todas as estações automáticas catarinenses descartadas por esse filtro ou por controle de qualidade serão listadas nominalmente na nota de método da Fase 4 com o respectivo motivo.
+3. **Janelas fenológicas do Hemisfério Sul e recorte pareado:** aplicam-se as janelas já congeladas na seção 4 em `2022–2025`, período com cobertura completa das três fontes em grade em UTC:
+   - **Macieira, Mills revisada:** `15 de setembro` a `31 de dezembro`, cobrindo quatro safras civis (`2022`, `2023`, `2024` e `2025`).
+   - **Videira, Regra 3-10 e Goidànich:** `1 de outubro` a `31 de março` do ano seguinte, cobrindo três safras (`2022/2023`, `2023/2024` e `2024/2025`).
+   - **Tomateiro, TOM-CAST:** `1 de novembro` a `31 de março` do ano seguinte, cobrindo três safras (`2022/2023`, `2023/2024` e `2024/2025`).
+4. **Controle de qualidade cego e mínimo de safras:** aplica-se `vitirule_v2/qc.py` sem os testes exclusivos do sensor físico de molhamento foliar, exigindo cobertura horária de pelo menos `95,0%` em temperatura do ar, umidade relativa e precipitação dentro da janela da cultura, valores dentro dos limites físicos plausíveis (`T` em `[-30, 55] °C`, `UR` em `[0, 100]%`, precipitação em `[0, 300] mm/h`) e política `mask_with_warmup` para lacunas. Uma estação entra na análise de uma cultura apenas se passar no controle de qualidade em **pelo menos `N = 2` safras** no recorte `2022–2025`.
+5. **Alinhamento temporal, fontes e métricas:** todas as séries do INMET, do **ERA5 combinado: T e UR do ERA5-Land, chuva, vento e radiação do ERA5**, do Open-Meteo Historical Forecast e do NASA POWER com `time-standard=UTC` são alinhadas em UTC. Os dias civis da Regra 3-10 e de Goidànich e a janela `12h–12h` do TOM-CAST usam o fuso local `America/Sao_Paulo`. Aplicam-se sem alteração o estimador primário `rh90_rain`, as tolerâncias congeladas, o custo-perda diário e o bootstrap em bloco por estação com `2.000` réplicas e semente `20261122`, ficando descritivo sem IC caso menos de 3 estações sejam aprovadas numa cultura. Em `grid_metadata`, registram-se distância e diferença de altitude tanto do ponto ERA5-Land de `0,1 grau` quanto do ponto ERA5 de `0,25 grau`, além de Historical Forecast e NASA POWER.
+
+### 9.2 Restrição obrigatória de interpretação: estimativa de erro versus divergência
+
+As estações automáticas do INMET não possuem sensor físico de molhamento foliar. Por esse motivo, estabelece-se a seguinte restrição estrita para toda a Fase 4:
+
+- **Tabela revisada de Mills:** a comparação entre cada fonte em grade e a estação automática do INMET pode ser lida como **estimativa de erro da grade**, pois Mills foi a única regra em que a estação local sem sensor passou no critério de usabilidade na avaliação europeia, mantida a ressalva de que essa aprovação europeia ainda é exploratória até a rodada `v2-confirmatory`.
+- **Regra 3-10, Goidànich e TOM-CAST:** a comparação entre cada fonte em grade e a estação do INMET chama-se estritamente **divergência**, nunca erro.
+
+### 9.3 Escopo da Epagri/Ciram e caráter exploratório do diagnóstico de relevo
+
+- **Sem leitor Epagri/Ciram nesta etapa:** nenhum adaptador de leitura da Epagri/Ciram será implementado agora; o código de leitura só entrará quando os arquivos oficiais com sensor de molhamento chegarem e seu formato real for conhecido.
+- **Diagnóstico por relevo e regime de chuva:** qualquer análise cruzando divergência ou estimativa de erro com altitude da estação, distância horizontal, diferença de altitude para os centros de grade e regime de precipitação convectiva de verão em Santa Catarina é estritamente **exploratória** e será rotulada assim em todo o relatório da Fase 4.
