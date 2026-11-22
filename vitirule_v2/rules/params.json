@@ -11,7 +11,7 @@
         "end_month": 9,
         "end_day": 30,
         "cross_year": false,
-        "reference": "Rossi et al. (2008), European Journal of Plant Pathology 121:419-435, doi:10.1007/s10658-007-9254-7; Caffi et al. (2010), Plant Disease 94:709-716; cobertura primaveril a colheita em vinhedos temperados europeus."
+        "reference": "Rossi et al. (2008), Ecological Modelling 212(3-4):480-491, doi:10.1016/j.ecolmodel.2007.10.046; Caffi et al. (2010), Plant Disease 94:709-716, doi:10.1094/PDIS-94-6-0709; cobertura primaveril a colheita em vinhedos temperados europeus."
       },
       "apple": {
         "start_month": 3,

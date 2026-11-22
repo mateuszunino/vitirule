@@ -146,6 +146,11 @@ Uma fonte meteorológica será classificada como **usável** para uma regra se, 
 - **O que aconteceu:** houve uma primeira execução de `scripts/v2_phase4_brazil.py` em Santa Catarina cujo resultado foi visto e devolveu zero eventos para o calendário de Goidànich. A causa foi a omissão do argumento `hemisphere="southern_hemisphere"` na chamada de `track_goidanich_incubation`, que manteve o padrão `"northern_hemisphere"` e interrompeu todas as coortes fora da janela boreal.
 - **O que mudou:** adicionamos explicitamente `hemisphere="southern_hemisphere"` na chamada de `track_goidanich_incubation` em `scripts/v2_phase4_brazil.py`. Trata-se estritamente de correção de chamada de função, sem nenhuma mudança em `vitirule_v2/rules/`, em `vitirule_v2/metrics.py` ou em qualquer limiar, tolerância ou métrica.
 
+### Correção de citação pós-`v2-freeze`: 22 nov 2026, referência de Rossi et al. (2008) em `params.json`
+
+- **O que mudou:** na linha 14 de `vitirule_v2/rules/params.json`, no campo bibliográfico `phenology_windows.northern_hemisphere.grapevine.reference`, substituímos a citação incorreta `European Journal of Plant Pathology 121:419-435, doi:10.1007/s10658-007-9254-7` pela referência verificada no Crossref em `Ecological Modelling 212(3-4):480-491, doi:10.1016/j.ecolmodel.2007.10.046`, já adotada em `rule_3_10.primary_reference` e no relatório da v2, acrescentando ainda o DOI verificado de Caffi et al. (2010), `10.1094/PDIS-94-6-0709`.
+- **Motivo:** consulta ao Crossref confirmou que o DOI `10.1007/s10658-007-9254-7` retorna HTTP 404, enquanto `10.1016/j.ecolmodel.2007.10.046` sustenta diretamente a discussão da regra 3-10 e das infecções primárias de *Plasmopara viticola*. Nenhum parâmetro numérico, janela fenológica, regra ou métrica foi alterado.
+
 ## 9. Adendo Brasil para a Fase 4, congelado em `v2-freeze-br`
 
 Este adendo define integralmente a regra de seleção de estações brasileiras e os limites de interpretação da Fase 4 antes de baixar ou inspecionar qualquer série meteorológica do Brasil. Ele é congelado na tag anotada `v2-freeze-br`.
