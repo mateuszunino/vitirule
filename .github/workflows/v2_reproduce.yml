@@ -30,6 +30,16 @@ jobs:
         run: |
           pytest tests/test_v2_rules.py tests/test_v2_phase2.py tests/test_v2_metrics.py tests/test_v2_phase4_inmet.py tests/test_v2_phase5_deliverables.py -q
 
+      - name: Set up Node.js and run real Pyodide browser-app test (4 timezones + tzdata)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install pyodide npm package and execute tests/test_pyodide_app.mjs
+        run: |
+          npm install --no-save pyodide@0.26.4
+          node tests/test_pyodide_app.mjs
+
       - name: Run public Brazil INMET Santa Catarina transfer (v2-freeze-br)
         run: |
           python scripts/v2_phase4_brazil.py

@@ -33,8 +33,13 @@ def test_browser_app_has_pyodide_and_grid_non_recommendation_warning():
     assert "Demonstração de divergência" in html
     assert "NÃO é recomendação" in html or "não é recomendação" in html
     assert "Tabela de confiabilidade medida" in html
+    assert "Não passou no exploratório" in html
+    assert "Não usável" not in html
+    assert "Na tabela de Mills, uma estação local com termômetro, higrômetro e pluviômetro passou no critério exploratório" in html
     assert "vitirule_bundle.json" in js
+    assert 'loadPackage("tzdata")' in js
     assert "run_station_csv_json" in js
+    assert (ROOT / "tests" / "test_pyodide_app.mjs").is_file()
 
 
 def test_figures_license_attribution_and_public_ci_isolation():

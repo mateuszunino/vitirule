@@ -231,6 +231,8 @@ def run_open_meteo_divergence_json(csv_text, om_json_text, hemisphere, tz_name, 
 async function initPyodide() {
   try {
     pyodide = await loadPyodide();
+    statusEl.innerHTML = "Carregando base de fusos horários (<code>tzdata</code>) e pacote congelado <code>vitirule_v2/rules/</code>…";
+    await pyodide.loadPackage("tzdata");
     const resp = await fetch("vitirule_bundle.json");
     if (!resp.ok) throw new Error("Falha ao carregar vitirule_bundle.json");
     const files = await resp.json();
@@ -247,7 +249,7 @@ if "/vitirule_pkg" not in sys.path:
 ${PYTHON_DRIVER}
 `);
     statusEl.innerHTML =
-      "<strong>Pronto:</strong> Pyodide carregado com o pacote puro congelado <code>vitirule_v2/rules/</code> (execução 100% local no navegador).";
+      "<strong>Pronto:</strong> Pyodide carregado com <code>tzdata</code> e o pacote puro congelado <code>vitirule_v2/rules/</code> (execução 100% local no navegador).";
     runBtn.disabled = false;
     sampleBtn.disabled = false;
   } catch (err) {
