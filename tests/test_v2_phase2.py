@@ -315,3 +315,34 @@ class TestWeatherSourcesAndGridMetadata:
         assert gm.elev_diff_m == pytest.approx(5.0)
         assert nearest_merra2_center(44.7526, -0.56077) == (45.0, -0.625)
         assert haversine_km(0.0, 0.0, 0.0, 1.0) == pytest.approx(111.195, abs=0.1)
+
+    def test_era5_land_fetch_uses_era5_seamless_and_rejects_all_null_precip(self, tmp_path):
+        from vitirule_v2.sources.open_meteo import fetch_era5_land
+
+        captured: dict = {}
+
+        class _NullPrecipResp:
+            status_code = 200
+            def raise_for_status(self): pass
+            def json(self):
+                return {
+                    "latitude": 44.8, "longitude": -0.6, "elevation": 25.0, "timezone": "GMT",
+                    "hourly": {
+                        "time": [1686830400],
+                        "temperature_2m": [20.0],
+                        "relative_humidity_2m": [80.0],
+                        "precipitation": [None],
+                        "wind_speed_10m": [None],
+                        "shortwave_radiation": [None],
+                    },
+                }
+
+        class _DummySession:
+            headers: dict = {}
+            def get(self, url, params=None, timeout=None):
+                captured["params"] = dict(params or {})
+                return _NullPrecipResp()
+
+        with pytest.raises(ValueError, match="precipitation"):
+            fetch_era5_land(44.7526, -0.56077, "2023-06-15", "2023-06-15", cache_dir=tmp_path, station_tag="t", session=_DummySession())
+        assert captured["params"]["models"] == "era5_seamless"

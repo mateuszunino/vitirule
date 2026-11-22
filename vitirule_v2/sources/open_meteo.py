@@ -141,27 +141,37 @@ def fetch_era5_land(
     session: requests.Session | None = None,
     force: bool = False,
 ) -> tuple[list[HourlyRecord], dict[str, Any]]:
-    """Baixa (ou le do cache) serie horaria ERA5-Land em UTC."""
+    """
+    Baixa (ou le do cache) serie horaria na grade ERA5-Land (0,1 grau) via
+    `models=era5_seamless` do Open-Meteo Archive em UTC.
+
+    Nota tecnica: no Open-Meteo Archive, `models=era5_land` retorna `null` em
+    `precipitation`, `wind_speed_10m` e `shortwave_radiation`; `era5_seamless`
+    mantem exatamente a mesma grade ERA5-Land (0,1 grau) para temperatura/UR e
+    fornece todas as cinco variaveis horarias preenchidas.
+    """
     params = {
         "latitude": lat,
         "longitude": lon,
         "start_date": start_date,
         "end_date": end_date,
         "hourly": ",".join(BASE_HOURLY_VARS),
-        "models": "era5_land",
+        "models": "era5_seamless",
         "timezone": "GMT",
         "timeformat": "unixtime",
         "wind_speed_unit": "ms",
     }
     cache_path = (
-        Path(cache_dir) / "era5_land" / f"{station_tag}_{start_date}_{end_date}.json"
+        Path(cache_dir) / "era5_seamless" / f"{station_tag}_{start_date}_{end_date}.json"
         if cache_dir is not None
         else None
     )
     payload = _cached_fetch(OPEN_METEO_ARCHIVE_URL, params, cache_path, session=session, force=force)
     recs, meta = parse_open_meteo_hourly_payload(payload)
+    if recs and all(r.precip_mm is None for r in recs):
+        raise ValueError("Open-Meteo Archive retornou precipitation inteiramente nula")
     meta["source"] = "era5_land"
-    meta["model"] = "era5_land"
+    meta["model"] = "era5_seamless"
     return recs, meta
 
 

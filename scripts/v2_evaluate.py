@@ -85,8 +85,25 @@ def _align_to_timestamps(
     return [r for r in cand_records if r.ts in valid_ts_set]
 
 
+_REF_CACHE: dict[tuple[str, int, int], list[HourlyRecord]] = {}
+_SRC_CACHE: dict[tuple[str, tuple[int, ...]], dict[str, dict[datetime, HourlyRecord]]] = {}
+
+
+def _load_ref_cached(st: StationMetadata, y_min: int, y_max: int) -> list[HourlyRecord]:
+    key = (st.station_id, y_min, y_max)
+    if key not in _REF_CACHE:
+        if st.network == "inrae":
+            _REF_CACHE[key] = load_inrae_records(st.path, year_min=y_min, year_max=y_max)
+        else:
+            _REF_CACHE[key] = load_polito_records(st.path)
+    return _REF_CACHE[key]
+
+
 def _load_cached_sources_for_station(st: StationMetadata, years: Sequence[int]) -> dict[str, dict[datetime, HourlyRecord]]:
     """Carrega do cache em disco (`data/v2_cache/`) todas as fontes candidatas da estacao."""
+    cache_key = (st.station_id, tuple(sorted(set(years))))
+    if cache_key in _SRC_CACHE:
+        return _SRC_CACHE[cache_key]
     tag = f"{st.network}_{st.station_id}"
     if st.network == "inrae":
         long_start, long_end = "2019-03-01", "2025-10-05"
@@ -124,6 +141,7 @@ def _load_cached_sources_for_station(st: StationMetadata, years: Sequence[int]) 
             for r in pr_by_lead[lead]:
                 out[f"previous_day{lead}"][r.ts] = r
 
+    _SRC_CACHE[cache_key] = out
     return out
 
 
@@ -162,10 +180,10 @@ def _evaluate_block(
 
     for st in stations:
         if st.network == "inrae":
-            all_ref = load_inrae_records(st.path, year_min=min(years), year_max=max(years))
+            all_ref = _load_ref_cached(st, min(years), max(years))
             st_years = list(years)
         else:
-            all_ref = load_polito_records(st.path)
+            all_ref = _load_ref_cached(st, 2022, 2025)
             obs_yrs = sorted({r.ts.year for r in all_ref})
             st_years = [y for y in years if y in obs_yrs]
             if not st_years:

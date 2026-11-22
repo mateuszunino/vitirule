@@ -134,3 +134,8 @@ Uma fonte meteorológica será classificada como **usável** para uma regra se, 
 
 - **O que mudou:** o lockbox de 20% foi substituído pelo **conjunto confirmatório completo**, formado por todas as estações novas do INRAE que passarem no controle de qualidade cego, rodando uma única vez após `v2-freeze` na tag `v2-confirmatory`.
 - **Motivo:** como o desenvolvimento termina em `v2-freeze` sem uso prévio do lote novo do INRAE, reservar apenas 20% desperdiçaria poder estatístico. Usar todo o lote novo como conjunto confirmatório maximiza a precisão dos intervalos de confiança de 95% mantendo separação total do desenvolvimento.
+
+### Correção técnica pós-`v2-freeze`: 22 nov 2026, parâmetro da API Open-Meteo Archive
+
+- **O que mudou:** em `vitirule_v2/sources/open_meteo.py`, o parâmetro da consulta ao Open-Meteo Archive passou de `models=era5_land` para `models=era5_seamless`, com validação automática contra séries com precipitação inteiramente nula.
+- **Motivo:** a primeira execução exploratória revelou que `models=era5_land` no endpoint `archive-api.open-meteo.com/v1/archive` retorna `null` em 100% das horas de `precipitation`, `wind_speed_10m` e `shortwave_radiation`, zerando os alertas de 3-10, Goidànich e Mills. O parâmetro `era5_seamless` mantém exatamente o mesmo ponto de grade de 0,1 grau e a mesma altitude da camada ERA5-Land, entregando todas as cinco variáveis horárias preenchidas. Nenhum limiar, regra, tolerância ou métrica foi alterado.
