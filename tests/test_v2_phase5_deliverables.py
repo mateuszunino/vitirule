@@ -38,15 +38,36 @@ def test_browser_app_has_pyodide_and_grid_non_recommendation_warning():
 
 
 def test_figures_license_attribution_and_public_ci_isolation():
-    fig2 = ROOT / "docs" / "v2" / "figures" / "fig2_europe_cost_loss_and_tomcast.svg"
+    fig_dir = ROOT / "docs" / "v2" / "figures"
+    for svg_p in sorted(fig_dir.glob("*.svg")):
+        txt = svg_p.read_text(encoding="utf-8")
+        assert "—" not in txt, f"Travessao encontrado em {svg_p.name}"
+
+    fig1 = fig_dir / "fig1_europe_exploratory_miss_far.svg"
+    if fig1.is_file():
+        txt1 = fig1.read_text(encoding="utf-8")
+        assert "False alarm ratio, FAR (%)" in txt1
+        assert "Station without LWD sensor not shown: input identical to reference." in txt1
+        assert "F1=1.00" not in txt1
+
+    fig2 = fig_dir / "fig2_europe_cost_loss_and_tomcast.svg"
     if fig2.is_file():
         txt2 = fig2.read_text(encoding="utf-8")
         assert "CC BY-NC 4.0" in txt2
         assert "10.17632/sd4b8vpvyb.1" in txt2
+        assert "Station without LWD sensor not shown for 3-10 and Goidànich: input identical to reference." in txt2
+
+    fig4 = fig_dir / "fig4_santa_catarina_transfer.svg"
+    if fig4.is_file():
+        txt4 = fig4.read_text(encoding="utf-8")
+        assert "<polyline" not in txt4, "fig4 painel B nao deve ligar estacoes independentes com linhas"
+        assert "São Joaquim" in txt4
+        assert "Chapecó" in txt4
+        assert "Caçador" in txt4
 
     # Arquivos publicos (fig4 + tabelas SC) nao podem conter referencias ao Politecnico
     public_files = [
-        ROOT / "docs" / "v2" / "figures" / "fig4_santa_catarina_transfer.svg",
+        fig4,
         ROOT / "docs" / "v2" / "tables" / "table_sc_24_stations_selection.csv",
         ROOT / "docs" / "v2" / "tables" / "table_sc_results_summary.csv",
     ]
