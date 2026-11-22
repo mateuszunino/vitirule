@@ -8,50 +8,58 @@
 2. **Coleta e leitor oficial do INMET + filtro IBGE PAM:** implementamos `vitirule_v2/sources/inmet.py`, extraímos exclusivamente os CSVs catarinenses de `2022.zip` a `2025.zip` em `data/inmet_sc/`, fora do Git, consultamos a tabela SIDRA `5457` da Produção Agrícola Municipal do IBGE de 2025 para área colhida de maçã, uva e tomate em todos os 295 municípios de Santa Catarina e adicionamos 3 testes unitários em `tests/test_v2_phase4_inmet.py`.
 3. **Execução cega e coleta de grades em UTC:** aplicamos `scripts/v2_phase4_brazil.py` com `vitirule_v2/qc.py` no Hemisfério Sul sem sensor de LWD e coletamos em UTC, com cache em `data/v2_cache/`, as séries do **ERA5 combinado: T e UR do ERA5-Land, chuva, vento e radiação do ERA5**, do **Open-Meteo Historical Forecast** e do **NASA POWER** com `time-standard=UTC` para todas as 11 estações aprovadas. Registramos em `grid_metadata` a distância horizontal e a diferença de altitude tanto do ponto ERA5-Land de `0,1 grau` quanto do ponto ERA5 de `0,25 grau` usado na precipitação.
 
+## Verificações de integridade após `v2-freeze` e `v2-freeze-br`
+
+1. **`git diff --stat v2-freeze -- vitirule_v2/metrics.py vitirule_v2/rules/`:** saída vazia, zero linhas alteradas. Nenhuma regra agronômica, tabela de limiares, tolerância de pareamento ou métrica mudou desde `v2-freeze`.
+2. **`git diff v2-freeze-br -- vitirule_v2/qc.py`:** a única mudança em todo o arquivo foi a adição do parâmetro opcional `require_lwd_sensor: bool = True` em `_is_valid_hour`, `compute_raw_gap_hours`, `compute_masked_hours_for_rule` e `evaluate_station_season_qc`. Com o padrão `True`, nenhum critério de aprovação ou comportamento muda para as redes europeias com sensor. Com `False`, usado exclusivamente no INMET conforme pré-registrado na seção 9.1 de `v2-freeze-br`, omitem-se apenas a exigência de `rec.wet` não nulo e os três testes exclusivos do sensor físico de molhamento foliar, preservando integralmente cobertura mínima de `95,0%`, unicidade e monotonicidade de timestamps UTC, limites físicos congelados e política `mask_with_warmup`. Verificamos também que `0` horas em todas as 24 estações catarinenses de 2022 a 2025 caem na faixa intermediária entre os limites físicos congelados em `qc.py` e os limites citados no texto da seção 9.1.
+3. **Correção de chamada em Goidànich:** registrada na seção 8 de `docs/v2/preregistro.md`. A primeira execução de `scripts/v2_phase4_brazil.py` foi vista com zero eventos em Goidànich por omissão do argumento `hemisphere="southern_hemisphere"` na chamada de `track_goidanich_incubation`, corrigida sem alterar nenhuma regra nem métrica.
+
 ## Seleção cega das 24 estações automáticas do INMET em Santa Catarina
 
-Aplicando estritamente a regra congelada em `v2-freeze-br` sobre as **24 estações automáticas** oficiais de Santa Catarina em `2022–2025`, **7 estações** saíram pelo filtro pré-registrado de município produtor da PAM 2025 do IBGE, **6 estações** de municípios produtores saíram pelo controle de qualidade cego por aprovarem menos de 2 safras e **11 estações** entraram em pelo menos uma cultura.
+Aplicando estritamente a regra congelada em `v2-freeze-br` sobre as **24 estações automáticas** oficiais de Santa Catarina em `2022–2025`, **7 estações** saíram pelo filtro pré-registrado de município produtor da PAM 2025 do IBGE, **6 estações** de municípios produtores saíram pelo controle de qualidade cego por aprovarem menos de 2 safras e **11 estações** entraram em pelo menos uma cultura. Em 100% das estações-safra reprovadas no QC, o único critério violado foi **`coverage_below_0.95`**.
 
-| Código WMO | Estação INMET | Altitude | PAM 2025: maçã / uva / tomate, ha | QC aprovado: macieira / videira / tomateiro | Decisão `v2-freeze-br` |
-|---|---|---:|---|---|---|
-| `A806` | Florianópolis | 4,9 m | 0 / 0 / 0 | 3/4 / 2/3 / 2/3 | Excluída: sem produção na PAM 2025 |
-| `A814` | Urussanga | 40,6 m | 0 / 102 / 0 | 1/4 / 2/3 / 2/3 | Incluída: videira, tomateiro |
-| `A815` | São Joaquim | 1.400,1 m | 9.600 / 201 / 0 | 2/4 / 2/3 / 2/3 | Incluída: macieira, videira, tomateiro |
-| `A816` | Novo Horizonte | 943,6 m | 0 / 0 / 1 | 2/4 / 1/3 / 1/3 | Incluída: macieira |
-| `A817` | Indaial | 72,2 m | 0 / 0 / 20 | 1/4 / 1/3 / 2/3 | Incluída: tomateiro |
-| `A841` | Joaçaba | 767,6 m | 0 / 3 / 0 | 0/4 / 1/3 / 1/3 | Excluída: menos de 2 safras no QC |
-| `A845` | Bom Jardim da Serra, Morro da Igreja | 1.790,4 m | 1.450 / 1 / 0 | 1/4 / 1/3 / 1/3 | Excluída: menos de 2 safras no QC |
-| `A848` | Dionísio Cerqueira | 807,5 m | 0 / 3 / 0 | 1/4 / 2/3 / 2/3 | Incluída: videira, tomateiro |
-| `A851` | Itapoá | 6,2 m | 0 / 0 / 0 | 3/4 / 2/3 / 2/3 | Excluída: sem produção na PAM 2025 |
-| `A857` | São Miguel do Oeste | 700,0 m | 0 / 2 / 0 | 0/4 / 0/3 / 0/3 | Excluída: menos de 2 safras no QC |
-| `A858` | Xanxerê | 878,7 m | 0 / 0 / 0 | 1/4 / 2/3 / 2/3 | Excluída: sem produção na PAM 2025 |
-| `A859` | Caçador | 944,3 m | 85 / 425 / 450 | 2/4 / 2/3 / 2/3 | Incluída: macieira, videira, tomateiro |
-| `A860` | Curitibanos | 978,1 m | 0 / 8 / 0 | 2/4 / 2/3 / 3/3 | Incluída: macieira, videira, tomateiro |
-| `A861` | Rio do Campo | 591,7 m | 0 / 2 / 0 | 1/4 / 1/3 / 2/3 | Incluída: tomateiro |
-| `A862` | Rio Negrinho | 800,0 m | 0 / 0 / 0 | 0/4 / 0/3 / 1/3 | Excluída: sem produção na PAM 2025 |
-| `A863` | Ituporanga | 479,8 m | 0 / 5 / 15 | 3/4 / 2/3 / 2/3 | Incluída: macieira, videira, tomateiro |
-| `A864` | Major Vieira | 799,6 m | 8 / 3 / 25 | 0/4 / 0/3 / 1/3 | Excluída: menos de 2 safras no QC |
-| `A865` | Lages | 952,7 m | 0 / 14 / 9 | 0/4 / 0/3 / 1/3 | Excluída: menos de 2 safras no QC |
-| `A866` | Laguna, Farol de Santa Marta | 34,4 m | 0 / 0 / 0 | 0/4 / 0/3 / 1/3 | Excluída: sem produção na PAM 2025 |
-| `A867` | Araranguá | 2,0 m | 0 / 0 / 0 | 0/4 / 1/3 / 1/3 | Excluída: sem produção na PAM 2025 |
-| `A868` | Itajaí | 9,8 m | 0 / 0 / 0 | 3/4 / 2/3 / 2/3 | Excluída: sem produção na PAM 2025 |
-| `A870` | Rancho Queimado | 881,0 m | 0 / 6 / 120 | 0/4 / 0/3 / 0/3 | Excluída: menos de 2 safras no QC |
-| `A895` | Chapecó | 679,0 m | 0 / 50 / 0 | 2/4 / 2/3 / 2/3 | Incluída: macieira, videira, tomateiro |
-| `A898` | Campos Novos | 963,0 m | 0 / 20 / 0 | 3/4 / 3/3 / 3/3 | Incluída: macieira, videira, tomateiro |
+| Código | Município / Estação INMET | Passou IBGE PAM 2025 | PAM 2025: maçã / uva / tomate, ha | Safras reprovadas no QC e critério | Decisão `v2-freeze-br` |
+|---|---|---|---|---|---|
+| `A806` | Florianópolis | Não | 0 / 0 / 0 | Macieira 1/4, videira 1/3, tomateiro 1/3 (`coverage_below_0.95`) | Excluída pelo filtro IBGE |
+| `A814` | Urussanga | Sim | 0 / 102 / 0 | Macieira 3/4, videira 1/3, tomateiro 1/3 (`coverage_below_0.95`) | Incluída: videira, tomateiro |
+| `A815` | São Joaquim | Sim | 9.600 / 201 / 0 | Macieira 2/4, videira 1/3, tomateiro 1/3 (`coverage_below_0.95`) | Incluída: macieira, videira, tomateiro |
+| `A816` | Novo Horizonte | Sim | 0 / 0 / 1 | Macieira 2/4, videira 2/3, tomateiro 2/3 (`coverage_below_0.95`) | Incluída: macieira |
+| `A817` | Indaial | Sim | 0 / 0 / 20 | Macieira 3/4, videira 2/3, tomateiro 1/3 (`coverage_below_0.95`) | Incluída: tomateiro |
+| `A841` | Joaçaba | Sim | 0 / 3 / 0 | Macieira 4/4, videira 2/3, tomateiro 2/3 (`coverage_below_0.95`) | Excluída no QC: `< 2` safras em todas |
+| `A845` | Bom Jardim da Serra, Morro da Igreja | Sim | 1.450 / 1 / 0 | Macieira 3/4, videira 2/3, tomateiro 2/3 (`coverage_below_0.95`) | Excluída no QC: `< 2` safras em todas |
+| `A848` | Dionísio Cerqueira | Sim | 0 / 3 / 0 | Macieira 3/4, videira 1/3, tomateiro 1/3 (`coverage_below_0.95`) | Incluída: videira, tomateiro |
+| `A851` | Itapoá | Não | 0 / 0 / 0 | Macieira 1/4, videira 1/3, tomateiro 1/3 (`coverage_below_0.95`) | Excluída pelo filtro IBGE |
+| `A857` | São Miguel do Oeste | Sim | 0 / 2 / 0 | Macieira 4/4, videira 3/3, tomateiro 3/3 (`coverage_below_0.95`) | Excluída no QC: `0` safras válidas |
+| `A858` | Xanxerê | Não | 0 / 0 / 0 | Macieira 3/4, videira 1/3, tomateiro 1/3 (`coverage_below_0.95`) | Excluída pelo filtro IBGE |
+| `A859` | Caçador | Sim | 85 / 425 / 450 | Macieira 2/4, videira 1/3, tomateiro 1/3 (`coverage_below_0.95`) | Incluída: macieira, videira, tomateiro |
+| `A860` | Curitibanos | Sim | 0 / 8 / 0 | Macieira 2/4, videira 1/3, tomateiro 0/3 (`coverage_below_0.95`) | Incluída: macieira, videira, tomateiro |
+| `A861` | Rio do Campo | Sim | 0 / 2 / 0 | Macieira 3/4, videira 2/3, tomateiro 1/3 (`coverage_below_0.95`) | Incluída: tomateiro |
+| `A862` | Rio Negrinho | Não | 0 / 0 / 0 | Macieira 4/4, videira 3/3, tomateiro 2/3 (`coverage_below_0.95`) | Excluída pelo filtro IBGE |
+| `A863` | Ituporanga | Sim | 0 / 5 / 15 | Macieira 1/4, videira 1/3, tomateiro 1/3 (`coverage_below_0.95`) | Incluída: macieira, videira, tomateiro |
+| `A864` | Major Vieira | Sim | 8 / 3 / 25 | Macieira 4/4, videira 3/3, tomateiro 2/3 (`coverage_below_0.95`) | Excluída no QC: `< 2` safras em todas |
+| `A865` | Lages | Sim | 0 / 14 / 9 | Macieira 4/4, videira 3/3, tomateiro 2/3 (`coverage_below_0.95`) | Excluída no QC: `< 2` safras em todas |
+| `A866` | Laguna, Farol de Santa Marta | Não | 0 / 0 / 0 | Macieira 4/4, videira 3/3, tomateiro 2/3 (`coverage_below_0.95`) | Excluída pelo filtro IBGE |
+| `A867` | Araranguá | Não | 0 / 0 / 0 | Macieira 4/4, videira 2/3, tomateiro 2/3 (`coverage_below_0.95`) | Excluída pelo filtro IBGE |
+| `A868` | Itajaí | Não | 0 / 0 / 0 | Macieira 1/4, videira 1/3, tomateiro 1/3 (`coverage_below_0.95`) | Excluída pelo filtro IBGE |
+| `A870` | Rancho Queimado | Sim | 0 / 6 / 120 | Macieira 4/4, videira 3/3, tomateiro 3/3 (`coverage_below_0.95`) | Excluída no QC: `0%` cobertura em todas |
+| `A895` | Chapecó | Sim | 0 / 50 / 0 | Macieira 2/4, videira 1/3, tomateiro 1/3 (`coverage_below_0.95`) | Incluída: macieira, videira, tomateiro |
+| `A898` | Campos Novos | Sim | 0 / 20 / 0 | Macieira 1/4, videira 0/3, tomateiro 0/3 (`coverage_below_0.95`) | Incluída: macieira, videira, tomateiro |
 
 Totais efetivos incluídos no recorte pareado `2022–2025`: **7 estações e 16 estações-safra** na macieira, **8 estações e 17 estações-safra** na videira e **10 estações e 22 estações-safra** no tomateiro.
 
-## Tabela revisada de Mills: estimativa de erro da grade em Santa Catarina
+## Tabela revisada de Mills: divergência contra a estação do INMET, candidata a estimativa de erro
 
-Conforme a seção 9.2 de `docs/v2/preregistro.md`, a tabela revisada de Mills é a única regra em que a comparação contra a estação do INMET sem sensor pode ser lida como **estimativa de erro da grade**, mantendo a ressalva de que a aprovação da estação sem sensor na Europa ainda é exploratória até a execução de `v2-confirmatory`. Nas tabelas abaixo, **ERA5 combinado** designa a fonte **ERA5 combinado: T e UR do ERA5-Land, chuva, vento e radiação do ERA5**.
+Conforme a seção 9.2 de `docs/v2/preregistro.md`, o conjunto confirmatório europeu `v2-confirmatory` ainda não rodou porque o portal do INRAE permaneceu em HTTP 503. Portanto, o resultado abaixo em Mills revisada é **divergência contra a estação do INMET, candidata a estimativa de erro se o conjunto confirmatório europeu repetir o resultado exploratório**.
 
-| Fonte em grade | INMET / Grade | Perdidos, IC 95% | FAR | F1 | Atraso mediano, IQR | Valor custo-perda `0,05` / `0,10` / `0,20` | Severidade exata / superestimada |
+Além disso, o critério pré-registrado de usabilidade foi definido contra **molhamento foliar medido por sensor físico**. Nesta seção ele é aplicado a uma **referência substituta**, a estação do INMET com estimador `rh90_rain`, que no conjunto exploratório europeu perdeu `16,9%` dos eventos de Mills. Nas tabelas abaixo, **ERA5 combinado** designa a fonte **ERA5 combinado: T e UR do ERA5-Land, chuva, vento e radiação do ERA5**.
+
+| Fonte em grade | INMET / Grade | Sem par no INMET, IC 95% | Razão de extras | F1 | Deslocamento mediano, IQR | Valor custo-perda `0,05` / `0,10` / `0,20` | Severidade exata / superestimada |
 |---|---:|---|---:|---:|---|---|---|
 | ERA5 combinado | 306 / 285 | 37,6% `[29,1; 42,4]` | 33,0% | 0,646 | -0,13 d `[-0,29; +0,04]` | `-2,03` / `-0,51` / `+0,26` | 61,8% / 34,6% |
 | Historical Forecast | 306 / 283 | 37,9% `[30,9; 46,8]` | 32,9% | 0,645 | -0,08 d `[-0,25; 0,00]` | `-1,94` / `-0,46` / `+0,28` | 63,2% / 33,2% |
 | NASA POWER | 306 / 202 | 59,2% `[51,4; 64,3]` | 38,1% | 0,492 | -0,38 d `[-0,58; -0,25]` | `-3,37` / `-1,14` / `-0,02` | 60,0% / 40,0% |
 
-O padrão observado na Europa repete-se integralmente em Santa Catarina: **nenhuma das três fontes gratuitas em grade atingiu o critério de usabilidade em Mills revisada**. Tanto o ERA5 combinado quanto o Historical Forecast perdem cerca de `38%` dos eventos de infecção com `FAR` ao redor de `33%` e valor econômico negativo nos cenários `C/L = 0,05` e `0,10`. O NASA POWER perde `59,2%` dos eventos e apresenta valor econômico negativo nos três cenários. Entre pares detectados, as três fontes tendem a superestimar a severidade em `33%` a `40%` dos casos por prolongarem a duração das horas úmidas em relação à estação local.
+Mesmo frente à referência substituta do INMET, **nenhuma das três fontes gratuitas em grade atingiu os limiares do critério de usabilidade em Mills revisada**. Tanto o ERA5 combinado quanto o Historical Forecast deixam sem par cerca de `38%` dos eventos do INMET com razão de extras ao redor de `33%` e valor de custo-perda negativo nos cenários `C/L = 0,05` e `0,10`. O NASA POWER deixa sem par `59,2%` dos eventos e apresenta valor negativo nos três cenários. Entre pares detectados, as três fontes tendem a superestimar a severidade em `33%` a `40%` dos casos por prolongarem a duração das horas úmidas em relação à estação local.
 
 ## Regra 3-10, Goidànich e TOM-CAST: divergência entre grade e INMET
 
@@ -101,7 +109,7 @@ Padrões exploratórios observados:
 
 ## O que esta fase assume e onde pode falhar
 
-- **Ausência de sensor físico de molhamento no INMET:** o molhamento foliar local no Brasil foi estimado por `rh90_rain`. Por isso, apenas Mills admite leitura como estimativa de erro da grade, condicionada à futura confirmação europeia em `v2-confirmatory`. A medição direta de erro para tomateiro e macieira com sensor físico em Santa Catarina depende da chegada futura dos dados da Epagri/Ciram.
+- **Ausência de sensor físico de molhamento no INMET:** o molhamento foliar local no Brasil foi estimado por `rh90_rain`. Por isso, mesmo em Mills o resultado é divergência contra a estação do INMET, candidata a estimativa de erro se o conjunto confirmatório europeu repetir o resultado exploratório. Além disso, o critério de usabilidade foi aplicado a uma referência substituta que perdeu `16,9%` dos eventos de Mills na Europa exploratória. A medição direta de erro com sensor físico em Santa Catarina depende da chegada futura dos dados da Epagri/Ciram.
 - **Baixa cobertura de telemetria em parte da rede INMET:** seis estações em municípios produtores relevantes, entre elas Lages, Bom Jardim da Serra e Rancho Queimado, reprovaram no QC cego por cobertura abaixo de `95%`. O recorte aprovado representa bem os polos de São Joaquim, Caçador, Curitibanos, Campos Novos, Chapecó, Urussanga e Ituporanga, mas não substitui a densidade da rede estadual catarinense.
 - **Conjunto confirmatório europeu ainda pendente:** o portal `entrepot.recherche.data.gouv.fr` continuou em HTTP 503 em 22 nov 2026; assim que voltar e a licença do DOI `10.57745/BQ0BWB` for verificada, a rodada única `v2-confirmatory` completará a evidência confirmatória.
 

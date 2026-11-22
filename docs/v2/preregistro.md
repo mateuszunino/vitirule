@@ -141,6 +141,11 @@ Uma fonte meteorológica será classificada como **usável** para uma regra se, 
 - **O que mudou:** em `vitirule_v2/sources/open_meteo.py`, trocamos o parâmetro de coleta para `models=era5_seamless` com trava automática contra precipitação inteiramente nula, tratando o ajuste estritamente como correção de coleta, sem nenhuma mudança de regra, limiar, tolerância ou métrica.
 - **Descrição corrigida da fonte:** segundo a documentação do Open-Meteo, `era5_seamless` combina temperatura e umidade relativa do ERA5-Land na grade de `0,1 grau` com precipitação, vento e radiação do ERA5 na grade de `0,25 grau`. Por isso a fonte passa a ser designada como **ERA5 combinado: T e UR do ERA5-Land, chuva, vento e radiação do ERA5**, registrando em `grid_metadata` a distância horizontal e a diferença de altitude tanto do ponto ERA5-Land de `0,1 grau` quanto do ponto ERA5 de `0,25 grau` usado para a chuva.
 
+### Correção técnica pós-`v2-freeze-br`: 22 nov 2026, argumento `hemisphere` em Goidànich na Fase 4
+
+- **O que aconteceu:** houve uma primeira execução de `scripts/v2_phase4_brazil.py` em Santa Catarina cujo resultado foi visto e devolveu zero eventos para o calendário de Goidànich. A causa foi a omissão do argumento `hemisphere="southern_hemisphere"` na chamada de `track_goidanich_incubation`, que manteve o padrão `"northern_hemisphere"` e interrompeu todas as coortes fora da janela boreal.
+- **O que mudou:** adicionamos explicitamente `hemisphere="southern_hemisphere"` na chamada de `track_goidanich_incubation` em `scripts/v2_phase4_brazil.py`. Trata-se estritamente de correção de chamada de função, sem nenhuma mudança em `vitirule_v2/rules/`, em `vitirule_v2/metrics.py` ou em qualquer limiar, tolerância ou métrica.
+
 ## 9. Adendo Brasil para a Fase 4, congelado em `v2-freeze-br`
 
 Este adendo define integralmente a regra de seleção de estações brasileiras e os limites de interpretação da Fase 4 antes de baixar ou inspecionar qualquer série meteorológica do Brasil. Ele é congelado na tag anotada `v2-freeze-br`.
