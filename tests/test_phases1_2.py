@@ -131,5 +131,5 @@ def test_vision_eval_lin_ccc_and_area_calibration(tmp_path):
     assert area_bad["meets_target"] is False
 
     # Notebook Colab é JSON válido
-    nb = json.loads((ROOT / "colab" / "train_yolo_seg.ipynb").read_text(encoding="utf-8"))
+    nb = json.loads((ROOT / "legacy" / "train_yolo_seg.ipynb").read_text(encoding="utf-8"))
     assert nb["nbformat"] == 4 and len(nb["cells"]) >= 5
