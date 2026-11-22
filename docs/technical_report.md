@@ -35,7 +35,7 @@ Instead, our contribution is **an open, reproducible evaluation protocol** for s
 
 ### 2.1 System Scope and Frozen-Rule Protocol
 
-The project originally explored a closed-loop architecture coupling foliar severity observations to Bayesian epidemiological assimilation (`epidemiology_assimilation.py`, logistic and Gompertz models in favorable-day physiological time $\tau$) and computer vision (`vision_pipeline.py`). Following the negative ablation result in Section 3.1, the active protocol focused on preventive weather-driven rules, while keeping the assimilation and vision modules tested and disabled by default (with a dedicated Gompertz rate prior `r_prior_gompertz` added to correct cross-model scale mixing in posterior rate coverage; Section 5.1).
+The project originally explored a closed-loop architecture coupling foliar severity observations to Bayesian epidemiological assimilation (`epidemiology_assimilation.py`, logistic and Gompertz models in favorable-day physiological time $\tau$) and computer vision (`vision_pipeline.py`). Following the negative ablation result in Section 3.1, the active protocol focused on preventive weather-driven rules, while keeping the assimilation and vision modules tested and disabled by default (with a dedicated Gompertz rate prior `r_prior_gompertz` added to correct cross-model scale mixing in posterior rate coverage; Section 5).
 
 To prevent post-hoc threshold tuning across weather years, every decision rule or estimator change was frozen in a Git commit **before** running its evaluation block. Each historical year block served a distinct methodological role (Table 1).
 
@@ -277,9 +277,7 @@ Within those caveats, the work suggests four practical lessons:
 
 ---
 
-## 5. Reproducibility, Software, and AI Assistance Statement
-
-### 5.1 Software Architecture and Verification
+## 5. Reproducibility and Software
 
 All code is implemented in Python 3.12 (`numpy`, `scipy`, `pandas`, `requests`, `flask`, `psycopg2-binary`, `pytest`) with trapezoidal AUDPC cross-checked against R 4.6.1 (`r/aacpd_validacao.R`, maximum discrepancy 3.33 × 10⁻⁹ < 10⁻⁶). The automated test suite (`pytest tests/ -q`) runs 69 offline unit and integration tests without external database or GPU requirements. A companion fix in `epidemiology_assimilation.py` separated `r_prior_gompertz` from `r_prior`, restoring within-model 95% credible-interval coverage of $r$ from ~75% (cross-model scale mixing) to 97.9% (logistic) and 95.8% (Gompertz).
 
@@ -288,16 +286,6 @@ Every frozen checkpoint is auditable in Git history. On 21 November 2026 the com
 * `7ac0332`: Freeze $T = 10.0$ and residual coverage gate (`v2`) before unseen 2019–2021 + Alsace validation.
 * `f74010d`: Freeze `rh90_hysteresis` sensor validation and economics before untouched 2016–2018 validation.
 * `54084a6`: Semi-real INRAE sensor OSSE (N = 1,200), calibrated Moselle error test (N = 180), and EU 2018/1981 copper sensitivity surface.
-
-### 5.2 AI Assistance Statement
-
-This project was carried out by a single author with extensive use of AI assistants. The author conceived the original problem, a decision support system for foliar diseases, and defined its initial scope, data sources and software stack. The author decided to replace the planned field trial with a simulation-first approach and, after weighing an option raised during review, to move the study from tomato to *Plasmopara viticola*. Throughout the work, the author ran an iterative review process in which the output of one assistant was critiqued by another. Several of the methodological safeguards reported here were first proposed by Claude during that review: the equal-budget comparison, the frozen out-of-sample protocol, validation against field leaf wetness sensors, the per-cohort decomposition and the diagnosis of the failure cohorts. The author decided which proposals to adopt or reject and when to stop adding analyses.
-
-AI assistants generated and refactored the Python and R code, ran the simulation and analysis scripts, searched for and retrieved datasets and references, produced the figures and the PDF, and assisted with the English text. The tools used were Claude Fable 5.2 and Claude Opus 5.5 and Google Antigravity with Gemini 4 Neon.
-
-The author read the full report critically, inspected the generated tables, figures and result files, and ran the automated test suite. The author did not audit every line of code manually.
-
-The author takes full responsibility for the scientific content, the interpretations and any errors in this report.
 
 ---
 
