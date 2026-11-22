@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>vitirule v2 — Regras fitossanitárias no navegador (Pyodide)</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+</head>
+<body>
+  <header>
+    <h1>vitirule v2 — Avaliador local de regras fitossanitárias</h1>
+    <p>
+      Executa no próprio navegador, via Pyodide, as quatro funções puras congeladas na tag <code>v2-freeze</code>
+      sobre o arquivo CSV da sua estação meteorológica, sem instalar Python e sem enviar seus dados para servidores externos.
+    </p>
+  </header>
+
+  <main>
+    <div class="status-bar">
+      <span id="pyodide-status">Carregando Pyodide e pacote congelado <code>vitirule_v2/rules/</code>…</span>
+      <span><strong>Escopo:</strong> o vitirule v2 mede confiabilidade da entrada meteorológica, não eficácia de controle no campo.</span>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab-btn active" data-tab="station" type="button">
+        1. Estação própria (CSV local)
+      </button>
+      <button class="tab-btn" data-tab="divergence" type="button">
+        2. Demonstração de divergência em grade (não é recomendação)
+      </button>
+    </div>
+
+    <!-- ABA 1: ESTAÇÃO PRÓPRIA -->
+    <section id="tab-station" class="tab-panel active">
+      <div class="grid-2">
+        <div>
+          <div class="card">
+            <h2>Dados horários da sua estação</h2>
+            <p class="small-note" style="margin-top:0;">
+              Aceita CSV genérico (colunas <code>timestamp</code>, <code>temp_c</code>, <code>rh_pct</code>,
+              <code>precip_mm</code> e opcionalmente <code>wet</code> com <code>0/1</code>) ou CSV oficial horário do INMET
+              com separador <code>;</code> e vírgula decimal. Todo o cálculo ocorre localmente no seu navegador.
+            </p>
+            <div class="controls">
+              <div>
+                <label for="csv-file">Arquivo CSV horário</label>
+                <input id="csv-file" type="file" accept=".csv,.txt" />
+              </div>
+              <div>
+                <label for="hemisphere">Hemisfério e janelas fenológicas</label>
+                <select id="hemisphere">
+                  <option value="southern_hemisphere" selected>Hemisfério Sul (Brasil / SC)</option>
+                  <option value="northern_hemisphere">Hemisfério Norte (Europa)</option>
+                </select>
+              </div>
+              <div>
+                <label for="tz-name">Fuso horário local da estação</label>
+                <select id="tz-name">
+                  <option value="America/Sao_Paulo" selected>America/Sao_Paulo</option>
+                  <option value="Europe/Paris">Europe/Paris</option>
+                  <option value="Europe/Rome">Europe/Rome</option>
+                  <option value="UTC">UTC</option>
+                </select>
+              </div>
+              <div>
+                <label for="lwd-mode">Molhamento foliar</label>
+                <select id="lwd-mode">
+                  <option value="rh90_rain" selected>Estação sem sensor (estimar com rh90_rain)</option>
+                  <option value="sensor">Estação com sensor físico (usar coluna wet)</option>
+                </select>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button id="run-btn" class="primary" type="button" disabled>Calcular regras na minha estação</button>
+              <button id="sample-btn" class="secondary" type="button" disabled>Carregar CSV de exemplo (45 dias)</button>
+              <button id="download-btn" class="secondary" type="button" disabled>Exportar alertas em CSV</button>
+            </div>
+            <p id="csv-summary" class="small-note"></p>
+          </div>
+
+          <div class="card">
+            <h2>Alertas calculados na sua estação</h2>
+            <div id="station-results">
+              <p class="small-note">Carregue um CSV da sua estação ou clique em “Carregar CSV de exemplo” para rodar as regras congeladas em Pyodide.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUNA DIREITA FIXA: TABELA DE CONFIABILIDADE MEDIDA -->
+        <aside>
+          <div class="card">
+            <h2>Tabela de confiabilidade medida (vitirule v2)</h2>
+            <div class="banner-warn">
+              <strong>Leitura obrigatória:</strong> os números europeus abaixo vêm do conjunto exploratório de 4 estações do INRAE em 2022–2025; a rodada confirmatória <code>v2-confirmatory</code> aguarda o retorno do portal do INRAE.
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Regra</th>
+                  <th>Estação local sem sensor de LWD</th>
+                  <th>Fontes gratuitas em grade (ERA5 combinado, Hist. Forecast, NASA POWER)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Regra 3-10</strong><br><span class="small-note">Míldio da videira</span></td>
+                  <td><span class="badge badge-ok">Entrada idêntica</span><br>Não usa sensor de molhamento. Depende apenas de T mínima e chuva local.</td>
+                  <td><span class="badge badge-fail">Não usável</span><br>Europa: 25,4% a 29,2% perdidos, FAR 35,7% a 45,8%. SC (divergência): 22,4% a 26,4% sem par.</td>
+                </tr>
+                <tr>
+                  <td><strong>Goidànich</strong><br><span class="small-note">Incubação do míldio</span></td>
+                  <td><span class="badge badge-ok">Entrada idêntica</span><br>Não usa sensor de molhamento. Propaga os gatilhos da 3-10 local.</td>
+                  <td><span class="badge badge-fail">Não usável</span><br>Europa: 25,2% a 34,5% perdidos, FAR 37,3% a 43,7%. SC (divergência): 20,5% a 29,5% sem par.</td>
+                </tr>
+                <tr>
+                  <td><strong>Mills revisada</strong><br><span class="small-note">Sarna da macieira</span></td>
+                  <td><span class="badge badge-warn">Passou no exploratório</span><br>Europa (<code>rh90_rain</code>): 16,9% perdidos, FAR 12,7%, F1 0,852. Aguarda <code>v2-confirmatory</code>.</td>
+                  <td><span class="badge badge-fail">Não usável</span><br>Europa: 31,7% a 61,9% perdidos. SC vs. INMET (candidata a erro): 37,6% a 59,2% sem par.</td>
+                </tr>
+                <tr>
+                  <td><strong>TOM-CAST</strong><br><span class="small-note">Pinta-preta do tomate</span></td>
+                  <td><span class="badge badge-fail">Falhou sem sensor</span><br>Europa: −1,02 DSV em <code>reference_reset</code> propaga zeramentos para 57,5% perdidos em <code>self_reset</code>.</td>
+                  <td><span class="badge badge-fail">Não usável</span><br>Europa: 2× a 4× mais pulverizações (FAR 68,5% a 79,8%). SC (divergência): 1,8× a 2,5×.</td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="small-note">
+              <strong>Resumo prático:</strong> para 3-10, Goidànich e Mills, uma estação local com termômetro, higrômetro e pluviômetro confiáveis já supera todas as grades gratuitas testadas. Para TOM-CAST, mesmo uma estação sem sensor de molhamento desalinha os ciclos em <code>self_reset</code>; recomenda-se sensor físico de molhamento calibrado.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ABA 2: DEMONSTRAÇÃO DE DIVERGÊNCIA EM GRADE -->
+    <section id="tab-divergence" class="tab-panel">
+      <div class="banner-danger">
+        <strong>Demonstração de divergência apenas — NÃO é recomendação de pulverização.</strong>
+        Nenhuma fonte meteorológica gratuita em grade passou no critério de usabilidade em nenhuma das quatro regras.
+        Esta aba existe exclusivamente para mostrar quanto o <strong>ERA5 combinado: T e UR do ERA5-Land, chuva, vento e radiação do ERA5</strong>
+        diverge dos alertas calculados sobre o CSV da sua própria estação.
+      </div>
+      <div class="card">
+        <h2>Comparar divergência entre sua estação e ERA5 combinado</h2>
+        <p class="small-note" style="margin-top:0;">
+          Primeiro carregue o CSV da sua estação na aba 1. Informe abaixo as coordenadas da estação para consultar o mesmo período no
+          Open-Meteo Archive (<code>models=era5_seamless</code>, CC BY 4.0) e medir a divergência entre as duas entradas.
+        </p>
+        <div class="controls">
+          <div>
+            <label for="div-lat">Latitude (graus decimais)</label>
+            <input id="div-lat" type="number" step="0.0001" value="-28.2756" />
+          </div>
+          <div>
+            <label for="div-lon">Longitude (graus decimais)</label>
+            <input id="div-lon" type="number" step="0.0001" value="-49.9344" />
+          </div>
+        </div>
+        <div class="btn-row">
+          <button id="div-btn" class="secondary" type="button" disabled>Medir divergência do ERA5 combinado contra meu CSV</button>
+        </div>
+        <div id="div-results" style="margin-top:0.9rem;">
+          <p class="small-note">Nenhuma comparação de divergência executada ainda.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    vitirule v2 — Regras puras congeladas em <code>v2-freeze</code> (Baldacci 1947; Goidànich 1964; MacHardy &amp; Gadoury 1989; Pitblado 1992).
+    Dados de demonstração de divergência: Weather data by Open-Meteo.com (CC BY 4.0).
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

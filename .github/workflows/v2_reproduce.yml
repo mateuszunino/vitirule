@@ -1,0 +1,66 @@
+name: Reproduce vitirule v2 public analyses
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce-public:
+    name: Run v2 tests, public Brazil INMET SC transfer, and publish artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install minimal dependencies (no Politecnico data)
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest requests tzdata
+
+      - name: Run v2 unit test suite
+        run: |
+          pytest tests/test_v2_rules.py tests/test_v2_phase2.py tests/test_v2_metrics.py tests/test_v2_phase4_inmet.py tests/test_v2_phase5_deliverables.py -q
+
+      - name: Run public Brazil INMET Santa Catarina transfer (v2-freeze-br)
+        run: |
+          python scripts/v2_phase4_brazil.py
+
+      - name: Generate public-only SVG figure and CSV tables
+        run: |
+          python scripts/v2_generate_figures.py \
+            --public-only \
+            --out-dir artifacts/v2_public/figures \
+            --tables-dir artifacts/v2_public/tables
+
+      - name: Guard against any Politecnico-derived output in CI artifact
+        run: |
+          python -c '
+          import pathlib, sys
+          bad = []
+          for p in pathlib.Path("artifacts/v2_public").rglob("*"):
+              if p.is_file():
+                  txt = p.read_text(encoding="utf-8", errors="ignore").lower()
+                  if "politecnico" in txt or "polito" in txt or "sd4b8vpvyb" in txt:
+                      bad.append(str(p))
+          if bad:
+              print("ERROR: Politecnico reference found in CI artifacts:", bad)
+              sys.exit(1)
+          print("Verified: zero Politecnico data or derivatives in CI artifacts.")
+          '
+
+      - name: Upload public tables and figures artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitirule-v2-public-tables-and-figures
+          path: artifacts/v2_public/
+          if-no-files-found: error
+          retention-days: 90

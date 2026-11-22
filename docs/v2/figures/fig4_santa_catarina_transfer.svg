@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 470" width="1060" height="470">
+<style>
+  text { font-family: "DejaVu Sans", "Segoe UI", Arial, sans-serif; fill: #1f2937; }
+  .title { font-size: 16px; font-weight: 700; }
+  .panel-title { font-size: 13px; font-weight: 700; }
+  .axis-label { font-size: 11px; fill: #374151; }
+  .tick { font-size: 10px; fill: #4b5563; }
+  .ann { font-size: 9.5px; font-weight: 600; }
+  .note { font-size: 10px; fill: #4b5563; font-style: italic; }
+  .legend { font-size: 11px; }
+</style>
+<rect x="0" y="0" width="1060" height="470" fill="#ffffff"/>
+<text x="530.0" y="26" text-anchor="middle" class="title">Santa Catarina Transfer Against INMET Automatic Stations (2022–2025, v2-freeze-br)</text>
+<polygon points="130.0,44.2 124.5,55.0 135.5,55.0" fill="#009E73" stroke="#1a1a1a" stroke-width="0.8"/>
+<text x="141" y="54" class="legend">ERA5 combined (0.1° T/RH, 0.25° precip)</text>
+<rect x="440.0" y="45.0" width="10.0" height="10.0" fill="#E69F00" stroke="#1a1a1a" stroke-width="0.8"/>
+<text x="456" y="54" class="legend">Historical Forecast</text>
+<polygon points="680.0,44.2 685.8,50.0 680.0,55.8 674.2,50.0" fill="#D55E00" stroke="#1a1a1a" stroke-width="0.8"/>
+<text x="691" y="54" class="legend">NASA POWER (MERRA-2, UTC)</text>
+<text x="65" y="82" class="panel-title">A. Agreement F1 vs. INMET (Mills Candidate Error; Others Divergence)</text>
+<line x1="65" y1="382.0" x2="505" y2="382.0" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="57" y="385.5" text-anchor="end" class="tick">0.0</text>
+<line x1="65" y1="320.9" x2="505" y2="320.9" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="57" y="324.4" text-anchor="end" class="tick">0.2</text>
+<line x1="65" y1="259.9" x2="505" y2="259.9" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="57" y="263.4" text-anchor="end" class="tick">0.4</text>
+<line x1="65" y1="198.8" x2="505" y2="198.8" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="57" y="202.3" text-anchor="end" class="tick">0.6</text>
+<line x1="65" y1="137.8" x2="505" y2="137.8" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="57" y="141.3" text-anchor="end" class="tick">0.8</text>
+<line x1="65" y1="92" x2="65" y2="382" stroke="#374151" stroke-width="1.2"/>
+<line x1="65" y1="382" x2="505" y2="382" stroke="#374151" stroke-width="1.2"/>
+<text x="120.0" y="398" text-anchor="middle" class="tick" style="font-weight:600;">Revised Mills*</text>
+<text x="120.0" y="410" text-anchor="middle" style="font-size:8.5px;fill:#6b7280;">7 st., cand. error</text>
+<rect x="81.0" y="184.7" width="24.0" height="197.3" fill="#009E73" stroke="#1f2937" stroke-width="0.4"/>
+<text x="93.0" y="180.7" text-anchor="middle" style="font-size:8.5px;fill:#1f2937;">0.65</text>
+<rect x="108.0" y="185.0" width="24.0" height="197.0" fill="#E69F00" stroke="#1f2937" stroke-width="0.4"/>
+<text x="120.0" y="181.0" text-anchor="middle" style="font-size:8.5px;fill:#1f2937;">0.65</text>
+<rect x="135.0" y="231.8" width="24.0" height="150.2" fill="#D55E00" stroke="#1f2937" stroke-width="0.4"/>
+<text x="147.0" y="227.8" text-anchor="middle" style="font-size:8.5px;fill:#1f2937;">0.49</text>
+<text x="230.0" y="398" text-anchor="middle" class="tick" style="font-weight:600;">Rule 3-10</text>
+<text x="230.0" y="410" text-anchor="middle" style="font-size:8.5px;fill:#6b7280;">8 st., divergence</text>
+<rect x="191.0" y="142.3" width="24.0" height="239.7" fill="#009E73" stroke="#1f2937" stroke-width="0.4"/>
+<text x="203.0" y="138.3" text-anchor="middle" style="font-size:8.5px;fill:#1f2937;">0.79</text>
+<rect x="218.0" y="154.7" width="24.0" height="227.3" fill="#E69F00" stroke="#1f2937" stroke-width="0.4"/>
+<text x="230.0" y="150.7" text-anchor="middle" style="font-size:8.5px;fill:#1f2937;">0.74</text>
+<rect x="245.0" y="140.0" width="24.0" height="242.0" fill="#D55E00" stroke="#1f2937" stroke-width="0.4"/>
+<text x="257.0" y="136.0" text-anchor="middle" style="font-size:8.5px;fill:#1f2937;">0.79</text>
+<text x="340.0" y="398" text-anchor="middle" class="tick" style="font-weight:600;">Goidànich</text>
+<text x="340.0" y="410" text-anchor="middle" style="font-size:8.5px;fill:#6b7280;">8 st., divergence</text>
+<rect x="301.0" y="138.3" width="24.0" height="243.7" fill="#009E73" stroke="#1f2937" stroke-width="0.4"/>
+<text x="313.0" y="134.3" text-anchor="middle" style="font-size:8.5px;fill:#1f2937;">0.80</text>
+<rect x="328.0" y="151.8" width="24.0" height="230.2" fill="#E69F00" stroke="#1f2937" stroke-width="0.4"/>
+<text x="340.0" y="147.8" text-anchor="middle" style="font-size:8.5px;fill:#1f2937;">0.75</text>
+<rect x="355.0" y="150.5" width="24.0" height="231.5" fill="#D55E00" stroke="#1f2937" stroke-width="0.4"/>
+<text x="367.0" y="146.5" text-anchor="middle" style="font-size:8.5px;fill:#1f2937;">0.76</text>
+<text x="450.0" y="398" text-anchor="middle" class="tick" style="font-weight:600;">TOM-CAST self</text>
+<text x="450.0" y="410" text-anchor="middle" style="font-size:8.5px;fill:#6b7280;">10 st., divergence</text>
+<rect x="411.0" y="185.0" width="24.0" height="197.0" fill="#009E73" stroke="#1f2937" stroke-width="0.4"/>
+<text x="423.0" y="181.0" text-anchor="middle" style="font-size:8.5px;fill:#1f2937;">0.65</text>
+<rect x="438.0" y="178.1" width="24.0" height="203.9" fill="#E69F00" stroke="#1f2937" stroke-width="0.4"/>
+<text x="450.0" y="174.1" text-anchor="middle" style="font-size:8.5px;fill:#1f2937;">0.67</text>
+<rect x="465.0" y="208.2" width="24.0" height="173.8" fill="#D55E00" stroke="#1f2937" stroke-width="0.4"/>
+<text x="477.0" y="204.2" text-anchor="middle" style="font-size:8.5px;fill:#1f2937;">0.57</text>
+<text x="580" y="82" class="panel-title">B. Exploratory Relief Profile: Mills F1 vs. Station Elevation</text>
+<line x1="620.5" y1="92" x2="620.5" y2="382" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="620.5" y="398" text-anchor="middle" class="tick">500 m</text>
+<line x1="701.4" y1="92" x2="701.4" y2="382" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="701.4" y="398" text-anchor="middle" class="tick">700 m</text>
+<line x1="782.3" y1="92" x2="782.3" y2="382" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="782.3" y="398" text-anchor="middle" class="tick">900 m</text>
+<line x1="863.2" y1="92" x2="863.2" y2="382" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="863.2" y="398" text-anchor="middle" class="tick">1100 m</text>
+<line x1="944.1" y1="92" x2="944.1" y2="382" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="944.1" y="398" text-anchor="middle" class="tick">1300 m</text>
+<line x1="1025.0" y1="92" x2="1025.0" y2="382" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="1025.0" y="398" text-anchor="middle" class="tick">1500 m</text>
+<line x1="580" y1="382.0" x2="1025" y2="382.0" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="572" y="385.5" text-anchor="end" class="tick">0.3</text>
+<line x1="580" y1="332.0" x2="1025" y2="332.0" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="572" y="335.5" text-anchor="end" class="tick">0.4</text>
+<line x1="580" y1="282.0" x2="1025" y2="282.0" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="572" y="285.5" text-anchor="end" class="tick">0.5</text>
+<line x1="580" y1="232.0" x2="1025" y2="232.0" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="572" y="235.5" text-anchor="end" class="tick">0.6</text>
+<line x1="580" y1="182.0" x2="1025" y2="182.0" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="572" y="185.5" text-anchor="end" class="tick">0.7</text>
+<line x1="580" y1="132.0" x2="1025" y2="132.0" stroke="#e5e7eb" stroke-dasharray="3,3"/>
+<text x="572" y="135.5" text-anchor="end" class="tick">0.8</text>
+<line x1="580" y1="92" x2="580" y2="382" stroke="#374151" stroke-width="1.2"/>
+<line x1="580" y1="382" x2="1025" y2="382" stroke="#374151" stroke-width="1.2"/>
+<polyline points="612.3,251.2 692.9,160.6 799.9,168.4 800.2,227.7 807.8,165.4 813.9,212.9 984.6,198.7" fill="none" stroke="#009E73" stroke-width="2.0"/>
+<polygon points="612.3,245.2 606.6,256.4 618.0,256.4" fill="#009E73" stroke="#1a1a1a" stroke-width="0.8"/>
+<polygon points="692.9,154.6 687.1,165.8 698.6,165.8" fill="#009E73" stroke="#1a1a1a" stroke-width="0.8"/>
+<polygon points="799.9,162.4 794.2,173.6 805.6,173.6" fill="#009E73" stroke="#1a1a1a" stroke-width="0.8"/>
+<polygon points="800.2,221.7 794.5,232.8 805.9,232.8" fill="#009E73" stroke="#1a1a1a" stroke-width="0.8"/>
+<polygon points="807.8,159.4 802.0,170.6 813.5,170.6" fill="#009E73" stroke="#1a1a1a" stroke-width="0.8"/>
+<polygon points="813.9,206.9 808.1,218.1 819.6,218.1" fill="#009E73" stroke="#1a1a1a" stroke-width="0.8"/>
+<polygon points="984.6,192.7 978.8,203.9 990.3,203.9" fill="#009E73" stroke="#1a1a1a" stroke-width="0.8"/>
+<polyline points="612.3,211.5 692.9,149.6 799.9,180.7 800.2,194.9 807.8,235.7 813.9,181.5 984.6,285.0" fill="none" stroke="#E69F00" stroke-width="2.0"/>
+<rect x="607.1" y="206.3" width="10.4" height="10.4" fill="#E69F00" stroke="#1a1a1a" stroke-width="0.8"/>
+<rect x="687.7" y="144.4" width="10.4" height="10.4" fill="#E69F00" stroke="#1a1a1a" stroke-width="0.8"/>
+<rect x="794.7" y="175.5" width="10.4" height="10.4" fill="#E69F00" stroke="#1a1a1a" stroke-width="0.8"/>
+<rect x="795.0" y="189.7" width="10.4" height="10.4" fill="#E69F00" stroke="#1a1a1a" stroke-width="0.8"/>
+<rect x="802.6" y="230.5" width="10.4" height="10.4" fill="#E69F00" stroke="#1a1a1a" stroke-width="0.8"/>
+<rect x="808.7" y="176.3" width="10.4" height="10.4" fill="#E69F00" stroke="#1a1a1a" stroke-width="0.8"/>
+<rect x="979.4" y="279.8" width="10.4" height="10.4" fill="#E69F00" stroke="#1a1a1a" stroke-width="0.8"/>
+<polyline points="612.3,297.2 692.9,208.5 799.9,227.7 800.2,311.2 807.8,287.6 813.9,270.1 984.6,341.5" fill="none" stroke="#D55E00" stroke-width="2.0"/>
+<polygon points="612.3,291.2 618.3,297.2 612.3,303.2 606.3,297.2" fill="#D55E00" stroke="#1a1a1a" stroke-width="0.8"/>
+<polygon points="692.9,202.5 698.8,208.5 692.9,214.4 686.9,208.5" fill="#D55E00" stroke="#1a1a1a" stroke-width="0.8"/>
+<polygon points="799.9,221.7 805.9,227.7 799.9,233.6 793.9,227.7" fill="#D55E00" stroke="#1a1a1a" stroke-width="0.8"/>
+<polygon points="800.2,305.2 806.2,311.2 800.2,317.2 794.2,311.2" fill="#D55E00" stroke="#1a1a1a" stroke-width="0.8"/>
+<polygon points="807.8,281.6 813.7,287.6 807.8,293.5 801.8,287.6" fill="#D55E00" stroke="#1a1a1a" stroke-width="0.8"/>
+<polygon points="813.9,264.1 819.8,270.1 813.9,276.1 807.9,270.1" fill="#D55E00" stroke="#1a1a1a" stroke-width="0.8"/>
+<polygon points="984.6,335.5 990.5,341.5 984.6,347.5 978.6,341.5" fill="#D55E00" stroke="#1a1a1a" stroke-width="0.8"/>
+<text x="612.3" y="197.5" text-anchor="middle" style="font-size:8.5px;fill:#374151;">Ituporanga (480m)</text>
+<text x="692.9" y="135.6" text-anchor="middle" style="font-size:8.5px;fill:#374151;">Chapeco (679m)</text>
+<text x="764.9" y="150.4" text-anchor="middle" style="font-size:8.5px;fill:#374151;">Novo Horizonte (944m)</text>
+<text x="812.2" y="220.9" text-anchor="middle" style="font-size:8.5px;fill:#374151;">Cacador (944m)</text>
+<text x="829.8" y="139.4" text-anchor="middle" style="font-size:8.5px;fill:#374151;">Campos Novos (963m)</text>
+<text x="853.9" y="171.5" text-anchor="middle" style="font-size:8.5px;fill:#374151;">Curitibanos (978m)</text>
+<text x="966.6" y="184.7" text-anchor="middle" style="font-size:8.5px;fill:#374151;">Sao Joaquim (1400m)</text>
+<text x="802.5" y="416" text-anchor="middle" class="axis-label">INMET Station Elevation (m a.s.l.)</text>
+<text x="530.0" y="454" text-anchor="middle" class="note">*Mills: divergence vs. INMET surrogate reference (missed 16.9% in Europe), candidate grid-error estimate pending v2-confirmatory. 3-10, Goidànich, TOM-CAST: divergence only. Panel B: exploratory.</text>
+</svg>

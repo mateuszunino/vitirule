@@ -1,0 +1,25 @@
+station_id,station_name,elevation_m,ibge_pam_2025_producer,maca_ha,uva_ha,tomate_ha,apple_pass_of_4,grapevine_pass_of_3,tomato_pass_of_3,qc_failure_criteria,status
+A806,FLORIANOPOLIS,4.87,False,0.0,0.0,0.0,3,2,2,coverage_below_0.95,excluida_filtro_ibge_pam_sem_producao
+A814,URUSSANGA,40.56,True,0.0,102.0,0.0,1,2,2,coverage_below_0.95,incluida
+A815,SAO JOAQUIM,1400.06,True,9600.0,201.0,0.0,2,2,2,coverage_below_0.95,incluida
+A816,NOVO HORIZONTE,943.57,True,0.0,0.0,1.0,2,1,1,coverage_below_0.95,incluida
+A817,INDAIAL,72.24,True,0.0,0.0,20.0,1,1,2,coverage_below_0.95,incluida
+A841,JOACABA,767.63,True,0.0,3.0,0.0,0,1,1,coverage_below_0.95,excluida_qc_menos_de_2_safras
+A845,BOM JARDIM DA SERRA - MORRO DA IGREJA,1790.38,True,1450.0,1.0,0.0,1,1,1,coverage_below_0.95,excluida_qc_menos_de_2_safras
+A848,DIONISIO CERQUEIRA,807.54,True,0.0,3.0,0.0,1,2,2,coverage_below_0.95,incluida
+A851,ITAPOA,6.18,False,0.0,0.0,0.0,3,2,2,coverage_below_0.95,excluida_filtro_ibge_pam_sem_producao
+A857,SAO MIGUEL DO OESTE,700.0,True,0.0,2.0,0.0,0,0,0,coverage_below_0.95,excluida_qc_menos_de_2_safras
+A858,XANXERE,878.74,False,0.0,0.0,0.0,1,2,2,coverage_below_0.95,excluida_filtro_ibge_pam_sem_producao
+A859,CACADOR,944.26,True,85.0,425.0,450.0,2,2,2,coverage_below_0.95,incluida
+A860,CURITIBANOS,978.1,True,0.0,8.0,0.0,2,2,3,coverage_below_0.95,incluida
+A861,RIO DO CAMPO,591.67,True,0.0,2.0,0.0,1,1,2,coverage_below_0.95,incluida
+A862,RIO NEGRINHO,800.0,False,0.0,0.0,0.0,0,0,1,coverage_below_0.95,excluida_filtro_ibge_pam_sem_producao
+A863,ITUPORANGA,479.79,True,0.0,5.0,15.0,3,2,2,coverage_below_0.95,incluida
+A864,MAJOR VIEIRA,799.58,True,8.0,3.0,25.0,0,0,1,coverage_below_0.95,excluida_qc_menos_de_2_safras
+A865,LAGES,952.7,True,0.0,14.0,9.0,0,0,1,coverage_below_0.95,excluida_qc_menos_de_2_safras
+A866,Laguna  - Farol de Santa Marta,34.36,False,0.0,0.0,0.0,0,0,1,coverage_below_0.95,excluida_filtro_ibge_pam_sem_producao
+A867,ARARANGUA,2.0,False,0.0,0.0,0.0,0,1,1,coverage_below_0.95,excluida_filtro_ibge_pam_sem_producao
+A868,ITAJAI,9.76,False,0.0,0.0,0.0,3,2,2,coverage_below_0.95,excluida_filtro_ibge_pam_sem_producao
+A870,RANCHO QUEIMADO,881.0,True,0.0,6.0,120.0,0,0,0,coverage_below_0.95,excluida_qc_menos_de_2_safras
+A895,CHAPECO,679.0,True,0.0,50.0,0.0,2,2,2,coverage_below_0.95,incluida
+A898,CAMPOS NOVOS,963.0,True,0.0,20.0,0.0,3,3,3,coverage_below_0.95,incluida
