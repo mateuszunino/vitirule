@@ -16,6 +16,8 @@ data/epagri_csv/*.csv
 data/weather_history_*.csv
 data/fase2/
 data/lwd_sensors/
+data/v2_cache/
+data/v2_*.json
 r/dados/*.csv
 r/dados/*.json
 
