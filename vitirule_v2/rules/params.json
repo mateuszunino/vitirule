@@ -62,12 +62,13 @@
     "pathogen": "Plasmopara viticola",
     "day_start_hour_local": 0,
     "temp_min_c": 10.0,
-    "temp_aggregation": "daily_mean",
+    "temp_aggregation": "daily_min",
+    "temp_aggregation_v2_rules_original": "daily_mean",
     "rain_window_hours": 48,
     "rain_min_mm": 10.0,
     "trigger_day_min_rain_mm": 0.2,
     "debounce_consecutive_days": true,
-    "primary_reference": "Baldacci, E. (1947). Atti dell'Istituto Botanico della Universita di Pavia, Serie 5, Vol. 8, pp. 45-85. Consolidacao operacional em Goidanich (1964) e Rossi et al. (2008), doi:10.1007/s10658-007-9254-7.",
+    "primary_reference": "Baldacci, E. (1947). Atti dell'Istituto Botanico della Universita di Pavia, Serie 5, Vol. 8, pp. 45-85; Goidanich, G. (1964), Manuale di Patologia Vegetale, Vol. II, Edagricole; Rossi, V., Caffi, T., Giosue, S. & Bugiani, R. (2008), Ecological Modelling 212(3-4):480-491, doi:10.1016/j.ecolmodel.2007.10.046.",
     "literature_divergences": [
       {
         "parameter": "rain_window_hours",
@@ -77,9 +78,12 @@
       },
       {
         "parameter": "temp_aggregation",
-        "variants": ["temperatura minima diaria >= 10 C em versoes restritivas", "temperatura media diaria >= 10 C em boletins operacionais e Rossi et al. (2008)"],
-        "chosen": "daily_mean",
-        "rationale": "A media diaria e menos sensivel a erros pontuais de minima noturna em reanalises e coincide com o uso operacional corrente."
+        "variants": [
+          "temperatura minima diaria >= 10 C na formulacao italiana classica de Baldacci (1947), Goidanich (1964) e na descricao da regra em Rossi et al. (2008)",
+          "temperatura media diaria >= 10 C em adaptacoes operacionais simplificadas e na v1 do vitirule"
+        ],
+        "chosen": "daily_min",
+        "rationale": "Emenda pre-Fase 3 documentada apos verificacao bibliografica de Baldacci (1947), Goidanich (1964) e Rossi et al. (2008): a redacao italiana original exige temperatura minima nao inferior a 10 C. Ambas as versoes (daily_min emendada e daily_mean original de v2-rules) sao calculadas e reportadas na referencia."
       },
       {
         "parameter": "trigger_day_min_rain_mm",

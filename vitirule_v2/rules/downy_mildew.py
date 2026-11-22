@@ -23,6 +23,8 @@ class Rule310Event:
     trigger_date: date
     season_label: str
     temp_mean_c: float
+    temp_min_c: float
+    temp_aggregation: str
     rain_24h_mm: float
     rain_48h_mm: float
     is_first_of_season: bool
@@ -45,18 +47,19 @@ def _daily_summary_map(
     records: Sequence[HourlyRecord],
     tz_name: str,
     day_start_hour: int,
-) -> list[tuple[date, float | None, float | None, float]]:
-    """Retorna lista ordenada de `(day, temp_mean_c, rh_mean_pct, rain_24h_mm)`."""
+) -> list[tuple[date, float | None, float | None, float | None, float]]:
+    """Retorna lista ordenada de `(day, temp_mean_c, temp_min_c, rh_mean_pct, rain_24h_mm)`."""
     grouped = group_by_local_day(records, tz_name=tz_name, day_start_hour=day_start_hour)
-    out: list[tuple[date, float | None, float | None, float]] = []
+    out: list[tuple[date, float | None, float | None, float | None, float]] = []
     for day, block in grouped:
         temps = [r.temp_c for r in block if r.temp_c is not None]
         rhs = [r.rh_pct for r in block if r.rh_pct is not None]
         rains = [r.precip_mm for r in block if r.precip_mm is not None and r.precip_mm >= 0.0]
         t_mean = (sum(temps) / len(temps)) if temps else None
+        t_min = min(temps) if temps else None
         rh_mean = (sum(rhs) / len(rhs)) if rhs else None
         rain_24 = sum(rains) if rains else 0.0
-        out.append((day, t_mean, rh_mean, rain_24))
+        out.append((day, t_mean, t_min, rh_mean, rain_24))
     return out
 
 
@@ -65,19 +68,27 @@ def detect_rule_3_10(
     tz_name: str = "Europe/Paris",
     hemisphere: str = "northern_hemisphere",
     apply_phenology: bool = True,
+    temp_aggregation: str | None = None,
 ) -> list[Rule310Event]:
     """
     Detecta eventos de infeccao primaria pela regra 3-10 (Baldacci 1947).
 
-    Condicoes congeladas em `params.json`:
+    Condicoes congeladas em `params.json` (com emenda pre-Fase 3):
     - Dia dentro da janela fenologica da videira (substituto fixo para broto >= 10 cm)
-    - Temperatura media diaria local >= 10,0 C
+    - Temperatura diaria >= 10,0 C segundo `temp_aggregation`:
+      * `'daily_min'` (padrao emendado, redacao classica italiana de Baldacci 1947,
+        Goidanich 1964 e Rossi et al. 2008)
+      * `'daily_mean'` (versao original de `v2-rules`, mantida para comparacao pareada)
     - Precipitacao acumulada em 48 h >= 10,0 mm (dia atual + dia imediatamente anterior)
     - Chuva ativa no dia do disparo >= 0,2 mm
     - Dias consecutivos que satisfazem o criterio sao agrupados no primeiro dia
     """
     cfg = load_params()["rule_3_10"]
     temp_min_c = float(cfg["temp_min_c"])
+    agg_mode = str(cfg["temp_aggregation"] if temp_aggregation is None else temp_aggregation)
+    if agg_mode not in ("daily_min", "daily_mean"):
+        raise ValueError(f"temp_aggregation invalido: {agg_mode!r}. Use 'daily_min' ou 'daily_mean'.")
+
     rain_min_mm = float(cfg["rain_min_mm"])
     trigger_min_rain = float(cfg["trigger_day_min_rain_mm"])
     debounce = bool(cfg["debounce_consecutive_days"])
@@ -95,17 +106,20 @@ def detect_rule_3_10(
     prev_rain_24: float = 0.0
     prev_triggered_day: date | None = None
 
-    for day, t_mean, _rh_mean, rain_24 in daily:
+    for day, t_mean, t_min, _rh_mean, rain_24 in daily:
         if prev_day is not None and (day - prev_day) == timedelta(days=1):
             rain_48 = rain_24 + prev_rain_24
         else:
             rain_48 = rain_24
 
+        temp_val = t_min if agg_mode == "daily_min" else t_mean
         in_window = (not apply_phenology) or in_phenology_window(day, crop="grapevine", hemisphere=hemisphere)
         triggered = (
             in_window
+            and temp_val is not None
             and t_mean is not None
-            and t_mean >= temp_min_c
+            and t_min is not None
+            and temp_val >= temp_min_c
             and rain_24 >= trigger_min_rain
             and rain_48 >= rain_min_mm
         )
@@ -130,6 +144,8 @@ def detect_rule_3_10(
                         trigger_date=day,
                         season_label=season_lbl,
                         temp_mean_c=round(t_mean, 3),
+                        temp_min_c=round(t_min, 3),
+                        temp_aggregation=agg_mode,
                         rain_24h_mm=round(rain_24, 3),
                         rain_48h_mm=round(rain_48, 3),
                         is_first_of_season=is_first,
@@ -192,6 +208,7 @@ def track_goidanich_incubation(
     tz_name: str = "Europe/Paris",
     hemisphere: str = "northern_hemisphere",
     apply_phenology: bool = True,
+    temp_aggregation: str | None = None,
 ) -> list[GoidanichCohort]:
     """
     Rastreia coortes de incubacao de Goidanich ate 100%.
@@ -218,6 +235,7 @@ def track_goidanich_incubation(
                 tz_name=tz_name,
                 hemisphere=hemisphere,
                 apply_phenology=apply_phenology,
+                temp_aggregation=temp_aggregation,
             )
         ]
     else:
@@ -228,9 +246,9 @@ def track_goidanich_incubation(
 
     daily_list = _daily_summary_map(norm, tz_name=tz_name, day_start_hour=day_start_hour)
     daily_by_date: dict[date, tuple[float | None, float | None]] = {
-        d: (t_mean, rh_mean) for d, t_mean, rh_mean, _rain in daily_list
+        d: (t_mean, rh_mean) for d, t_mean, _t_min, rh_mean, _rain in daily_list
     }
-    sorted_dates = [d for d, _, _, _ in daily_list]
+    sorted_dates = [d for d, _, _, _, _ in daily_list]
 
     cohorts: list[GoidanichCohort] = []
     for trig in triggers:

@@ -25,6 +25,7 @@ class StationMetadata:
     path: Path
     lat: float
     lon: float
+    elevation_m: float
     tz_name: str
     hemisphere: str
     used_in_v1: bool
@@ -37,6 +38,7 @@ V1_INRAE_METADATA: tuple[dict[str, Any], ...] = (
         "filename": "33080002_bordeaux_couhins.tab",
         "lat": 44.75260,
         "lon": -0.56077,
+        "elevation_m": 20.0,
         "tz_name": "Europe/Paris",
     },
     {
@@ -45,6 +47,7 @@ V1_INRAE_METADATA: tuple[dict[str, Any], ...] = (
         "filename": "68066002_alsace_colmar.tab",
         "lat": 48.06429,
         "lon": 7.33012,
+        "elevation_m": 200.0,
         "tz_name": "Europe/Paris",
     },
     {
@@ -53,6 +56,7 @@ V1_INRAE_METADATA: tuple[dict[str, Any], ...] = (
         "filename": "51242002_champagne_fagnieres.tab",
         "lat": 48.94978,
         "lon": 4.31402,
+        "elevation_m": 102.0,
         "tz_name": "Europe/Paris",
     },
     {
@@ -61,6 +65,7 @@ V1_INRAE_METADATA: tuple[dict[str, Any], ...] = (
         "filename": "21106002_bourgogne_breteniere.tab",
         "lat": 47.23917,
         "lon": 5.10232,
+        "elevation_m": 211.0,
         "tz_name": "Europe/Paris",
     },
 )
@@ -189,6 +194,7 @@ def discover_local_dev_stations(data_root: str | Path = "data/lwd_sensors") -> l
                     path=p,
                     lat=float(info["lat"]),
                     lon=float(info["lon"]),
+                    elevation_m=float(info["elevation_m"]),
                     tz_name=info["tz_name"],
                     hemisphere="northern_hemisphere",
                     used_in_v1=True,
@@ -212,6 +218,7 @@ def discover_local_dev_stations(data_root: str | Path = "data/lwd_sensors") -> l
                         path=p,
                         lat=float(site["lat"]),
                         lon=float(site["lon"]),
+                        elevation_m=float(site["elevation"]),
                         tz_name="Europe/Rome",
                         hemisphere="northern_hemisphere",
                         used_in_v1=True,

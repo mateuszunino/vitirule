@@ -478,9 +478,11 @@ class TestBlindQualityControlAndLockbox:
         assert res_dry.passed is False
         assert "wet_fraction_below_0.01" in res_dry.reasons
 
-        # Lacuna de 30 horas consecutivas (> 24 h)
+        # Lacuna de 30 horas consecutivas (> 24 h) na politica de sensibilidade original `reject_24h`
         gapped = recs[:100] + recs[130:]
-        res_gap = evaluate_station_season_qc(gapped, "synthetic", "ST_GAP", "tomato", 2023, "UTC")
+        res_gap = evaluate_station_season_qc(
+            gapped, "synthetic", "ST_GAP", "tomato", 2023, "UTC", gap_policy="reject_24h"
+        )
         assert res_gap.passed is False
         assert "max_gap_gt_24h" in res_gap.reasons
         assert res_gap.max_gap_hours == 30

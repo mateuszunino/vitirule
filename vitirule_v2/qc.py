@@ -1,6 +1,14 @@
 """
-Controle de qualidade cego de estacoes-safra e sorteio deterministico do lockbox.
-Implementa literalmente os criterios aprovados em `docs/v2/criterios_qualidade.md`.
+Controle de qualidade cego de estacoes-safra, mascaramento de lacunas com
+periodo de aquecimento por regra e sorteio deterministico do lockbox.
+
+Implementa `docs/v2/criterios_qualidade.md` e a Emenda 1 de `docs/v2/preregistro.md`:
+- `gap_policy="mask_with_warmup"` (padrao emendado pre-Fase 2): mantem cobertura
+  minima de 95% e todos os testes de deriva do sensor, substituindo a reprovacao
+  por lacuna continua > 24 h pelo mascaramento da lacuna mais o periodo de
+  aquecimento igual a memoria maxima de cada regra.
+- `gap_policy="reject_24h"` (regra original congelada na Fase 0): mantida como
+  analise de sensibilidade declarada no preregistro.
 """
 from __future__ import annotations
 
@@ -8,10 +16,10 @@ import math
 import random
 from dataclasses import asdict, dataclass
 from datetime import date, datetime, timedelta, timezone
-from typing import Any, Mapping, Sequence
+from typing import Any, Iterable, Mapping, Sequence
 from zoneinfo import ZoneInfo
 
-from .rules.common import HourlyRecord, parse_aware_datetime, round_half_up
+from .rules.common import HourlyRecord, load_params, local_day_for_timestamp, parse_aware_datetime, round_half_up
 from .rules.phenology import season_date_bounds
 
 UTC = timezone.utc
@@ -40,6 +48,40 @@ RAINLESS_MIN_RAIN_MM = 0.2
 V1_INRAE_STATION_IDS = frozenset({"33080002", "68066002", "51242002", "21106002"})
 
 
+def rule_warmup_hours() -> dict[str, int]:
+    """
+    Deriva o periodo de aquecimento pos-lacuna em horas a partir dos parametros
+    congelados em `vitirule_v2/rules/params.json`:
+    - `rule_3_10`: `rain_window_hours` = 48 h (memoria da soma de chuva em 48 h).
+    - `goidanich`: teto teorico da incubacao ate 100% a taxa minima positiva
+      (10 C com UR < 75%: 5,0 * 0,85 = 4,25 %/dia -> ceil(100/4,25) = 24 dias = 576 h),
+      alem da filtragem exata de qualquer coorte cuja janela toque hora mascarada.
+    - `mills_revised`: `max_dry_interruption_hours` (8 h) + `rain_initiation_lookback_hours` (1 h) = 9 h.
+    - `tomcast`: `spray_dsv_threshold` (15 DSV) a taxa minima positiva de 1 DSV/dia = 15 dias = 360 h,
+      alem da filtragem exata de qualquer intervalo de pulverizacao que toque dia mascarado.
+    """
+    params = load_params()
+    r310_h = int(params["rule_3_10"]["rain_window_hours"])
+
+    g_cfg = params["goidanich"]
+    min_pos_pct = min(v for v in g_cfg["daily_pct_anchor"] if v > 0.0) * float(g_cfg["rh_low_factor"])
+    goid_days = int(math.ceil(float(g_cfg["completion_threshold_pct"]) / min_pos_pct))
+    goid_h = goid_days * 24
+
+    m_cfg = params["mills_revised"]
+    mills_h = int(m_cfg["max_dry_interruption_hours"]) + int(m_cfg["rain_initiation_lookback_hours"])
+
+    tc_days = int(params["tomcast"]["spray_dsv_threshold"])
+    tc_h = tc_days * 24
+
+    return {
+        "rule_3_10": r310_h,
+        "goidanich": goid_h,
+        "mills_revised": mills_h,
+        "tomcast": tc_h,
+    }
+
+
 @dataclass(frozen=True)
 class StationSeasonQCResult:
     """Diagnostico completo de controle de qualidade para uma estacao-safra."""
@@ -48,12 +90,14 @@ class StationSeasonQCResult:
     station_id: str
     crop: str
     season_label: str
+    gap_policy: str
     passed: bool
     reasons: tuple[str, ...]
     expected_hours: int
     valid_hours: int
     coverage_frac: float
     max_gap_hours: int
+    n_gap_hours: int
     wet_fraction: float | None
     dry_midday_hours: int
     dry_midday_wet_fraction: float | None
@@ -84,20 +128,14 @@ def _is_valid_hour(rec: HourlyRecord, allow_rh_saturation_105: bool = True) -> b
     return True
 
 
-def evaluate_station_season_qc(
+def _extract_expected_grid_and_valid_map(
     raw_records: Sequence[HourlyRecord | Mapping[str, Any]],
-    network: str,
-    station_id: str,
     crop: str,
     season_year: int,
     tz_name: str,
-    hemisphere: str = "northern_hemisphere",
-    allow_rh_saturation_105: bool = True,
-) -> StationSeasonQCResult:
-    """
-    Avalia uma estacao-safra contra todos os criterios de
-    `docs/v2/criterios_qualidade.md` sem olhar para nenhum resultado de alerta.
-    """
+    hemisphere: str,
+    allow_rh_saturation_105: bool,
+) -> tuple[str, list[datetime], dict[datetime, HourlyRecord], bool, bool, bool]:
     start_d, end_d = season_date_bounds(season_year, crop=crop, hemisphere=hemisphere)
     season_lbl = f"{season_year}-{season_year + 1}" if end_d.year > start_d.year else str(season_year)
     tz = ZoneInfo(tz_name)
@@ -112,11 +150,7 @@ def evaluate_station_season_qc(
     while cur < end_utc_excl:
         expected_grid.append(cur)
         cur += timedelta(hours=1)
-    expected_hours = len(expected_grid)
 
-    reasons: list[str] = []
-
-    # 1. Integridade de timestamps (fuso explicito, monotonicidade e unicidade)
     parsed_by_ts: dict[datetime, HourlyRecord] = {}
     prev_ts: datetime | None = None
     non_monotonic = False
@@ -141,10 +175,15 @@ def evaluate_station_season_qc(
             continue
 
         if isinstance(raw, HourlyRecord):
+            rh_adj = (
+                min(raw.rh_pct, RH_MAX_PCT)
+                if (raw.rh_pct is not None and raw.rh_pct <= RH_SATURATION_CAP_PCT and allow_rh_saturation_105)
+                else raw.rh_pct
+            )
             rec = HourlyRecord(
                 ts=ts_utc,
                 temp_c=raw.temp_c,
-                rh_pct=min(raw.rh_pct, RH_MAX_PCT) if (raw.rh_pct is not None and raw.rh_pct <= RH_SATURATION_CAP_PCT and allow_rh_saturation_105) else raw.rh_pct,
+                rh_pct=rh_adj,
                 precip_mm=raw.precip_mm,
                 wet=raw.wet,
                 wind_ms=raw.wind_ms,
@@ -173,6 +212,128 @@ def evaluate_station_season_qc(
             duplicate_ts = True
         parsed_by_ts[ts_utc] = rec
 
+    return season_lbl, expected_grid, parsed_by_ts, naive_ts, non_monotonic, duplicate_ts
+
+
+def compute_raw_gap_hours(
+    raw_records: Sequence[HourlyRecord | Mapping[str, Any]],
+    crop: str,
+    season_year: int,
+    tz_name: str,
+    hemisphere: str = "northern_hemisphere",
+    allow_rh_saturation_105: bool = True,
+) -> set[datetime]:
+    """Retorna apenas os timestamps UTC ausentes ou fisicamente invalidos na grade esperada."""
+    _lbl, expected_grid, parsed_by_ts, _, _, _ = _extract_expected_grid_and_valid_map(
+        raw_records, crop, season_year, tz_name, hemisphere, allow_rh_saturation_105
+    )
+    gaps: set[datetime] = set()
+    for ts in expected_grid:
+        rec = parsed_by_ts.get(ts)
+        if rec is None or not _is_valid_hour(rec, allow_rh_saturation_105=allow_rh_saturation_105):
+            gaps.add(ts)
+    return gaps
+
+
+def compute_masked_hours_for_rule(
+    raw_records: Sequence[HourlyRecord | Mapping[str, Any]],
+    rule_name: str,
+    crop: str,
+    season_year: int,
+    tz_name: str,
+    hemisphere: str = "northern_hemisphere",
+    allow_rh_saturation_105: bool = True,
+) -> set[datetime]:
+    """
+    Retorna o conjunto de timestamps UTC mascarados para `rule_name`:
+    todas as horas invalidas/ausentes na grade esperada mais o periodo de
+    aquecimento pos-lacuna igual a memoria maxima da regra (`rule_warmup_hours()`).
+    """
+    warmups = rule_warmup_hours()
+    if rule_name not in warmups:
+        raise ValueError(f"regra invalida: {rule_name!r}. Use {sorted(warmups)}")
+    warmup_h = warmups[rule_name]
+
+    _lbl, expected_grid, parsed_by_ts, _, _, _ = _extract_expected_grid_and_valid_map(
+        raw_records, crop, season_year, tz_name, hemisphere, allow_rh_saturation_105
+    )
+
+    masked: set[datetime] = set()
+    cooldown = 0
+    for ts in expected_grid:
+        rec = parsed_by_ts.get(ts)
+        is_ok = rec is not None and _is_valid_hour(rec, allow_rh_saturation_105=allow_rh_saturation_105)
+        if not is_ok:
+            masked.add(ts)
+            cooldown = warmup_h
+        elif cooldown > 0:
+            masked.add(ts)
+            cooldown -= 1
+    return masked
+
+
+def masked_local_days(
+    masked_hours_utc: Iterable[datetime],
+    tz_name: str,
+    day_start_hour: int = 0,
+) -> set[date]:
+    """Converte um conjunto de horas UTC mascaradas nos dias locais afetados."""
+    return {
+        local_day_for_timestamp(ts, tz_name=tz_name, day_start_hour=day_start_hour)
+        for ts in masked_hours_utc
+    }
+
+
+def event_touches_masked_hours(
+    window_start_utc: datetime,
+    window_end_utc: datetime,
+    masked_hours_utc: set[datetime],
+) -> bool:
+    """Retorna True se qualquer hora em `[window_start_utc, window_end_utc]` estiver mascarada."""
+    if not masked_hours_utc:
+        return False
+    cur = window_start_utc.astimezone(UTC).replace(minute=0, second=0, microsecond=0)
+    end = window_end_utc.astimezone(UTC).replace(minute=0, second=0, microsecond=0)
+    while cur <= end:
+        if cur in masked_hours_utc:
+            return True
+        cur += timedelta(hours=1)
+    return False
+
+
+def evaluate_station_season_qc(
+    raw_records: Sequence[HourlyRecord | Mapping[str, Any]],
+    network: str,
+    station_id: str,
+    crop: str,
+    season_year: int,
+    tz_name: str,
+    hemisphere: str = "northern_hemisphere",
+    allow_rh_saturation_105: bool = True,
+    gap_policy: str = "mask_with_warmup",
+) -> StationSeasonQCResult:
+    """
+    Avalia uma estacao-safra contra todos os criterios de controle de qualidade.
+
+    `gap_policy`:
+    - `'mask_with_warmup'` (padrao emendado): mantem >= 95% de cobertura e todos
+      os testes de deriva; lacunas > 24 h nao reprovam a safra, sendo tratadas
+      por mascaramento da lacuna e do periodo de aquecimento de cada regra.
+    - `'reject_24h'` (regra original de `criterios_qualidade.md`, analise de
+      sensibilidade): reprova qualquer safra com lacuna continua > 24 h.
+    """
+    if gap_policy not in ("mask_with_warmup", "reject_24h"):
+        raise ValueError(f"gap_policy invalida: {gap_policy!r}. Use 'mask_with_warmup' ou 'reject_24h'.")
+
+    tz = ZoneInfo(tz_name)
+    season_lbl, expected_grid, parsed_by_ts, naive_ts, non_monotonic, duplicate_ts = (
+        _extract_expected_grid_and_valid_map(
+            raw_records, crop, season_year, tz_name, hemisphere, allow_rh_saturation_105
+        )
+    )
+    expected_hours = len(expected_grid)
+    reasons: list[str] = []
+
     if naive_ts:
         reasons.append("naive_timestamp")
     if non_monotonic:
@@ -180,7 +341,6 @@ def evaluate_station_season_qc(
     if duplicate_ts:
         reasons.append("duplicate_timestamp")
 
-    # 2. Cobertura e lacuna continua maxima sobre a grade esperada
     valid_hours = 0
     max_gap = 0
     cur_gap = 0
@@ -226,10 +386,11 @@ def evaluate_station_season_qc(
             rain_history.append(0.0)
             wet_streak = 0
 
+    n_gap_hours = expected_hours - valid_hours
     coverage = valid_hours / expected_hours if expected_hours > 0 else 0.0
     if coverage < MIN_COVERAGE:
         reasons.append(f"coverage_below_{MIN_COVERAGE:.2f}")
-    if max_gap > MAX_GAP_HOURS:
+    if gap_policy == "reject_24h" and max_gap > MAX_GAP_HOURS:
         reasons.append(f"max_gap_gt_{MAX_GAP_HOURS}h")
 
     wet_frac = (wet_hours / valid_hours) if valid_hours > 0 else None
@@ -250,12 +411,14 @@ def evaluate_station_season_qc(
         station_id=station_id,
         crop=crop,
         season_label=season_lbl,
+        gap_policy=gap_policy,
         passed=(len(reasons) == 0),
         reasons=tuple(reasons),
         expected_hours=expected_hours,
         valid_hours=valid_hours,
         coverage_frac=round(coverage, 4),
         max_gap_hours=max_gap,
+        n_gap_hours=n_gap_hours,
         wet_fraction=round(wet_frac, 4) if wet_frac is not None else None,
         dry_midday_hours=dry_midday_total,
         dry_midday_wet_fraction=round(dry_midday_wet_frac, 4) if dry_midday_wet_frac is not None else None,
@@ -273,8 +436,6 @@ def draw_stratified_lockbox(
     """
     Sorteia deterministicamente estacoes para o lockbox, excluindo `exclude_ids`
     (estacoes ja usadas na v1) e estratificando por `region` quando disponivel.
-
-    Cada item de `eligible_stations` deve conter `station_id` e opcionalmente `region`.
     """
     excluded = set(exclude_ids)
     pool = [
@@ -305,7 +466,6 @@ def draw_stratified_lockbox(
         selected.extend(ids[:k])
         remainders.append((exact - k, region, ids[k:]))
 
-    # Completa ate `target` priorizando maiores restos fracionarios
     remainders.sort(key=lambda x: (-x[0], x[1]))
     for _rem, _reg, leftover in remainders:
         if len(selected) >= target:
@@ -313,7 +473,6 @@ def draw_stratified_lockbox(
         if leftover:
             selected.append(leftover.pop(0))
 
-    # Se ainda faltar (ex.: min_count > round(fraction * N)), completa do restante
     if len(selected) < target:
         extra_pool = [sid for _rem, _reg, leftover in remainders for sid in leftover]
         rng.shuffle(extra_pool)
