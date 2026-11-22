@@ -1,0 +1,234 @@
+{
+  "schema_version": "2.0.0",
+  "rules_freeze_tag": "v2-rules",
+  "description": "Parametros congelados das quatro regras fitossanitarias classicas do vitirule v2, com divergencias da literatura e referencias bibliograficas primarias.",
+  "phenology_windows": {
+    "notes": "Janelas fenologicas fixas por hemisferio e cultura, aplicadas de forma identica a referencia medida e a todas as fontes candidatas porque estacoes meteorologicas nao observam fenologia local.",
+    "northern_hemisphere": {
+      "grapevine": {
+        "start_month": 4,
+        "start_day": 1,
+        "end_month": 9,
+        "end_day": 30,
+        "cross_year": false,
+        "reference": "Rossi et al. (2008), European Journal of Plant Pathology 121:419-435, doi:10.1007/s10658-007-9254-7; Caffi et al. (2010), Plant Disease 94:709-716; cobertura primaveril a colheita em vinhedos temperados europeus."
+      },
+      "apple": {
+        "start_month": 3,
+        "start_day": 15,
+        "end_month": 6,
+        "end_day": 30,
+        "cross_year": false,
+        "reference": "MacHardy (1996), Apple Scab: Biology, Epidemiology, and Management, APS Press; Stensvand et al. (1997), Phytopathology 87:1046-1053, doi:10.1094/PHYTO.1997.87.10.1046; janela de ponta verde ao fim da descarga primaria de ascosporos."
+      },
+      "tomato": {
+        "start_month": 5,
+        "start_day": 1,
+        "end_month": 9,
+        "end_day": 30,
+        "cross_year": false,
+        "reference": "Pitblado (1992), OMAF Ridgetown College; Gillespie, Srivastava & Pitblado (1993), Journal of Applied Meteorology 32:567-573, doi:10.1175/1520-0450(1993)032<0567:UOWDTS>2.0.CO;2; ciclo de tomateiro de campo de transplante a colheita."
+      }
+    },
+    "southern_hemisphere": {
+      "grapevine": {
+        "start_month": 10,
+        "start_day": 1,
+        "end_month": 3,
+        "end_day": 31,
+        "cross_year": true,
+        "reference": "Cavalcanti (2021), Embrapa Uva e Vinho Circular Tecnica 124, https://www.infoteca.cnptia.embrapa.br/infoteca/handle/doc/1134000; safra viticola na Serra Gaucha e Planalto Serrano de Santa Catarina."
+      },
+      "apple": {
+        "start_month": 9,
+        "start_day": 15,
+        "end_month": 12,
+        "end_day": 31,
+        "cross_year": false,
+        "reference": "Boneti, Katsurayama & Bleicher (1999), Epagri; janela de brotacao e infeccao primaria de Venturia inaequalis em Sao Joaquim e Fraiburgo, SC."
+      },
+      "tomato": {
+        "start_month": 11,
+        "start_day": 1,
+        "end_month": 3,
+        "end_day": 31,
+        "cross_year": true,
+        "reference": "Ciclo de tomateiro de verao em Santa Catarina, adaptado ao protocolo TOM-CAST de Pitblado (1992)."
+      }
+    }
+  },
+  "rule_3_10": {
+    "crop": "grapevine",
+    "pathogen": "Plasmopara viticola",
+    "day_start_hour_local": 0,
+    "temp_min_c": 10.0,
+    "temp_aggregation": "daily_mean",
+    "rain_window_hours": 48,
+    "rain_min_mm": 10.0,
+    "trigger_day_min_rain_mm": 0.2,
+    "debounce_consecutive_days": true,
+    "primary_reference": "Baldacci, E. (1947). Atti dell'Istituto Botanico della Universita di Pavia, Serie 5, Vol. 8, pp. 45-85. Consolidacao operacional em Goidanich (1964) e Rossi et al. (2008), doi:10.1007/s10658-007-9254-7.",
+    "literature_divergences": [
+      {
+        "parameter": "rain_window_hours",
+        "variants": ["24 h em manuais simplificados", "48 h em Baldacci (1947), Goidanich (1964) e boletins fitossanitarios europeus"],
+        "chosen": 48,
+        "rationale": "Preserva chuvas frontais que atravessam a meia-noite local e corresponde a formulacao operacional classica mais citada na Europa."
+      },
+      {
+        "parameter": "temp_aggregation",
+        "variants": ["temperatura minima diaria >= 10 C em versoes restritivas", "temperatura media diaria >= 10 C em boletins operacionais e Rossi et al. (2008)"],
+        "chosen": "daily_mean",
+        "rationale": "A media diaria e menos sensivel a erros pontuais de minima noturna em reanalises e coincide com o uso operacional corrente."
+      },
+      {
+        "parameter": "trigger_day_min_rain_mm",
+        "variants": ["0.0 mm sem checagem de chuva no dia do disparo", "0.2 mm limiar meteorologico padrao de dia chuvoso"],
+        "chosen": 0.2,
+        "rationale": "Evita disparar um segundo alerta falso num dia completamente seco apenas pelo carrego da chuva do dia anterior na soma de 48 h."
+      }
+    ]
+  },
+  "goidanich": {
+    "crop": "grapevine",
+    "pathogen": "Plasmopara viticola",
+    "day_start_hour_local": 0,
+    "tmin_c": 8.0,
+    "tmax_c": 30.0,
+    "temp_anchor_c": [8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 25.0, 28.0, 30.0],
+    "daily_pct_anchor": [0.0, 5.0, 7.7, 10.0, 13.3, 16.7, 20.0, 25.0, 25.0, 16.7, 0.0],
+    "rh_low_threshold_pct": 75.0,
+    "rh_low_factor": 0.85,
+    "completion_threshold_pct": 100.0,
+    "preventive_advisory_pct": 80.0,
+    "start_offset_days": 1,
+    "primary_reference": "Muller, K. & Sleumer, H. (1934). Landwirtschaftliche Jahrbucher, 79, pp. 509-576; Goidanich, G. (1964). Manuale di Patologia Vegetale, Vol. II, Edagricole, Bologna.",
+    "literature_divergences": [
+      {
+        "parameter": "rh_low_factor",
+        "variants": ["Sem correcao de UR em Muller & Sleumer (1934)", "Reducao de taxa em ar seco sob UR < 75% em Goidanich (1964)"],
+        "chosen": 0.85,
+        "rationale": "Adota a extensao de Goidanich (1964), cuja influencia da umidade relativa tambem testa a fidelidade de UR entre fontes meteorologicas."
+      },
+      {
+        "parameter": "completion_threshold_pct",
+        "variants": ["80% como aviso preventivo de pulverizacao", "100% como fim teorico da incubacao e emergencia de manchas de oleo"],
+        "chosen": 100.0,
+        "rationale": "Usa 100% como marco biologico objetivo do calendario de incubacao e registra 80% como metadado auxiliar em cada coorte."
+      }
+    ]
+  },
+  "mills_revised": {
+    "crop": "apple",
+    "pathogen": "Venturia inaequalis",
+    "temp_min_c": 1.0,
+    "temp_max_c": 26.0,
+    "max_dry_interruption_hours": 8,
+    "min_event_rain_mm": 0.2,
+    "rain_initiation_lookback_hours": 1,
+    "severity_table": [
+      {"temp_c": 1.0, "light_h": 40.0, "moderate_h": 69.0, "heavy_h": 93.0},
+      {"temp_c": 2.0, "light_h": 34.0, "moderate_h": 69.0, "heavy_h": 93.0},
+      {"temp_c": 3.0, "light_h": 30.0, "moderate_h": 52.0, "heavy_h": 65.0},
+      {"temp_c": 4.0, "light_h": 27.0, "moderate_h": 42.0, "heavy_h": 57.0},
+      {"temp_c": 5.0, "light_h": 21.0, "moderate_h": 34.0, "heavy_h": 50.0},
+      {"temp_c": 6.0, "light_h": 18.0, "moderate_h": 27.0, "heavy_h": 44.0},
+      {"temp_c": 7.0, "light_h": 15.0, "moderate_h": 23.0, "heavy_h": 37.0},
+      {"temp_c": 8.0, "light_h": 13.0, "moderate_h": 21.0, "heavy_h": 34.0},
+      {"temp_c": 9.0, "light_h": 12.0, "moderate_h": 17.0, "heavy_h": 27.0},
+      {"temp_c": 10.0, "light_h": 11.0, "moderate_h": 16.0, "heavy_h": 26.0},
+      {"temp_c": 11.0, "light_h": 9.0, "moderate_h": 14.0, "heavy_h": 22.0},
+      {"temp_c": 12.0, "light_h": 8.0, "moderate_h": 12.0, "heavy_h": 20.0},
+      {"temp_c": 13.0, "light_h": 8.0, "moderate_h": 12.0, "heavy_h": 20.0},
+      {"temp_c": 14.0, "light_h": 7.0, "moderate_h": 11.0, "heavy_h": 19.0},
+      {"temp_c": 15.0, "light_h": 7.0, "moderate_h": 11.0, "heavy_h": 19.0},
+      {"temp_c": 15.5, "light_h": 6.5, "moderate_h": 10.0, "heavy_h": 17.0},
+      {"temp_c": 16.0, "light_h": 6.0, "moderate_h": 9.0, "heavy_h": 16.0},
+      {"temp_c": 24.0, "light_h": 6.0, "moderate_h": 9.0, "heavy_h": 16.0},
+      {"temp_c": 25.0, "light_h": 8.0, "moderate_h": 11.0, "heavy_h": 18.0},
+      {"temp_c": 26.0, "light_h": 10.0, "moderate_h": 14.0, "heavy_h": 23.0}
+    ],
+    "primary_reference": "Mills, W. D. (1944), Cornell Ext. Bull. 630; MacHardy, W. E. & Gadoury, D. M. (1989), Phytopathology 79:304-310, doi:10.1094/PHYTO-79-304; Stensvand et al. (1997), Phytopathology 87:1046-1053, doi:10.1094/PHYTO.1997.87.10.1046; tabela consolidada OMAFRA.",
+    "literature_divergences": [
+      {
+        "parameter": "max_dry_interruption_hours",
+        "variants": [
+          "0 h de molhamento estritamente continuo em Mills (1944)",
+          "<= 4 h em criterios restritos sob baixa UR (Schwabe et al. 1984)",
+          "<= 8 h na tabela revisada operacional da OMAFRA associada a MacHardy & Gadoury (1989) e Stensvand et al. (1997)",
+          "< 24 h na combinacao de eventos do sistema NEWA baseada em Becker & Burr (1994)"
+        ],
+        "chosen": 8,
+        "rationale": "Adota o limite de <= 8 h da OMAFRA porque tolera pausas breves de secagem ou oscilacoes de sensor sem fundir eventos separados por tardes secas e sem exigir uma sub-regra adicional de UR que distorceria a comparacao entre sensor e reanalise. Somente as horas molhadas contam na duracao e na temperatura media."
+      },
+      {
+        "parameter": "min_event_rain_mm",
+        "variants": [
+          "0.0 mm incluindo orvalho puro para infeccoes secundarias",
+          "0.2 mm exigindo chuva para descarga de ascosporos em infeccoes primarias segundo MacHardy & Gadoury (1989)"
+        ],
+        "chosen": 0.2,
+        "rationale": "A tabela revisada de MacHardy & Gadoury (1989) refere-se a infeccoes primarias por ascosporos, cuja ejecao depende de chuva. Exigir chuva evita alertas primarios espurios por orvalho noturno sem chuva e avalia a interacao entre precipitacao e molhamento."
+      },
+      {
+        "parameter": "temperature_interpolation",
+        "variants": [
+          "Arredondamento ao inteiro mais proximo da tabela",
+          "Interpolacao linear entre as linhas publicadas da tabela"
+        ],
+        "chosen": "linear_interpolation",
+        "rationale": "Reproduz exatamente todas as linhas publicadas e evita saltos artificiais de 2 horas de molhamento por diferencas de 0,05 C entre estacao e reanalise."
+      }
+    ]
+  },
+  "tomcast": {
+    "crop": "tomato",
+    "pathogen": "Alternaria solani",
+    "day_start_hour_local": 12,
+    "temp_rounding": "half_up",
+    "spray_dsv_threshold": 15,
+    "dsv_table": [
+      {"temp_min_c": 13, "temp_max_c": 17, "dsv_1_h": 7, "dsv_2_h": 16, "dsv_3_h": 21, "dsv_4_h": null},
+      {"temp_min_c": 18, "temp_max_c": 20, "dsv_1_h": 4, "dsv_2_h": 9, "dsv_3_h": 16, "dsv_4_h": 23},
+      {"temp_min_c": 21, "temp_max_c": 25, "dsv_1_h": 3, "dsv_2_h": 6, "dsv_3_h": 13, "dsv_4_h": 21},
+      {"temp_min_c": 26, "temp_max_c": 29, "dsv_1_h": 4, "dsv_2_h": 9, "dsv_3_h": 16, "dsv_4_h": 23}
+    ],
+    "evaluation_modes": ["self_reset", "reference_reset"],
+    "primary_reference": "Madden, L., Pennypacker, S. P. & MacNab, A. A. (1978), Phytopathology 68:1354-1358, doi:10.1094/Phyto-68-1354; Pitblado, R. E. (1988, 1992), OMAF Ridgetown College; Gillespie, T. J., Srivastava, B. & Pitblado, R. E. (1993), Journal of Applied Meteorology 32:567-573, doi:10.1175/1520-0450(1993)032<0567:UOWDTS>2.0.CO;2.",
+    "literature_divergences": [
+      {
+        "parameter": "spray_dsv_threshold",
+        "variants": [
+          "15 DSV como padrao operacional conservador em Pitblado (1992) e Gillespie et al. (1993)",
+          "20 DSV para programas de menor pressao ou cultivares tolerantes em Pitblado (1992)",
+          "35 DSV para a primeira pulverizacao apos transplante seguida de intervalos de 15 ou 20 DSV em programas de Ontario"
+        ],
+        "chosen": 15,
+        "rationale": "Usa 15 DSV uniforme como padrao mais difundido na literatura operacional e gera numero adequado de eventos por safra para avaliar atraso e falhas de deteccao."
+      },
+      {
+        "parameter": "temp_rounding",
+        "variants": [
+          "Arredondamento aritmetico padrao half-up ao inteiro",
+          "Arredondamento bancario half-to-even nativo do Python 3"
+        ],
+        "chosen": "half_up",
+        "rationale": "Garante comportamento identico entre Python e JavaScript/Pyodide nas fronteiras de 17,5 C, 20,5 C e 25,5 C."
+      }
+    ]
+  },
+  "sensor_binarization": {
+    "inrae": {
+      "column": "h",
+      "unit": "hours_wet_in_0_to_1",
+      "wet_threshold_gte": 0.5,
+      "reference": "Furusho-Percot et al. (2025), Data in Brief, DOI dataset 10.57745/BQ0BWB; limiar de 30 minutos por hora."
+    },
+    "polito": {
+      "column": "leaf_top",
+      "unit": "capacitive_scale_0_to_100",
+      "wet_threshold_gte": 20.0,
+      "reference": "Politecnico di Torino / iXem Labs, DOI 10.17632/sd4b8vpvyb.1; limiar de folha molhada adotado na v1 e congelado antes dos dados novos."
+    }
+  }
+}
