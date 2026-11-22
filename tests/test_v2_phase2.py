@@ -346,3 +346,42 @@ class TestWeatherSourcesAndGridMetadata:
         with pytest.raises(ValueError, match="precipitation"):
             fetch_era5_land(44.7526, -0.56077, "2023-06-15", "2023-06-15", cache_dir=tmp_path, station_tag="t", session=_DummySession())
         assert captured["params"]["models"] == "era5_seamless"
+
+    def test_era5_025_grid_meta_and_nearest_center(self, tmp_path):
+        from vitirule_v2.sources.grid_metadata import nearest_era5_025_center
+        from vitirule_v2.sources.open_meteo import fetch_era5_025_grid_meta
+
+        assert nearest_era5_025_center(44.7526, -0.56077) == (44.75, -0.5)
+        captured: dict = {}
+
+        class _Era5Resp:
+            status_code = 200
+            def __init__(self, body): self._body = body
+            def raise_for_status(self): pass
+            def json(self): return self._body
+
+        class _DummySession:
+            headers: dict = {}
+            def get(self, url, params=None, timeout=None):
+                if "elevation" in url:
+                    return _Era5Resp({"elevation": [35.0]})
+                captured["params"] = dict(params or {})
+                return _Era5Resp({
+                    "latitude": 44.75, "longitude": -0.5, "elevation": 12.0, "timezone": "GMT",
+                    "hourly": {"time": [1651363200], "precipitation": [0.0]},
+                })
+
+        meta = fetch_era5_025_grid_meta(
+            44.7526, -0.56077, cache_dir=tmp_path, station_tag="bordeaux", session=_DummySession()
+        )
+        assert captured["params"]["models"] == "era5"
+        assert meta["grid_lat"] == 44.75
+        assert meta["grid_lon"] == -0.5
+        assert meta["grid_elev_m"] == 35.0
+        gm = build_station_grid_match(
+            "inrae", "33080002", "Bordeaux", "era5_combined_precip_025",
+            44.7526, -0.56077, 20.0,
+            meta["grid_lat"], meta["grid_lon"], meta["grid_elev_m"],
+        )
+        assert 4.0 < gm.distance_km < 6.0
+        assert gm.elev_diff_m == pytest.approx(15.0)

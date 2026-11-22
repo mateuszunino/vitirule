@@ -1,6 +1,7 @@
 """
 Coletores com cache local em disco para as tres APIs do Open-Meteo (CC BY 4.0):
-- ERA5-Land (`archive-api.open-meteo.com/v1/archive`, `models=era5_land`)
+- ERA5 combinado: T e UR do ERA5-Land (0,1 grau), chuva, vento e radiacao do
+  ERA5 (0,25 grau) via `archive-api.open-meteo.com/v1/archive` (`models=era5_seamless`)
 - Historical Forecast (`historical-forecast-api.open-meteo.com/v1/forecast`)
 - Previous Runs (`previous-runs-api.open-meteo.com/v1/forecast`, horizontes 1-3 d)
 
@@ -23,6 +24,7 @@ UTC = timezone.utc
 OPEN_METEO_ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
 OPEN_METEO_HIST_FORECAST_URL = "https://historical-forecast-api.open-meteo.com/v1/forecast"
 OPEN_METEO_PREV_RUNS_URL = "https://previous-runs-api.open-meteo.com/v1/forecast"
+OPEN_METEO_ELEVATION_URL = "https://api.open-meteo.com/v1/elevation"
 
 BASE_HOURLY_VARS = (
     "temperature_2m",
@@ -142,13 +144,14 @@ def fetch_era5_land(
     force: bool = False,
 ) -> tuple[list[HourlyRecord], dict[str, Any]]:
     """
-    Baixa (ou le do cache) serie horaria na grade ERA5-Land (0,1 grau) via
+    Baixa (ou le do cache) serie horaria do ERA5 combinado via
     `models=era5_seamless` do Open-Meteo Archive em UTC.
 
-    Nota tecnica: no Open-Meteo Archive, `models=era5_land` retorna `null` em
-    `precipitation`, `wind_speed_10m` e `shortwave_radiation`; `era5_seamless`
-    mantem exatamente a mesma grade ERA5-Land (0,1 grau) para temperatura/UR e
-    fornece todas as cinco variaveis horarias preenchidas.
+    Segundo a documentacao do Open-Meteo, `era5_seamless` combina temperatura e
+    umidade relativa do ERA5-Land (grade de 0,1 grau) com precipitacao, vento e
+    radiacao do ERA5 (grade de 0,25 grau). As coordenadas e a altitude retornadas
+    no cabecalho correspondem ao ponto de 0,1 grau do ERA5-Land; para o ponto de
+    0,25 grau usado na precipitacao, consulte `fetch_era5_025_grid_meta`.
     """
     params = {
         "latitude": lat,
@@ -170,9 +173,84 @@ def fetch_era5_land(
     recs, meta = parse_open_meteo_hourly_payload(payload)
     if recs and all(r.precip_mm is None for r in recs):
         raise ValueError("Open-Meteo Archive retornou precipitation inteiramente nula")
-    meta["source"] = "era5_land"
+    meta["source"] = "era5_combined"
+    meta["source_label"] = "ERA5 combinado: T e UR do ERA5-Land, chuva, vento e radiação do ERA5"
     meta["model"] = "era5_seamless"
     return recs, meta
+
+
+fetch_era5_combined = fetch_era5_land
+
+
+def fetch_era5_025_grid_meta(
+    lat: float,
+    lon: float,
+    sample_date: str = "2022-05-01",
+    cache_dir: str | Path | None = None,
+    station_tag: str = "",
+    session: requests.Session | None = None,
+    force: bool = False,
+) -> dict[str, Any]:
+    """
+    Consulta um unico dia em `models=era5` no Open-Meteo Archive para obter
+    exatamente as coordenadas do ponto de grade ERA5 de 0,25 grau usado para
+    precipitacao, vento e radiacao no `era5_seamless`, e consulta a altitude
+    desse ponto de grade via `/v1/elevation` (pois o campo `elevation` do
+    cabecalho Archive devolve o DEM na coordenada da estacao, nao no centro
+    da celula de 0,25 grau).
+    """
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "start_date": sample_date,
+        "end_date": sample_date,
+        "hourly": "precipitation",
+        "models": "era5",
+        "timezone": "GMT",
+        "timeformat": "unixtime",
+    }
+    cache_path = (
+        Path(cache_dir) / "era5_025_meta" / f"{station_tag}_{sample_date}.json"
+        if cache_dir is not None
+        else None
+    )
+    payload = _cached_fetch(OPEN_METEO_ARCHIVE_URL, params, cache_path, session=session, force=force)
+    glat = _opt_float(payload.get("latitude"))
+    glon = _opt_float(payload.get("longitude"))
+    grid_elev = _opt_float(payload.get("elevation"))
+
+    if glat is not None and glon is not None:
+        elev_cache = (
+            Path(cache_dir) / "era5_025_meta" / f"{station_tag}_elev.json"
+            if cache_dir is not None
+            else None
+        )
+        try:
+            elev_payload = _cached_fetch(
+                OPEN_METEO_ELEVATION_URL,
+                {"latitude": glat, "longitude": glon},
+                elev_cache,
+                session=session,
+                force=force,
+            )
+            elev_list = elev_payload.get("elevation")
+            if isinstance(elev_list, list) and elev_list:
+                parsed = _opt_float(elev_list[0])
+                if parsed is not None:
+                    grid_elev = parsed
+        except Exception:
+            pass
+
+    return {
+        "source": "era5_combined_precip_025",
+        "source_label": "ERA5 combinado (grade ERA5 0,25 grau para chuva, vento e radiação)",
+        "model": "era5",
+        "grid_lat": glat,
+        "grid_lon": glon,
+        "grid_elev_m": grid_elev,
+        "api_dem_elev_m": _opt_float(payload.get("elevation")),
+        "attribution": "Weather data by Open-Meteo.com (CC BY 4.0)",
+    }
 
 
 def fetch_historical_forecast(

@@ -29,7 +29,8 @@ if str(ROOT) not in sys.path:
 from vitirule_v2.sensors import discover_local_dev_stations, load_polito_records
 from vitirule_v2.sources import (
     build_station_grid_match,
-    fetch_era5_land,
+    fetch_era5_025_grid_meta,
+    fetch_era5_combined,
     fetch_historical_forecast,
     fetch_nasa_power_hourly,
     fetch_previous_runs,
@@ -59,20 +60,31 @@ def run_fetch_phase2(output_path: Path | None = None) -> dict[str, Any]:
         tag = f"{st.network}_{st.station_id}"
         print(f"[{st.network}] {st.station_id} ({st.name}, elev={st.elevation_m}m) ...")
 
-        # 1. ERA5-Land
-        era_recs, era_meta = fetch_era5_land(
+        # 1. ERA5 combinado: T e UR do ERA5-Land (0,1 grau), chuva, vento e radiacao do ERA5 (0,25 grau)
+        era_recs, era_meta = fetch_era5_combined(
             st.lat, st.lon, long_start, long_end, cache_dir=CACHE_DIR, station_tag=tag, session=session
         )
         grid_matches.append(
             build_station_grid_match(
-                st.network, st.station_id, st.name, "era5_land",
+                st.network, st.station_id, st.name, "era5_combined_t_rh_010",
                 st.lat, st.lon, st.elevation_m,
                 era_meta["grid_lat"], era_meta["grid_lon"], era_meta["grid_elev_m"],
-                model_note=str(era_meta.get("model", "")),
+                model_note="era5_seamless: T e UR do ERA5-Land (0,1 grau)",
+            ).to_dict()
+        )
+        era025_meta = fetch_era5_025_grid_meta(
+            st.lat, st.lon, cache_dir=CACHE_DIR, station_tag=tag, session=session
+        )
+        grid_matches.append(
+            build_station_grid_match(
+                st.network, st.station_id, st.name, "era5_combined_precip_025",
+                st.lat, st.lon, st.elevation_m,
+                era025_meta["grid_lat"], era025_meta["grid_lon"], era025_meta["grid_elev_m"],
+                model_note="era5_seamless: chuva, vento e radiacao do ERA5 (0,25 grau)",
             ).to_dict()
         )
         coverage_rows.append({
-            "network": st.network, "station_id": st.station_id, "source": "era5_land",
+            "network": st.network, "station_id": st.station_id, "source": "era5_combined",
             "range": f"{long_start}..{long_end}", "n_hours": len(era_recs),
             "n_valid_temp": sum(r.temp_c is not None for r in era_recs),
         })

@@ -31,6 +31,17 @@ def nearest_merra2_center(lat: float, lon: float) -> tuple[float, float]:
     return round(grid_lat, 4), round(grid_lon, 4)
 
 
+def nearest_era5_025_center(lat: float, lon: float) -> tuple[float, float]:
+    """
+    Centro da celula ERA5 (grade regular 0,25 grau lat x 0,25 grau lon) mais
+    proximo de `(lat, lon)`, usado para precipitacao, vento e radiacao no
+    modelo combinado `era5_seamless` do Open-Meteo Archive.
+    """
+    grid_lat = round(lat / 0.25) * 0.25
+    grid_lon = round(lon / 0.25) * 0.25
+    return round(grid_lat, 4), round(grid_lon, 4)
+
+
 @dataclass(frozen=True)
 class StationGridMatch:
     network: str

@@ -42,14 +42,14 @@ Como estações meteorológicas não registram fenologia local, aplicamos janela
 
 Para evitar multiplicidade de testes, existe **uma única análise primária**:
 
-- **Análise primária:** janela temporal pareada de **2022 a 2025** com todas as quatro fontes principais disponíveis simultaneamente, a saber estação local sem sensor, ERA5-Land, Open-Meteo Historical Forecast e NASA POWER; estimador de molhamento **`rh90_rain`**; Regra 3-10 com temperatura mínima diária **`daily_min`**; controle de qualidade sob política **`mask_with_warmup`**.
+- **Análise primária:** janela temporal pareada de **2022 a 2025** com todas as quatro fontes principais disponíveis simultaneamente, a saber estação local sem sensor, ERA5 combinado: T e UR do ERA5-Land, chuva, vento e radiação do ERA5, Open-Meteo Historical Forecast e NASA POWER; estimador de molhamento **`rh90_rain`**; Regra 3-10 com temperatura mínima diária **`daily_min`**; controle de qualidade sob política **`mask_with_warmup`**.
 
 Todo o restante é **análise secundária**, sempre rotulada como tal:
 
 1. Estimadores secundários de molhamento `dpd_hysteresis` e `cart_kim2002` em 2022–2025 para Mills e TOM-CAST.
 2. Versão original `daily_mean` da Regra 3-10 e de Goidànich em 2022–2025.
 3. Sensibilidade de controle de qualidade `reject_24h` em 2022–2025.
-4. **Análise secundária A, série longa sem Historical Forecast:** anos de **2019 a 2025** no INRAE comparando estação sem sensor, ERA5-Land e NASA POWER.
+4. **Análise secundária A, série longa sem Historical Forecast:** anos de **2019 a 2025** no INRAE comparando estação sem sensor, ERA5 combinado: T e UR do ERA5-Land, chuva, vento e radiação do ERA5 e NASA POWER.
 5. **Análise secundária B, previsão real com horizonte fixo:** anos de **2024 a 2025** com `Open-Meteo Previous Runs` nos horizontes de 1, 2 e 3 dias de antecedência.
 
 ### 5.2 Conjunto exploratório versus conjunto confirmatório
@@ -135,7 +135,8 @@ Uma fonte meteorológica será classificada como **usável** para uma regra se, 
 - **O que mudou:** o lockbox de 20% foi substituído pelo **conjunto confirmatório completo**, formado por todas as estações novas do INRAE que passarem no controle de qualidade cego, rodando uma única vez após `v2-freeze` na tag `v2-confirmatory`.
 - **Motivo:** como o desenvolvimento termina em `v2-freeze` sem uso prévio do lote novo do INRAE, reservar apenas 20% desperdiçaria poder estatístico. Usar todo o lote novo como conjunto confirmatório maximiza a precisão dos intervalos de confiança de 95% mantendo separação total do desenvolvimento.
 
-### Correção técnica pós-`v2-freeze`: 22 nov 2026, parâmetro da API Open-Meteo Archive
+### Correção técnica pós-`v2-freeze`: 22 nov 2026, parâmetro da API Open-Meteo Archive e grade do ERA5 combinado
 
-- **O que mudou:** em `vitirule_v2/sources/open_meteo.py`, o parâmetro da consulta ao Open-Meteo Archive passou de `models=era5_land` para `models=era5_seamless`, com validação automática contra séries com precipitação inteiramente nula.
-- **Motivo:** a primeira execução exploratória revelou que `models=era5_land` no endpoint `archive-api.open-meteo.com/v1/archive` retorna `null` em 100% das horas de `precipitation`, `wind_speed_10m` e `shortwave_radiation`, zerando os alertas de 3-10, Goidànich e Mills. O parâmetro `era5_seamless` mantém exatamente o mesmo ponto de grade de 0,1 grau e a mesma altitude da camada ERA5-Land, entregando todas as cinco variáveis horárias preenchidas. Nenhum limiar, regra, tolerância ou métrica foi alterado.
+- **O que aconteceu:** houve uma primeira rodada exploratória após `v2-freeze` com a coleta original em `models=era5_land`, cujo resultado foi visto e acusou zero alertas em 3-10, Goidànich e Mills para essa fonte. A inspeção dos arquivos em cache mostrou que `models=era5_land` no endpoint `archive-api.open-meteo.com/v1/archive` retorna `null` em 100% das horas de `precipitation`, `wind_speed_10m` e `shortwave_radiation`.
+- **O que mudou:** em `vitirule_v2/sources/open_meteo.py`, trocamos o parâmetro de coleta para `models=era5_seamless` com trava automática contra precipitação inteiramente nula, tratando o ajuste estritamente como correção de coleta, sem nenhuma mudança de regra, limiar, tolerância ou métrica.
+- **Descrição corrigida da fonte:** segundo a documentação do Open-Meteo, `era5_seamless` combina temperatura e umidade relativa do ERA5-Land na grade de `0,1 grau` com precipitação, vento e radiação do ERA5 na grade de `0,25 grau`. Por isso a fonte passa a ser designada como **ERA5 combinado: T e UR do ERA5-Land, chuva, vento e radiação do ERA5**, registrando em `grid_metadata` a distância horizontal e a diferença de altitude tanto do ponto ERA5-Land de `0,1 grau` quanto do ponto ERA5 de `0,25 grau` usado para a chuva.
