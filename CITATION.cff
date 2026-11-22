@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software or technical report, please cite it using these metadata."
+type: software
+title: "vitirule: how reliable are disease alerts driven by free weather data?"
+authors:
+  - family-names: "Zunino Espindola"
+    given-names: "Mateus"
+    affiliation: "Universidade Federal de Santa Catarina"
+version: "2.0"
+date-released: "2026-11-22"
+doi: "10.5281/zenodo.24449844"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.24449844"
+    description: "Zenodo concept DOI (all versions)"
+  - type: doi
+    value: "10.5281/zenodo.24449845"
+    description: "Zenodo DOI for version 2.0"
+license: MIT
+repository-code: "https://github.com/mateuszunino/vitirule"
+url: "https://github.com/mateuszunino/vitirule"

@@ -1,5 +1,7 @@
 <img src="docs/brand/vitirule-logo.svg" alt="vitirule" width="160">
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24449844.svg)](https://doi.org/10.5281/zenodo.24449844)
+
 **Quanto se pode confiar num alerta de doença calculado com dado meteorológico gratuito, e onde ele falha?**
 
 *English: an open, preregistered benchmark of how reliable plant-disease alerts are when driven by free gridded weather data instead of on-site station sensors. Full v2 technical report in English, with a Portuguese summary: [docs/v2/report_v2.pdf](docs/v2/report_v2.pdf).*
@@ -7,7 +9,7 @@
 **Autor:** Mateus Zunino Espindola, Universidade Federal de Santa Catarina (UFSC)  
 **Relatório técnico v2,** em inglês com resumo em português: [docs/v2/report_v2_draft.md](docs/v2/report_v2_draft.md) · [docs/v2/report_v2.pdf](docs/v2/report_v2.pdf)  
 **Pré-registro congelado** nas tags `v2-rules`, `v2-freeze` e `v2-freeze-br`: [docs/v2/preregistro.md](docs/v2/preregistro.md)  
-**Ferramenta no navegador,** que roda as regras congeladas sobre o CSV da sua estação sem instalar Python: [docs/app/index.html](docs/app/index.html)  
+**Ferramenta no navegador,** que roda as regras congeladas sobre o CSV da sua estação sem instalar Python: [https://mateuszunino.github.io/vitirule/app/](https://mateuszunino.github.io/vitirule/app/)  
 **Reprodução na nuvem,** só com dados públicos: [.github/workflows/v2_reproduce.yml](.github/workflows/v2_reproduce.yml)
 
 > **Escopo da v2:** o vitirule v2 não mede eficácia de controle no campo. Ele mede a confiabilidade da entrada meteorológica de um sistema de alerta. O protocolo do míldio da videira da v1 continua congelado mais abaixo, como [Estudo de Caso 1](#estudo-de-caso-1-vitirule-v1-congelado-em-v10--errata-v102), com a [Errata `v1.0.2`](#errata-v102).
@@ -47,7 +49,7 @@ Os resultados europeus são exploratórios. O conjunto confirmatório depende do
 
 ### Ferramenta no navegador e reprodução
 
-A página [docs/app/index.html](docs/app/index.html) carrega o código congelado de [docs/app/vitirule_bundle.json](docs/app/vitirule_bundle.json) pelo Pyodide. As regras rodam no navegador, sobre o CSV da estação do usuário. A tabela de confiabilidade medida aparece ao lado de cada alerta. Alertas calculados com dado em grade nunca aparecem como recomendação.
+A página [https://mateuszunino.github.io/vitirule/app/](https://mateuszunino.github.io/vitirule/app/) carrega o código congelado de [docs/app/vitirule_bundle.json](docs/app/vitirule_bundle.json) pelo Pyodide. As regras rodam no navegador, sobre o CSV da estação do usuário. A tabela de confiabilidade medida aparece ao lado de cada alerta. Alertas calculados com dado em grade nunca aparecem como recomendação.
 
 ```powershell
 # Suíte completa de testes (v1 + v2, sem rede)
