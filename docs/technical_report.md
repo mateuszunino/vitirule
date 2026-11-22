@@ -4,7 +4,7 @@
 **Repository:** [`vitirule`](https://github.com/mateuszunino/vitirule)  
 **Date:** November 2026  
 **Frozen Checkpoints:** Git commits `668573a`, `7ac0332`, `f74010d`, `54084a6`  
-**Errata (`v1.0.1`):** Automated sensor quality control later identified stuck leaf-wetness sensors in Bordeaux-Couhins during July 2021 and July 2023 and rain-gauge outages in Bordeaux 2024 and Bourgogne 2021. See Section 6 (Errata) for before-and-after numbers and which claims hold or fall.
+**Errata (`v1.0.2`):** Automated sensor quality control identified stuck leaf-wetness sensors in Bordeaux-Couhins during July 2021 and July 2023 and zero-filled rain-gauge outages in selected cohorts. `v1.0.2` supersedes `v1.0.1` with an analysis-by-analysis forensic audit (Section 6).
 
 ---
 
@@ -290,50 +290,64 @@ Every frozen checkpoint is auditable in Git history. On 21 November 2026 the com
 
 ---
 
-## 6. Errata (`v1.0.1`)
+## 6. Errata (`v1.0.2`)
 
-After tagging `v1.0`, the automated blind quality-control filter developed for `vitirule v2` (`vitirule_v2/qc.py`, grapevine window April 1 to September 30) uncovered physical sensor faults and multi-week rain-gauge outages in the INRAE AgroClim dataset that had gone unnoticed in `v1.0`:
+**Note on `v1.0.1`:** Errata `v1.0.1` applied `vitirule v2`'s initial 24-hour continuous gap rejection rule uniformly across all `v1` benchmarks, removing clean station-seasons whose missing hours did not falsify `v1` numbers (four Politecnico di Torino sites whose missing hours were simply omitted rows, plus Alsace 2022 and Bourgogne 2022 where missing temperature hours were dropped by `dropna`). Errata `v1.0.2` replaces `v1.0.1` with a strict analysis-by-analysis audit that removes only cohorts affected by stuck/drifting sensors or invented fill values inside each analysis's effective window. Tags `v1.0` and `v1.0.1` remain untouched in Git history.
 
-* **Bordeaux-Couhins (`33080002`), 2021:** the physical LWD sensor became stuck wet during July 2021, reporting wetness during 90.1% of dry midday hours (RH < 60%, zero rain) with a 309-hour continuous rainless wet streak—directly inside the May 1 to July 15 semi-real OSSE window.
-* **Bordeaux-Couhins (`33080002`), 2023:** the LWD sensor repeated the fault in July 2023 (95.9% wet during dry midday hours, 287-hour rainless wet streak), affecting both the 2022–2024 LWD benchmark and the semi-real OSSE.
-* **Bordeaux-Couhins (`33080002`), 2024, and Bourgogne-Bretenière (`21106002`), 2021:** hourly rain gauges were missing for 1,409 hours (32% of the season) and 666 hours (15% of the season), respectively, which `load_inrae_station` in `v1.0` silently filled with `0.0 mm`.
-* **Additional strict-QC exclusions:** Bordeaux 2022, Alsace 2022, and Bourgogne 2022 had clean LWD sensors and >95% coverage but failed the strict 24-hour continuous gap ceiling due to single 46–115 h temperature or rainfall outages. In Politecnico di Torino, `site2.csv` failed automatically on all three sensor-drift checks, and `site3`, `site4`, `site6`, and `site7` failed the 95% coverage and 24-hour gap limits (leaving `site1.csv` and `site5.csv`).
+Inspecting the frozen `v1` code (`lwd_sensor_validation.py`, `leaf_wetness.py`, `semireal_osse.py`, `osse_benchmark.py`) without altering any parameter, rule, or seed (`scripts/v1_errata_audit.py`), we applied two rules:
 
-Without modifying any frozen `v1.0` rule, parameter, or random seed, we re-ran `lwd_sensor_validation.py`, `semireal_osse.py`, and `economics.py` via `scripts/v1_errata_audit.py` excluding all station-seasons rejected by `vitirule_v2/qc.py` on the grapevine window (leaving 17/24 INRAE station-years in 2019–2024, 7/12 in 2022–2024, and 2/7 Politecnico sites; Table 8).
+1. **Failed sensor drift/stuck check:** excluded from every `v1` analysis that reads the physical LWD sensor (Bordeaux 2021, Bordeaux 2023, and Politecnico `site2.csv`).
+2. **Missing hours or low coverage:** kept if the frozen code dropped missing hours without inventing values (`dropna` on `t`, `u`, `h` in INRAE; omitted rows in Politecnico); excluded from a specific analysis only if missing values were filled with invented constants used by that analysis (`rr` filled with `0.0 mm` in `load_inrae_station`, or `vt` filled with `1.5 m/s` in `leaf_wetness.py`).
 
-**Table 8.** Published `v1.0` results compared with the QC-filtered `v1.0.1` audit using identical frozen `v1.0` code.
+**Table 8.** Analysis-by-analysis keep/exclude audit for all station-seasons with any sensor fault or missing data. The 15 clean INRAE cohorts (Bordeaux 2019–2020, Alsace 2019–2021 & 2023, Champagne 2019–2020 & 2022–2024, Bourgogne 2019–2020 & 2023–2024) and Politecnico `site1` & `site5` had zero faults or missing hours and remain in all applicable analyses.
 
-| Benchmark / Metric | Published `v1.0` | QC-Filtered `v1.0.1` |
+| Network & Station-Season | LWD Validation (Apr–Sep 2022–2024) | Empirical OM Error (May–Aug 2019–2024) | Semi-Real OSSE (May 1–Jul 16 2019–2024) | Reason in Frozen `v1` Code |
+|---|---|---|---|---|
+| INRAE Bordeaux 2021 | N/A | **Exclude** | **Exclude** | LWD sensor stuck wet in July (90.1% dry-midday wet, 309 h rainless streak) |
+| INRAE Bordeaux 2022 | **Exclude** | **Keep** | **Exclude** | Missing `rr` (94 h in June) filled with `0.0 mm` and `vt` (172 h) with `1.5 m/s`; empirical error reads only `h` and Open-Meteo |
+| INRAE Bordeaux 2023 | **Exclude** | **Exclude** | **Exclude** | LWD sensor stuck wet in July (95.9% dry-midday wet, 287 h rainless streak) |
+| INRAE Bordeaux 2024 | **Exclude** | **Keep** | **Keep** | Missing `rr` (1,409 h) occurred July 20–Sept 18, entirely after the May 1–July 16 OSSE window; empirical error does not read `rr` |
+| INRAE Alsace 2022 | **Keep** | **Keep** | **Keep** | Only `t` missing (100 h), dropped via `dropna`; zero invented values |
+| INRAE Alsace 2024 | **Exclude** | **Keep** | **Exclude** | Missing `rr` (29 h; 19 h inside May 1–July 16) filled with `0.0 mm`; empirical error does not read `rr` |
+| INRAE Champagne 2021 | N/A | **Keep** | **Keep** | Missing `h` (21 h in April), dropped via `dropna` and outside May–Aug |
+| INRAE Bourgogne 2021 | N/A | **Keep** | **Exclude** | Missing `rr` (666 h; 58 h through July 16) filled with `0.0 mm`; empirical error does not read `rr` |
+| INRAE Bourgogne 2022 | **Keep** | **Keep** | **Keep** | Only `t` missing (156 h), dropped via `dropna`; zero invented values |
+| Politecnico `site2` (2023) | **Exclude** | N/A | N/A | Severe LWD sensor drift (already excluded from `v1.0` 6 clean sites) |
+| Politecnico `site3`, `site4`, `site6`, `site7` | **Keep** | N/A | N/A | Zero `NaN` values; missing timestamps were omitted CSV rows with no invented values |
+
+**Table 9.** Published `v1.0` results compared with the analysis-by-analysis `v1.0.2` audit using identical frozen `v1.0` code.
+
+| Benchmark / Metric | Published `v1.0` | Audited `v1.0.2` |
 |---|---|---|
-| INRAE LWD validation (2022–2024) sample | 12 station-years (52,675 h) | 7 station-years (30,744 h) |
-| INRAE `rh90_hysteresis` Station / Open-Meteo MAE / Δ MAE | 2.61 / 4.07 / +1.46 h/d | 2.86 / 4.43 / +1.57 h/d |
-| INRAE `dpd_hysteresis` Station / Open-Meteo MAE / Δ MAE | 2.76 / 4.24 / +1.48 h/d | 3.05 / 4.66 / +1.60 h/d |
-| INRAE `rh85` Station / Open-Meteo MAE / Δ MAE | 3.26 / 4.30 / +1.04 h/d | 3.66 / 4.72 / +1.06 h/d |
-| INRAE `cart_kim2002` Station / Open-Meteo MAE / Δ MAE | 3.25 / 3.82 / +0.57 h/d | 3.54 / 4.09 / +0.55 h/d |
-| Politecnico LWD validation sample | 6 manual clean sites (23,735 h) | 2 QC-passed sites (8,770 h) |
-| Politecnico reanalysis Δ MAE across 4 estimators | +1.21 to +1.46 h/d | +0.48 to +0.71 h/d |
-| Empirical May–Aug Open-Meteo bias / MAE / $P(\text{wet}\mid\text{OM dry})$ | +1.59 h/d / 3.99 h/d / 0.1058 | +2.03 h/d / 3.90 h/d / 0.0892 |
-| Semi-real INRAE OSSE sample & untreated mean AUDPC | 24 cohorts, N = 1,200, 284.7 | 17 cohorts, N = 850, 223.8 |
-| INRAE `om_v1_T10`: sprays / AUDPC / Δ vs. frontier | 6.77 / 121.42 / −18.95 (−13.5%) | 6.46 / 99.79 / −12.20 (−10.9%) |
-| INRAE `st_v1_T10`: sprays / AUDPC / Δ vs. frontier | 6.38 / 127.48 / −15.99 (−11.1%) | 6.15 / 104.28 / −9.06 (−8.0%) |
-| INRAE `om_v2_T10`: sprays / AUDPC / Δ vs. `cal_14d` | 5.51 / 137.31 / −9.18 | 5.34 / 111.07 / −2.94 |
-| Inter-annual correlation $r$ (sprays vs. untreated AUDPC) | 0.595 (p = 0.0022) | 0.529 (p = 0.0290) |
-| Calibrated Moselle (2016–2018, N = 180) `om_v1_T10` Δ frontier | −22.70 (−7.6%, p = 4.7 × 10⁻⁵) | −19.96 (−7.8%, p = 4.1 × 10⁻⁵) |
-| Unconstrained economic win share (`cal_7d` / `om_v1+v2` / untreated) | 40.5% / 46.8% / 12.7% | 32.5% / 49.2% / 18.3% |
-| EU copper cap (0.50 kg/ha) win share (`om_v1+v2` / `cal_10d`) | 80.9% / 6.3% | 67.4% / 14.3% |
+| INRAE LWD validation (2022–2024) sample | 12 station-years (52,675 h) | 8 station-years (34,880 h) |
+| INRAE `rh90_hysteresis` Station / Open-Meteo MAE / Δ MAE | 2.61 / 4.07 / +1.46 h/d | 2.65 / 3.94 / +1.29 h/d |
+| INRAE `dpd_hysteresis` Station / Open-Meteo MAE / Δ MAE | 2.76 / 4.24 / +1.48 h/d | 2.85 / 4.16 / +1.30 h/d |
+| INRAE `rh85` Station / Open-Meteo MAE / Δ MAE | 3.26 / 4.30 / +1.04 h/d | 3.37 / 4.24 / +0.87 h/d |
+| INRAE `cart_kim2002` Station / Open-Meteo MAE / Δ MAE | 3.25 / 3.82 / +0.57 h/d | 3.29 / 3.61 / +0.32 h/d |
+| Politecnico LWD validation (6 clean sites) | 23,735 h, Δ MAE +1.21 to +1.46 h/d | Unchanged (23,735 h, Δ MAE +1.21 to +1.46 h/d) |
+| Empirical May–Aug Open-Meteo error sample | 24 cohorts (70,537 h) | 22 cohorts (64,663 h) |
+| Empirical bias / MAE / lag-1 / $P(\text{wet}\mid\text{OM dry})$ | +1.59 / 3.99 / 0.676 / 0.1058 | +1.96 / 3.74 / 0.647 / 0.0862 |
+| Semi-real INRAE OSSE sample & untreated mean AUDPC | 24 cohorts, N = 1,200, 284.7 | 19 cohorts, N = 950, 218.4 |
+| INRAE `om_v1_T10`: sprays / AUDPC / Δ vs. frontier | 6.77 / 121.42 / −18.95 (−13.5%) | 6.23 / 99.63 / −11.59 (−10.4%) |
+| INRAE `st_v1_T10`: sprays / AUDPC / Δ vs. frontier | 6.38 / 127.48 / −15.99 (−11.1%) | 6.03 / 102.01 / −9.83 (−8.8%) |
+| INRAE `om_v2_T10`: sprays / AUDPC / Δ vs. `cal_14d` | 5.51 / 137.31 / −9.18 (p < 10⁻⁶) | 5.19 / 109.39 / −2.55 (p = 0.815) |
+| Inter-annual correlation $r$ (sprays vs. untreated AUDPC) | 0.595 (p = 0.0022) | 0.479 (p = 0.0380) |
+| Calibrated Moselle (2016–2018, N = 180) `om_v1_T10` Δ frontier | −22.70 (−7.6%, p = 4.7 × 10⁻⁵) | −21.68 (−8.3%, p = 2.1 × 10⁻⁵) |
+| Unconstrained economic win share (`cal_7d` / `om_v1+v2` / untreated) | 40.5% / 46.8% / 12.7% | 33.3% / 48.4% / 18.3% |
+| EU copper cap (0.50 kg/ha) win share (`om_v1+v2` / `cal_10d`) | 80.9% / 6.3% | 60.3% / 21.4% |
 
 ### Claims That Still Hold vs. Claims That Fall
 
 * **Claims that still hold:**
-  1. Section 3.1 (negative result for Bayesian severity assimilation, N = 360) used no physical LWD sensors and is completely unaffected.
-  2. All four LWD estimators still tie closely under Open-Meteo reanalysis (MAE 3.81–4.72 h/day), and replacing station weather with reanalysis still increases daily MAE in all 8 of 8 network–estimator pairs (+0.48 to +1.60 h/day), with an even larger wet bias in clean INRAE series (+2.03 h/day in May–August; +3.02 h/day in 2022–2024 for `rh90_hysteresis`).
-  3. Pooled Pareto dominance of `om_v1_T10` persists in both the clean INRAE OSSE (−12.20 AUDPC, −10.9% below the calendar frontier; 99.79 vs. 109.65 for `cal_12d` with 0.54 fewer sprays) and calibrated-error Moselle (−19.96 AUDPC, −7.8%, p = 4.1 × 10⁻⁵).
-  4. Inter-annual campaign sizing remains the primary driver of pooled gain (r = 0.529, p = 0.029), and **Champagne 2022** remains a valid tail-risk failure cohort (it passed blind QC cleanly).
-  5. Qualitative economic sensitivity still holds: optimal choice depends jointly on gross revenue, damage slope, and copper dose.
+  1. Section 3.1 (negative result for Bayesian severity assimilation, N = 360) used no physical LWD sensors and is unaffected.
+  2. **The LWD benchmark conclusion holds intact:** all four estimators tie on Open-Meteo input, the 6 clean Politecnico sites are unchanged, and the reanalysis penalty still exceeds 1.2 h/day in **6 of 8** network–estimator pairs (all 4 in Politecnico plus `rh90_hysteresis` [+1.29] and `dpd_hysteresis` [+1.30] in INRAE).
+  3. Pooled Pareto dominance of `om_v1_T10` persists in both the clean INRAE OSSE (−11.59 AUDPC, −10.4% below the frontier; 99.63 vs. 108.82 for `cal_12d` with 0.77 fewer sprays) and calibrated-error Moselle (−21.68 AUDPC, −8.3%, p = 2.1 × 10⁻⁵).
+  4. Inter-annual campaign sizing remains the driver of pooled gain (r = 0.479, p = 0.038), and **Champagne 2022** remains a valid tail-risk failure cohort.
+  5. Qualitative economic sensitivity holds: optimal strategy depends jointly on gross revenue, damage slope, and copper dose.
 * **Claims that fall or require revision:**
-  1. **Bordeaux 2021 falls as a valid rule-failure case.** Its +52.9 AUDPC excess in Table 5, Table 6, and Figure 2B was contaminated by a physically stuck LWD sensor throughout July 2021 and must not be cited as an operational failure of the preventive rule.
-  2. **The claim that 6 of 8 network–estimator pairs show a reanalysis penalty exceeding 1.2 h/day falls.** On the 2 QC-passed Politecnico sites, the reanalysis penalty drops to +0.48–0.71 h/day, leaving 2 of 8 pairs above 1.2 h/day (INRAE `rh90_hysteresis` at +1.57 and `dpd_hysteresis` at +1.60 h/day).
-  3. **Pooled effect sizes and EU-copper win shares shrink.** The pooled `om_v1_T10` frontier gain drops from −18.95 to −12.20 AUDPC, `om_v2_T10` vs. `cal_14d` shrinks from −9.18 to −2.94 AUDPC, and combined rule win share under the 0.50 kg Cu/ha cap drops from 80.9% to 67.4%. In Section 3.5, citing Bordeaux 2023 as an example of `st_v1_T10` losing protection also falls because Bordeaux 2023 had a stuck LWD sensor in July.
+  1. **Bordeaux 2021 falls as a valid rule-failure case.** Its +52.9 AUDPC excess in Table 5, Table 6, and Figure 2B occurred while the physical LWD sensor was stuck wet throughout July 2021 and must not be cited as an operational failure of the rule.
+  2. **The AUDPC advantage of `om_v2_T10` over `cal_14d` falls.** Under `v1.0.2`, `om_v2_T10` ties `cal_14d` statistically in AUDPC (−2.55, Wilcoxon p = 0.815), retaining only its 0.81 spray/season reduction.
+  3. **Pooled effect sizes and EU-copper win shares shrink.** The pooled `om_v1_T10` frontier gain drops from −18.95 to −11.59 AUDPC, and combined rule win share under the 0.50 kg Cu/ha cap drops from 80.9% to 60.3% (with `cal_10d` rising from 6.3% to 21.4%). Citing Bordeaux 2023 in Section 3.5 also falls due to the July stuck sensor.
 
 ---
 

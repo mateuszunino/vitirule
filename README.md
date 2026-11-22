@@ -7,7 +7,7 @@ Protocolo aberto e reprodutível para testar regras de pulverização contra o m
 **Autor:** Mateus Zunino Espindola, Universidade Federal de Santa Catarina (UFSC)  
 **Relatório técnico** em inglês, com resumo em português: [docs/technical_report.md](docs/technical_report.md) · [docs/technical_report.pdf](docs/technical_report.pdf)
 
-> **Errata `v1.0.1`:** o controle de qualidade automático criado na v2 detectou travamento físico no sensor de molhamento de Bordeaux-Couhins em julho de 2021 e julho de 2023, além de lacunas de pluviômetro em Bordeaux 2024 e Bourgogne 2021. Veja a [seção Errata](#errata-v101) ao final deste README com os números antes e depois da exclusão e o que continua valendo ou cai.
+> **Errata `v1.0.2`:** o controle de qualidade criado na v2 detectou travamento físico no sensor de molhamento de Bordeaux-Couhins em julho de 2021 e julho de 2023, além de falhas de pluviômetro preenchidas com zero em algumas safras. A `v1.0.2` substitui a `v1.0.1` com exclusões cirúrgicas análise por análise. Veja a [seção Errata](#errata-v102) ao final deste README.
 
 ![Regra congelada contra calendários fixos, com o sensor real do INRAE como verdade](docs/figures/fig1_semireal_pareto.svg)
 
@@ -156,45 +156,66 @@ Com a `r_prior_gompertz` separada em [epidemiology_assimilation.py](epidemiology
 
 ---
 
-## Errata (`v1.0.1`)
+## Errata (`v1.0.2`)
 
-Após o congelamento da tag `v1.0`, o controle de qualidade automático implementado em `vitirule_v2/qc.py` para a janela da videira de 1 de abril a 30 de setembro revelou falhas de sensor e lacunas severas não detectadas na v1. Em Bordeaux-Couhins, o sensor de molhamento foliar ficou travado em condição molhada durante quase todo o mês de julho de 2021, marcando molhamento em `90,1%` das horas secas de meio-dia com umidade relativa abaixo de `60%` e atingindo `309 h` contínuas molhadas sem chuva, e repetiu o travamento em julho de 2023, com `95,9%` em ar seco de meio-dia e `287 h` sem chuva. Além disso, o pluviômetro de Bordeaux ficou sem registro em `1.409 h` na safra 2024 e o de Bourgogne em `666 h` na safra 2021, falhas que o leitor da v1 preenchia com zero.
+> **Nota sobre a `v1.0.1`:** a errata `v1.0.1` aplicou a regra antiga de lacuna máxima de 24 horas da v2 de forma uniforme a todas as análises e excluiu estações-safra cujas falhas não falseavam os números da v1, como as quatro estações do Politecnico com linhas apenas omitidas e as safras de Alsace 2022 e Bourgogne 2022 descartadas por `dropna`. A `v1.0.2` refaz a auditoria análise por análise, retirando apenas o que de fato tinha sensor travado ou valores inventados no código congelado da v1. As tags `v1.0` e `v1.0.1` permanecem intactas no histórico.
 
-Sem alterar nenhum código, parâmetro ou semente da v1, reexecutamos a validação de molhamento foliar, o OSSE semirreal e a sensibilidade econômica via [scripts/v1_errata_audit.py](scripts/v1_errata_audit.py) excluindo todas as estações-safra reprovadas por `vitirule_v2/qc.py` na janela da videira. No INRAE foram excluídas 7 das 24 estações-safra de 2019 a 2024: Bordeaux 2021, 2022, 2023 e 2024, Bourgogne 2021 e 2022 e Alsace 2022. No Politecnico di Torino restaram 2 das 7 estações, `site1.csv` e `site5.csv`, pois `site2.csv` reprovou por deriva severa e `site3`, `site4`, `site6` e `site7` tiveram cobertura abaixo de `95%` com lacunas de telemetria acima de `24 h`.
+Uma errata retira somente o que estava errado. Inspecionamos linha a linha o código congelado da v1 em `lwd_sensor_validation.py`, `leaf_wetness.py`, `semireal_osse.py` e `osse_benchmark.py` e aplicamos dois critérios objetivos via [scripts/v1_errata_audit.py](scripts/v1_errata_audit.py), sem alterar nenhum parâmetro, regra ou semente:
 
-### Números publicados na `v1.0` contra recálculo limpo na `v1.0.1`
+1. **Sensor reprovado nos testes de deriva ou travamento:** excluído de todas as análises da v1 que usam o sensor.
+2. **Lacuna ou cobertura baixa:** se a análise descartou a hora faltante por `dropna` ou por linha omitida no arquivo, sem inventar valor, a estação-safra fica. Se o código preencheu a hora faltante com valor inventado dentro da janela efetiva daquela análise, como `rr` preenchida com `0,0 mm` em `load_inrae_station` ou `vt` preenchido com `1,5 m/s` em `leaf_wetness.py`, a estação-safra sai apenas daquela análise.
 
-| Análise e métrica | Publicado na `v1.0` | Recalculado sem reprovadas (`v1.0.1`) |
+### Decisão por estação-safra e por análise
+
+As 15 estações-safra do INRAE sem nenhuma falta nem deriva em 2019–2024 ficam em todas as análises em que participam: Bordeaux 2019 e 2020, Alsace 2019, 2020, 2021 e 2023, Champagne 2019, 2020, 2022, 2023 e 2024, e Bourgogne 2019, 2020, 2023 e 2024. No Politecnico di Torino, `site1` e `site5` são íntegras e ficam. A tabela abaixo registra todas as estações-safra com alguma ocorrência de deriva ou lacuna:
+
+| Rede e estação-safra | Validação LWD, abr–set 2022–2024 | Erro empírico Open-Meteo, mai–ago 2019–2024 | OSSE semirreal INRAE, 1 mai–16 jul 2019–2024 | Motivo no código congelado da v1 |
+|---|---|---|---|---|
+| INRAE Bordeaux 2021 | Não participa | **Sai** | **Sai** | Sensor LWD travado em julho, com `90,1%` molhado em ar seco de meio-dia e `309 h` sem chuva |
+| INRAE Bordeaux 2022 | **Sai** | **Fica** | **Sai** | `rr` faltante em `94 h` de junho preenchida com `0,0 mm` e `vt` em `172 h` preenchido com `1,5 m/s`; o erro empírico só lê `h` e Open-Meteo |
+| INRAE Bordeaux 2023 | **Sai** | **Sai** | **Sai** | Sensor LWD travado em julho, com `95,9%` molhado em ar seco de meio-dia e `287 h` sem chuva |
+| INRAE Bordeaux 2024 | **Sai** | **Fica** | **Fica** | `rr` faltante em `1.409 h` preenchida com `0,0 mm` ocorreu de 20 jul a 18 set, fora da janela OSSE de 1 mai a 16 jul; erro empírico não lê `rr` |
+| INRAE Alsace 2022 | **Fica** | **Fica** | **Fica** | Apenas `t` faltante em `100 h`, descartada por `dropna`, sem nenhum valor inventado |
+| INRAE Alsace 2024 | **Sai** | **Fica** | **Sai** | `rr` faltante em `29 h`, sendo `19 h` entre 1 mai e 16 jul, preenchida com `0,0 mm`; erro empírico não lê `rr` |
+| INRAE Champagne 2021 | Não participa | **Fica** | **Fica** | `h` faltante em `21 h` de abril, descartada por `dropna` e fora de mai–ago |
+| INRAE Bourgogne 2021 | Não participa | **Fica** | **Sai** | `rr` faltante em `666 h`, sendo `58 h` até 16 jul, preenchida com `0,0 mm`; erro empírico não lê `rr` |
+| INRAE Bourgogne 2022 | **Fica** | **Fica** | **Fica** | Apenas `t` faltante em `156 h`, descartada por `dropna`, sem nenhum valor inventado |
+| Politecnico `site2`, 2023 | **Sai** | Não participa | Não participa | Sensor LWD com deriva severa, já excluído nos 6 sítios limpos da `v1.0` |
+| Politecnico `site3`, `site4`, `site6`, `site7` | **Ficam** | Não participa | Não participa | Zero valores `NaN` nas colunas; as horas ausentes eram linhas omitidas no CSV, sem nenhum valor inventado |
+
+### Números publicados na `v1.0` contra recálculo cirúrgico na `v1.0.2`
+
+| Análise e métrica | Publicado na `v1.0` | Recalculado na `v1.0.2` |
 |---|---|---|
-| Validação LWD INRAE 2022–2024, amostra | 12 estações-safra, `52.675 h` | 7 estações-safra, `30.744 h` |
-| INRAE `rh90_hysteresis` MAE estação / Open-Meteo / Δ MAE | `2,61` / `4,07` / `+1,46 h/d` | `2,86` / `4,43` / `+1,57 h/d` |
-| INRAE `dpd_hysteresis` MAE estação / Open-Meteo / Δ MAE | `2,76` / `4,24` / `+1,48 h/d` | `3,05` / `4,66` / `+1,60 h/d` |
-| INRAE `rh85` MAE estação / Open-Meteo / Δ MAE | `3,26` / `4,30` / `+1,04 h/d` | `3,66` / `4,72` / `+1,06 h/d` |
-| INRAE `cart_kim2002` MAE estação / Open-Meteo / Δ MAE | `3,25` / `3,82` / `+0,57 h/d` | `3,54` / `4,09` / `+0,55 h/d` |
-| Validação LWD Politecnico, amostra | 6 estações limpas manuais, `23.735 h` | 2 estações aprovadas no QC, `8.770 h` |
-| Politecnico Δ MAE da reanálise nos 4 estimadores | `+1,21` a `+1,46 h/d` | `+0,48` a `+0,71 h/d` |
-| Erro empírico Open-Meteo INRAE mai–ago, viés / MAE / `P(wet\|OM dry)` | `+1,59 h/d` / `3,99 h/d` / `0,1058` | `+2,03 h/d` / `3,90 h/d` / `0,0892` |
-| OSSE semirreal INRAE, amostra e testemunha | 24 coortes, `N = 1.200`, AACPD `284,7` | 17 coortes, `N = 850`, AACPD `223,8` |
-| INRAE `om_v1_T10`: aplic. / AACPD / Δ fronteira | `6,77` / `121,42` / `-18,95 (-13,5%)` | `6,46` / `99,79` / `-12,20 (-10,9%)` |
-| INRAE `st_v1_T10`: aplic. / AACPD / Δ fronteira | `6,38` / `127,48` / `-15,99 (-11,1%)` | `6,15` / `104,28` / `-9,06 (-8,0%)` |
-| INRAE `om_v2_T10`: aplic. / AACPD / Δ vs `cal_14d` | `5,51` / `137,31` / `-9,18` | `5,34` / `111,07` / `-2,94` |
-| Correlação anual entre pulverizações e pressão `r` | `0,595`, `p = 0,0022` | `0,529`, `p = 0,0290` |
-| Mosela erro calibrado 2016–2018, `om_v1_T10` Δ fronteira | `-22,70 (-7,6%)`, `p = 4,7e-5` | `-19,96 (-7,8%)`, `p = 4,1e-5` |
-| Economia sem teto de cobre: `cal_7d` / regras `om_v1+v2` / testemunha | `40,5%` / `46,8%` / `12,7%` | `32,5%` / `49,2%` / `18,3%` |
-| Economia sob teto de cobre 0,50 kg: regras `om_v1+v2` / `cal_10d` | `80,9%` / `6,3%` | `67,4%` / `14,3%` |
+| Validação LWD INRAE 2022–2024, amostra | 12 estações-safra, `52.675 h` | 8 estações-safra, `34.880 h` |
+| INRAE `rh90_hysteresis` MAE estação / Open-Meteo / Δ MAE | `2,61` / `4,07` / `+1,46 h/d` | `2,65` / `3,94` / `+1,29 h/d` |
+| INRAE `dpd_hysteresis` MAE estação / Open-Meteo / Δ MAE | `2,76` / `4,24` / `+1,48 h/d` | `2,85` / `4,16` / `+1,30 h/d` |
+| INRAE `rh85` MAE estação / Open-Meteo / Δ MAE | `3,26` / `4,30` / `+1,04 h/d` | `3,37` / `4,24` / `+0,87 h/d` |
+| INRAE `cart_kim2002` MAE estação / Open-Meteo / Δ MAE | `3,25` / `3,82` / `+0,57 h/d` | `3,29` / `3,61` / `+0,32 h/d` |
+| Validação LWD Politecnico, 6 sítios limpos | `23.735 h`, Δ MAE `+1,21` a `+1,46 h/d` | Inalterado: `23.735 h`, Δ MAE `+1,21` a `+1,46 h/d` |
+| Erro empírico Open-Meteo INRAE mai–ago, amostra | 24 coortes, `70.537 h` | 22 coortes, `64.663 h` |
+| Erro empírico viés / MAE / lag-1 / `P(wet\|OM dry)` | `+1,59` / `3,99` / `0,676` / `0,1058` | `+1,96` / `3,74` / `0,647` / `0,0862` |
+| OSSE semirreal INRAE, amostra e testemunha | 24 coortes, `N = 1.200`, AACPD `284,7` | 19 coortes, `N = 950`, AACPD `218,4` |
+| INRAE `om_v1_T10`: aplic. / AACPD / Δ fronteira | `6,77` / `121,42` / `-18,95 (-13,5%)` | `6,23` / `99,63` / `-11,59 (-10,4%)` |
+| INRAE `st_v1_T10`: aplic. / AACPD / Δ fronteira | `6,38` / `127,48` / `-15,99 (-11,1%)` | `6,03` / `102,01` / `-9,83 (-8,8%)` |
+| INRAE `om_v2_T10`: aplic. / AACPD / Δ vs `cal_14d` | `5,51` / `137,31` / `-9,18`, `p < 1e-6` | `5,19` / `109,39` / `-2,55`, `p = 0,815` |
+| Correlação anual entre pulverizações e pressão `r` | `0,595`, `p = 0,0022` | `0,479`, `p = 0,0380` |
+| Mosela erro calibrado 2016–2018, `om_v1_T10` Δ fronteira | `-22,70 (-7,6%)`, `p = 4,7e-5` | `-21,68 (-8,3%)`, `p = 2,1e-5` |
+| Economia sem teto de cobre: `cal_7d` / regras `om_v1+v2` / testemunha | `40,5%` / `46,8%` / `12,7%` | `33,3%` / `48,4%` / `18,3%` |
+| Economia sob teto de cobre 0,50 kg: regras `om_v1+v2` / `cal_10d` | `80,9%` / `6,3%` | `60,3%` / `21,4%` |
 
 ### O que continua valendo e o que cai
 
 **Continua valendo:**
 
 1. A ablação congelada da assimilação bayesiana na seção 2.1 não usou sensores de molhamento e não muda em nada.
-2. Na entrada Open-Meteo, os quatro estimadores de molhamento continuam praticamente empatados, e substituir a estação local pela reanálise continua piorando o MAE em todos os oito pares de rede e estimador, entre `+0,48` e `+1,60 h/dia`.
-3. O ganho agregado do `om_v1_T10` no OSSE semirreal continua estatisticamente claro, em `-12,20` de AACPD e `-10,9%` abaixo da fronteira de calendários, com dominância de Pareto sobre `cal_12d`, `99,79` contra `109,65` usando `0,54` aplicações a menos, e o resultado calibrado do Mosela se mantém em `-19,96` de AACPD.
-4. O ganho agregado continua vindo do dimensionamento interanual da campanha, com `r = 0,529`, `p = 0,029`, e o diagnóstico de falha em **Champagne 2022** continua válido, pois essa safra passou limpa pelo controle de qualidade.
-5. A conclusão qualitativa da sensibilidade econômica permanece válida: a escolha ótima depende conjuntamente de receita, inclinação do dano e dose de cobre.
+2. **A conclusão de molhamento foliar se mantém integralmente:** os quatro estimadores continuam empatados na entrada Open-Meteo, o conjunto de 6 sítios limpos do Politecnico não sofre alteração alguma e a penalidade da reanálise segue acima de `1,2 h/dia` em **seis dos oito pares** de rede e estimador, sendo os quatro do Politecnico mais `rh90_hysteresis` e `dpd_hysteresis` no INRAE, com `+1,29` e `+1,30 h/dia`.
+3. O ganho agregado de `om_v1_T10` no OSSE semirreal continua estatisticamente claro, em `-11,59` de AACPD e `-10,4%` abaixo da fronteira de calendários, com dominância de Pareto sobre `cal_12d` usando `0,77` aplicações a menos, e o resultado calibrado do Mosela praticamente não muda, passando de `-22,70` para `-21,68` de AACPD.
+4. O ganho agregado segue vindo do dimensionamento interanual da campanha, com `r = 0,479`, `p = 0,038`, e **Champagne 2022** continua válida como falha operacional real da regra.
+5. A conclusão qualitativa da sensibilidade econômica permanece válida: a melhor estratégia depende conjuntamente de receita, inclinação do dano e dose de cobre.
 
 **Cai ou precisa ser corrigido:**
 
-1. **Bordeaux 2021 cai como caso de falha válido da regra.** O excesso de `+52,9` de AACPD na Figura 2B e na Tabela 6 do relatório ocorreu durante o mês de julho de 2021, quando o sensor físico de Bordeaux estava travado em molhado. Aquele episódio não pode ser citado como falha operacional da regra preventiva.
-2. **Cai a frase de que seis dos oito pares de rede e estimador têm penalidade da reanálise acima de `1,2 h/dia`.** Com o filtro objetivo reduzindo o Politecnico às duas estações sem grandes lacunas, apenas dois dos oito pares superam `1,2 h/dia`, ambos no INRAE, com `+1,57` e `+1,60 h/dia`.
-3. **A magnitude do ganho no OSSE semirreal e a fatia de liderança sob o teto de cobre encolhem.** O ganho médio de `om_v1_T10` cai de `-18,95` para `-12,20` de AACPD, o ganho de `om_v2_T10` sobre `cal_14d` cai de `-9,18` para `-2,94`, e a liderança somada das regras sob teto de cobre a `0,50 kg/ha` passa de `80,9%` para `67,4%`. A seção 3.5 sobre a perda de proteção de `st_v1_T10` em Bordeaux 2023 também deixa de valer como evidência porque Bordeaux 2023 tinha o sensor travado em julho.
+1. **Bordeaux 2021 cai como caso de falha válido da regra.** O excesso de `+52,9` de AACPD na Figura 2B e na Tabela 6 do relatório ocorreu com o sensor de molhamento travado em julho de 2021 e não pode ser citado como falha operacional da regra preventiva.
+2. **A superioridade estatística de `om_v2_T10` em AACPD sobre `cal_14d` cai.** Na `v1.0.2`, `om_v2_T10` empata estatisticamente em AACPD com `cal_14d`, com `-2,55` de diferença e Wilcoxon `p = 0,815`, mantendo apenas a economia de `0,81` aplicações por safra.
+3. **A magnitude do ganho agregado no INRAE e a fatia de liderança sob o teto de cobre encolhem.** O ganho médio de `om_v1_T10` cai de `-18,95` para `-11,59` de AACPD, e a liderança somada das regras sob teto de cobre a `0,50 kg/ha` passa de `80,9%` para `60,3%`, enquanto `cal_10d` sobe de `6,3%` para `21,4%`. A citação de Bordeaux 2023 na seção 3.5 também cai pelo sensor travado em julho.
