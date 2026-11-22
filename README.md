@@ -2,15 +2,15 @@
 
 **Quanto se pode confiar num alerta de doença calculado com dado meteorológico gratuito, e onde ele falha?**
 
-*English: an open, preregistered benchmark measuring how reliable plant-disease warning alerts are when driven by free gridded weather data versus on-site station sensors. Full v2 technical report in English with Portuguese summary: [docs/v2/report_v2.pdf](docs/v2/report_v2.pdf).*
+*English: an open, preregistered benchmark of how reliable plant-disease alerts are when driven by free gridded weather data instead of on-site station sensors. Full v2 technical report in English, with a Portuguese summary: [docs/v2/report_v2.pdf](docs/v2/report_v2.pdf).*
 
 **Autor:** Mateus Zunino Espindola, Universidade Federal de Santa Catarina (UFSC)  
-**Relatório técnico v2** em inglês, com resumo em português: [docs/v2/report_v2_draft.md](docs/v2/report_v2_draft.md) · [docs/v2/report_v2.pdf](docs/v2/report_v2.pdf)  
-**Pré-registro congelado:** [docs/v2/preregistro.md](docs/v2/preregistro.md) (`v2-rules`, `v2-freeze`, `v2-freeze-br`)  
-**Ferramenta no navegador via Pyodide:** [docs/app/index.html](docs/app/index.html) (roda as regras congeladas sobre o CSV da sua própria estação, sem instalar Python)  
-**CI público reproduzível:** [.github/workflows/v2_reproduce.yml](.github/workflows/v2_reproduce.yml) (`workflow_dispatch`, dados públicos apenas, sem derivados do Politecnico)
+**Relatório técnico v2,** em inglês com resumo em português: [docs/v2/report_v2_draft.md](docs/v2/report_v2_draft.md) · [docs/v2/report_v2.pdf](docs/v2/report_v2.pdf)  
+**Pré-registro congelado** nas tags `v2-rules`, `v2-freeze` e `v2-freeze-br`: [docs/v2/preregistro.md](docs/v2/preregistro.md)  
+**Ferramenta no navegador,** que roda as regras congeladas sobre o CSV da sua estação sem instalar Python: [docs/app/index.html](docs/app/index.html)  
+**Reprodução na nuvem,** só com dados públicos: [.github/workflows/v2_reproduce.yml](.github/workflows/v2_reproduce.yml)
 
-> **Escopo da v2:** o vitirule v2 não mede eficácia de controle no campo. Ele mede a confiabilidade da entrada meteorológica de um sistema de alerta. O protocolo do míldio da videira da v1 permanece congelado abaixo como [Estudo de Caso 1](#estudo-de-caso-1-vitirule-v1-congelado-em-v10--errata-v102), acompanhado da [Errata `v1.0.2`](#errata-v102).
+> **Escopo da v2:** o vitirule v2 não mede eficácia de controle no campo. Ele mede a confiabilidade da entrada meteorológica de um sistema de alerta. O protocolo do míldio da videira da v1 continua congelado mais abaixo, como [Estudo de Caso 1](#estudo-de-caso-1-vitirule-v1-congelado-em-v10--errata-v102), com a [Errata `v1.0.2`](#errata-v102).
 
 ---
 
@@ -18,43 +18,50 @@
 
 ### Desenho experimental
 
-O pacote puro [vitirule_v2/rules/](vitirule_v2/rules/) implementa quatro regras fitossanitárias publicadas usando somente biblioteca padrão Python:
+O pacote [vitirule_v2/rules/](vitirule_v2/rules/) implementa quatro regras publicadas usando só a biblioteca padrão do Python:
 
-1. **Regra 3-10** para o míldio da videira (*Plasmopara viticola*; Baldacci, 1947; Goidànich, 1964; Rossi et al., 2008).
+1. **Regra 3-10** para o míldio da videira, *Plasmopara viticola* (Baldacci, 1947; Goidànich, 1964; Rossi et al., 2008).
 2. **Calendário de incubação de Goidànich** para o míldio da videira (Müller & Sleumer, 1934; Goidànich, 1964).
-3. **Tabela de Mills revisada** para a sarna da macieira (*Venturia inaequalis*; MacHardy & Gadoury, 1989; Stensvand et al., 1997).
-4. **TOM-CAST** para a pinta-preta do tomateiro (*Alternaria solani*; Madden et al., 1978; Pitblado, 1992; Gillespie et al., 1993), avaliado em `reference_reset` para fidelidade da entrada e em `self_reset` para divergência operacional.
+3. **Tabela de Mills revisada** para a sarna da macieira, *Venturia inaequalis* (MacHardy & Gadoury, 1989; Stensvand et al., 1997).
+4. **TOM-CAST** para a pinta-preta do tomateiro, *Alternaria solani* (Madden et al., 1978; Pitblado, 1992; Gillespie et al., 1993). O TOM-CAST roda de dois modos: `reference_reset` mede a fidelidade da entrada e `self_reset` mede a divergência na operação.
 
-Cada regra roda primeiro com os dados medidos na própria estação e depois com quatro entradas candidatas alinhadas em UTC: estação local sem sensor de molhamento foliar usando `rh90_rain` como estimador primário, **ERA5 combinado** com temperatura e UR do ERA5-Land a `0,1°` e chuva, vento e radiação do ERA5 a `0,25°` via `era5_seamless`, **Open-Meteo Historical Forecast** e **NASA POWER** com `time-standard=UTC`.
+Cada regra roda primeiro com os dados medidos na própria estação, incluindo o sensor de molhamento foliar. Depois roda com quatro entradas candidatas, todas em UTC:
 
-### Principais resultados da v2
+- a mesma estação sem o sensor de molhamento, com o estimador `rh90_rain`;
+- o ERA5 combinado: temperatura e umidade do ERA5-Land a 0,1°, chuva, vento e radiação do ERA5 a 0,25°, via `era5_seamless`;
+- o Open-Meteo Historical Forecast;
+- o NASA POWER, pedido em `time-standard=UTC`.
 
-1. **Europa exploratória, 2022–2025, pendente de `v2-confirmatory`:** sobre 4 estações do INRAE na França e 2 estações aprovadas do Politecnico di Torino reportadas apenas de forma descritiva sem intervalos sob licença CC BY-NC 4.0, **nenhuma fonte gratuita em grade passou no critério pré-registrado de usabilidade em nenhuma das quatro regras no conjunto exploratório**. As grades perderam de `25,2%` a `34,5%` dos alertas em 3-10 e Goidànich e de `31,7%` a `61,9%` em Mills. O conjunto confirmatório `v2-confirmatory` aguarda o retorno do portal do INRAE, que permaneceu em HTTP 503 em 22 nov 2026; com apenas 4 estações no conjunto exploratório, o bootstrap em bloco subestima a incerteza.
-2. **Estação local sem sensor de molhamento:** para 3-10 e Goidànich a comparação não se aplica porque essas duas regras não usam molhamento foliar, logo a estação sem sensor recebe exatamente a entrada da referência. Em Mills revisada, a estação local com `rh90_rain` passou no critério exploratório, perdendo `16,9%` dos eventos com FAR de `12,7%` e F1 de `0,852`. No TOM-CAST, nenhum dos três estimadores de molhamento testados substituiu o sensor físico: um viés médio de `-1,02 DSV` por intervalo em `reference_reset` desloca os zeramentos seguintes e produz `57,5%` de alertas perdidos em `self_reset`, enquanto ERA5 combinado e NASA POWER multiplicam as pulverizações em `2,1` a `4,1 vezes`.
-3. **Previsões reais de 1 a 3 dias pioram em relação ao arquivo de quase-análise:** em `2024–2025` com `Open-Meteo Previous Runs`, os alertas perdidos subiram cerca de 8 a 11 pontos percentuais e o valor econômico diário de Mills em `C/L = 0,10` caiu para `-0,06` no terceiro dia.
-4. **Transferência para Santa Catarina sob `v2-freeze-br`:** seleção às cegas de `11` entre `24` estações automáticas oficiais do INMET em `2022–2025` com filtro IBGE PAM 2025 e QC sem sensor. Como o INMET não tem sensor físico de molhamento, os resultados medem divergência contra a estação. Em Mills, as grades deixaram sem par `37,6%` a `59,2%` dos eventos do INMET, com o menor F1 em São Joaquim a `1.400 m` (`0,381` no NASA POWER), sendo candidata a estimativa de erro da grade apenas se o conjunto confirmatório europeu repetir o resultado exploratório. No TOM-CAST, as grades multiplicaram as pulverizações em `1,8` a `2,5 vezes`.
+### Principais resultados
 
-![Avaliação exploratória europeia de alertas perdidos versus FAR](docs/v2/figures/fig1_europe_exploratory_miss_far.svg)
+Os resultados europeus são exploratórios. O conjunto confirmatório depende do portal do INRAE, que seguia fora do ar, com HTTP 503, em 22 de novembro de 2026.
 
-![Transferência em Santa Catarina e perfil exploratório de relevo](docs/v2/figures/fig4_santa_catarina_transfer.svg)
+1. **Nenhuma fonte gratuita em grade passou no critério de uso** pré-registrado, em nenhuma das quatro regras, no conjunto exploratório europeu. Ele reúne 4 estações do INRAE na França, entre 2022 e 2025, mais 2 estações do Politecnico di Torino mostradas só de forma descritiva, sob licença CC BY-NC 4.0. As grades perderam de 25,2% a 34,5% dos alertas da 3-10 e do Goidànich. Em Mills, perderam de 31,7% a 61,9%. Com só 4 estações, o bootstrap por bloco subestima a incerteza.
+2. **A estação local sem sensor de molhamento passou em Mills.** Ela perdeu 16,9% dos eventos, com razão de alarmes falsos de 12,7% e F1 de 0,852. Na 3-10 e no Goidànich essa comparação não se aplica: as duas regras não usam molhamento, então a estação recebe a mesma entrada da referência. No TOM-CAST, nenhum dos três estimadores de molhamento testados substituiu o sensor. Um viés médio de -1,02 DSV por intervalo desloca os zeramentos seguintes e leva a 57,5% de alertas perdidos quando a estação segue as próprias aplicações. Com o ERA5 combinado e o NASA POWER, as pulverizações se multiplicam de 2,1 a 4,1 vezes.
+3. **Previsões reais de 1 a 3 dias pioram o quadro.** Com o Open-Meteo Previous Runs, em 2024 e 2025, os alertas perdidos subiram de 8 a 11 pontos percentuais em relação ao arquivo de quase-análise. O valor econômico dos alertas de Mills, com razão custo/perda de 0,10, caiu para -0,06 no terceiro dia.
+4. **Em Santa Catarina, 11 das 24 estações automáticas do INMET entraram por seleção às cegas,** sob a tag `v2-freeze-br`. O filtro usou a PAM 2025 do IBGE e o controle de qualidade sem sensor, de 2022 a 2025. O INMET não tem sensor de molhamento, então o resultado é a divergência entre a grade e a estação. Em Mills, as grades deixaram sem par de 37,6% a 59,2% dos eventos do INMET. O menor F1 apareceu em São Joaquim, a 1.400 m: 0,381 no NASA POWER. Essa divergência só vira estimativa de erro da grade se o conjunto confirmatório europeu repetir o resultado exploratório. No TOM-CAST, as grades multiplicaram as pulverizações de 1,8 a 2,5 vezes.
 
-### Ferramenta no navegador e reprodução da v2
+![Avaliação exploratória europeia: alertas perdidos contra alarmes falsos](docs/v2/figures/fig1_europe_exploratory_miss_far.svg)
 
-A página estática em [docs/app/index.html](docs/app/index.html) carrega [docs/app/vitirule_bundle.json](docs/app/vitirule_bundle.json) via Pyodide e executa as funções puras congeladas sobre o CSV da estação do usuário diretamente no navegador, exibindo a tabela de confiabilidade medida ao lado sem nunca mostrar alertas de grade como recomendação.
+![Santa Catarina: divergência das grades e perfil exploratório de relevo](docs/v2/figures/fig4_santa_catarina_transfer.svg)
+
+### Ferramenta no navegador e reprodução
+
+A página [docs/app/index.html](docs/app/index.html) carrega o código congelado de [docs/app/vitirule_bundle.json](docs/app/vitirule_bundle.json) pelo Pyodide. As regras rodam no navegador, sobre o CSV da estação do usuário. A tabela de confiabilidade medida aparece ao lado de cada alerta. Alertas calculados com dado em grade nunca aparecem como recomendação.
 
 ```powershell
 # Suíte completa de testes (v1 + v2, sem rede)
 .venv\Scripts\python.exe -m pytest tests/ -q
 
-# Reproduzir transferência pública de Santa Catarina (INMET + IBGE PAM + Open-Meteo + NASA POWER)
+# Reproduzir a transferência pública de Santa Catarina (INMET + IBGE PAM + Open-Meteo + NASA POWER)
 .venv\Scripts\python.exe scripts/v2_phase4_brazil.py
 .venv\Scripts\python.exe scripts/v2_generate_figures.py --public-only
 
-# Recompilar PDF do relatório da v2
+# Recompilar o PDF do relatório da v2
 .venv\Scripts\python.exe scripts/render_v2_report_pdf.py
 ```
 
-**Licenças e dados na v2:** o código do repositório é MIT; as figuras e tabelas públicas derivadas do INMET e IBGE rodam em CI via `workflow_dispatch`; a licença literal do dataset INRAE `10.57745/BQ0BWB` segue sem confirmação enquanto o portal estiver em HTTP 503, portanto o repositório e o relatório usam apenas agregados derivados dele; todos os derivados do Politecnico di Torino (`10.17632/sd4b8vpvyb.1`) levam atribuição **CC BY-NC 4.0** e nunca entram no CI nem em redistribuição de dados brutos.
+**Licenças e dados na v2.** O código do repositório é MIT. As figuras e tabelas públicas, derivadas do INMET e do IBGE, podem ser refeitas no GitHub Actions com disparo manual. A licença literal do dataset do INRAE, `10.57745/BQ0BWB`, ainda não foi confirmada, porque o portal está fora do ar. Por isso o repositório e o relatório usam só agregados derivados dele. Tudo o que deriva do Politecnico di Torino, `10.17632/sd4b8vpvyb.1`, leva atribuição CC BY-NC 4.0 e nunca entra no CI nem em redistribuição de dados brutos.
 
 ---
 
