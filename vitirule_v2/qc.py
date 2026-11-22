@@ -479,3 +479,17 @@ def draw_stratified_lockbox(
         selected.extend(extra_pool[: target - len(selected)])
 
     return sorted(selected[:target])
+
+
+def select_confirmatory_stations(
+    eligible_station_ids: Iterable[str],
+    exclude_ids: Sequence[str] = tuple(V1_INRAE_STATION_IDS),
+) -> list[str]:
+    """
+    Regra congelada em `v2-freeze`: todas as estacoes novas do INRAE aprovadas
+    no controle de qualidade cego (excluindo as 4 estacoes ja usadas na v1)
+    formam o conjunto confirmatorio, que roda uma unica vez na tag
+    `v2-confirmatory` quando o portal retornar.
+    """
+    excluded = set(exclude_ids)
+    return sorted({str(sid) for sid in eligible_station_ids if str(sid) not in excluded})

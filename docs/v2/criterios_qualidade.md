@@ -32,14 +32,13 @@ Sensores resistivos e capacitivos de molhamento podem apresentar deriva de linha
 3. **Teste de falso molhamento em ar seco:** selecionam-se todas as horas válidas sem chuva na janela em que a umidade relativa medida na própria estação é menor que **60%** e a hora local fica entre 11h e 16h. Se o sensor acusar molhamento em mais de **15,0%** dessas horas secas de meio-dia, a estação-safra é rejeitada por deriva de sensor. Esse critério exige apenas temperatura, UR, chuva e hora local, funcionando mesmo em redes sem piranômetro.
 4. **Sequência molhada ininterrupta sem chuva:** qualquer sequência contínua de mais de **96 horas seguidas** de sensor molhado em que a precipitação acumulada nos últimos 3 dias da sequência seja menor que `0,2 mm` indica travamento e rejeita a estação-safra.
 
-## 5. Separação entre desenvolvimento e lockbox
+## 5. Separação entre conjunto exploratório e conjunto confirmatório
 
-Depois de aplicar os filtros das seções 2 a 4 de forma automática:
+Depois de aplicar os filtros das seções 2 a 4 de forma automática, seguindo a regra congelada em `docs/v2/preregistro.md` antes da tag `v2-freeze`:
 
-1. As 4 estações do INRAE e as 7 estações do Politecnico usadas na v1 ficam obrigatoriamente fora do lockbox, pois já participaram da avaliação de estimadores na v1. Todas as estações-safra aprovadas do Politecnico ficam no conjunto de desenvolvimento.
-2. Entre as estações novas do INRAE que tiverem pelo menos duas safras aprovadas no controle de qualidade, sorteia-se **20%** das estações, com mínimo de 2 estações, para `docs/v2/lockbox.txt`, estratificando por grande região climática ou administrativa se o número de estações aprovadas permitir.
-3. O sorteio usa gerador pseudoaleatório com semente fixa declarada no commit de criação do `docs/v2/lockbox.txt`.
-4. Os dados das estações sorteadas para o lockbox passam apenas pelo script automático de controle de qualidade e não são abertos para nenhuma inspeção exploratória até a tag `v2-lockbox` na Fase 3.
+1. As 4 estações do INRAE e as estações aprovadas do Politecnico di Torino já usadas na v1 compõem o **conjunto exploratório**, pois já participaram da v1 e do desenvolvimento da v2. O Politecnico é reportado de forma estritamente descritiva, sem intervalos de confiança.
+2. Como o desenvolvimento termina na tag `v2-freeze` e o lote novo do INRAE não tem nenhum papel antes do congelamento, **todas as estações novas do INRAE** aprovadas no controle de qualidade cego formam o **conjunto confirmatório**, substituindo o sorteio anterior de 20% em lockbox.
+3. Os dados das estações novas do INRAE passam apenas pelo script automático de controle de qualidade quando o portal retornar e rodam uma única vez na avaliação confirmatória após `v2-freeze`, registrada na tag `v2-confirmatory`.
 
 ## 6. O que este critério assume e onde pode falhar
 

@@ -1,12 +1,12 @@
 # Pré-registro experimental do vitirule v2
 
-> **Estado:** EM CONSTRUÇÃO, com seções 1 a 6 fechadas nas Fases 1 e 2. A seção 7 será completada na Fase 3 antes do congelamento final na tag `v2-freeze`, antes de abrir qualquer métrica comparativa entre fontes ou rodar o lockbox.
+> **Estado:** CONGELADO NA TAG `v2-freeze`, antes de executar qualquer comparação entre fontes meteorológicas candidatas e a referência medida. Qualquer alteração posterior a `v2-freeze` entrará obrigatoriamente na seção 8 com data, motivo e resultado das duas versões.
 
 ## 1. Pergunta de pesquisa e escopo
 
 O vitirule v2 responde a uma pergunta específica: **quanto se pode confiar num alerta de doença calculado com dado meteorológico gratuito, e onde ele falha?**
 
-O projeto não mede eficácia de controle no campo nem simula progresso epidêmico. O protocolo do míldio da v1 permanece congelado no repositório como estudo de caso 1, acompanhado da errata `v1.0.1`. A v2 mede exclusivamente a confiabilidade da entrada meteorológica em quatro regras clássicas publicadas, comparando cada fonte candidata contra a mesma regra alimentada pelos dados medidos na própria estação com sensor físico de molhamento foliar.
+O projeto não mede eficácia de controle no campo nem simula progresso epidêmico. O protocolo do míldio da v1 permanece congelado no repositório como estudo de caso 1, acompanhado da errata `v1.0.2`. A v2 mede exclusivamente a confiabilidade da entrada meteorológica em quatro regras clássicas publicadas, comparando cada fonte candidata contra a mesma regra alimentada pelos dados medidos na própria estação com sensor físico de molhamento foliar.
 
 ## 2. Escopo das estações e separação por rede
 
@@ -18,10 +18,10 @@ Por esse motivo, todos os resultados serão reportados separadamente por rede de
 
 Todas as constantes, tabelas, divergências da literatura, escolhas adotadas e citações primárias estão centralizadas em `vitirule_v2/rules/params.json`.
 
-1. **Regra 3-10 para míldio da videira:** baseada em Baldacci (1947), Goidànich (1964) e na descrição operacional revista por Rossi et al. (2008). Dispara alerta de infecção primária quando a data está dentro da janela fenológica da videira, a **temperatura mínima diária local** é maior ou igual a `10,0 °C` conforme Emenda 2 abaixo, a precipitação acumulada em 48 horas atinge pelo menos `10,0 mm` e há chuva ativa no dia do disparo de pelo menos `0,2 mm`. Dias consecutivos que satisfazem o critério são agrupados num único evento datado pelo primeiro dia de disparo. A versão original de `v2-rules` com temperatura média diária é mantida como comparação pareada documentada na seção 8.
+1. **Regra 3-10 para míldio da videira:** baseada em Baldacci (1947), Goidànich (1964) e na descrição operacional revista por Rossi et al. (2008). Dispara alerta de infecção primária quando a data está dentro da janela fenológica da videira, a **temperatura mínima diária local** é maior ou igual a `10,0 °C` conforme Emenda 2 abaixo, a precipitação acumulada em 48 horas atinge pelo menos `10,0 mm` e há chuva ativa no dia do disparo de pelo menos `0,2 mm`. Dias consecutivos que satisfazem o critério são agrupados num único evento datado pelo primeiro dia de disparo. A versão original de `v2-rules` com temperatura média diária fica preservada como análise secundária documentada na seção 8.
 2. **Calendário de incubação de Goidànich para míldio da videira:** baseado em Müller & Sleumer (1934) e Goidànich (1964). Cada evento primário 3-10 inicia uma coorte de incubação em 0% no dia seguinte ao disparo, somando o progresso diário interpolado linearmente pela tabela publicada em função da temperatura média diária, multiplicado por `0,85` quando a umidade relativa média diária fica abaixo de `75%`. O evento principal de alerta ocorre no dia em que o acumulado atinge `100%`. O marco preventivo de `80%` é registrado como metadado auxiliar.
 3. **Tabela revisada de Mills para sarna da macieira:** baseada em MacHardy & Gadoury (1989) com extensão de baixas temperaturas de Stensvand et al. (1997) e tabela operacional da OMAFRA. Avalia eventos horários de molhamento dentro da janela primária da macieira iniciados ou acompanhados por pelo menos `0,2 mm` de chuva acumulada no evento. Períodos molhados separados por interrupção seca de até `8 horas` consecutivas são combinados num único evento, contando apenas as horas molhadas para a duração e para a temperatura média. Interrupções secas acima de `8 horas` reiniciam a contagem. Classifica cada evento em infecção leve, moderada ou severa conforme a tabela publicada.
-4. **TOM-CAST para pinta-preta do tomate:** baseado em Madden, Pennypacker & MacNab (1978), Pitblado (1988, 1992) e Gillespie, Srivastava & Pitblado (1993). Calcula o DSV diário de 0 a 4 na janela de 12h a 12h no fuso local usando a matriz publicada sobre as horas molhadas e a temperatura média molhada arredondada pelo critério aritmético half-up. Dispara pulverização quando o DSV acumulado atinge `15`. Será avaliado nos dois modos de memória: reset autônomo controlado pela própria fonte candidata e reset sincronizado às datas de pulverização da referência medida.
+4. **TOM-CAST para pinta-preta do tomate:** baseado em Madden, Pennypacker & MacNab (1978), Pitblado (1988, 1992) e Gillespie, Srivastava & Pitblado (1993). Calcula o DSV diário de 0 a 4 na janela de 12h a 12h no fuso local usando a matriz publicada sobre as horas molhadas e a temperatura média molhada arredondada pelo critério aritmético half-up. Dispara pulverização quando o DSV acumulado atinge `15`. Será avaliado nos dois modos de memória: reset autônomo `self_reset` controlado pela própria fonte candidata e reset sincronizado `reference_reset` nas datas de pulverização da referência medida.
 
 ## 4. Janelas fenológicas fixas
 
@@ -36,56 +36,101 @@ Como estações meteorológicas não registram fenologia local, aplicamos janela
   - Macieira: `15 de setembro` a `31 de dezembro`.
   - Tomateiro: `1 de novembro` a `31 de março` do ano seguinte.
 
-## 5. Janela temporal pareada, qualidade de dados e lockbox
+## 5. Análise primária única, análises secundárias e conjunto confirmatório
 
-### 5.1 Comparação pareada principal e análises secundárias
+### 5.1 Análise primária única e análises secundárias
 
-A análise principal usa exclusivamente estações-safra em que todas as quatro fontes candidatas principais existem: estação local sem sensor de molhamento, ERA5-Land, Open-Meteo Historical Forecast e NASA POWER.
+Para evitar multiplicidade de testes, existe **uma única análise primária**:
 
-- **Análise principal pareada:** anos de **2022 a 2025**, primeiro ano civil completo com cobertura operacional do Historical Forecast para todas as estações das duas redes. Cobre quatro safras por estação no INRAE e todas as estações aprovadas do Politecnico di Torino.
-- **Análise secundária A, série longa sem Historical Forecast:** anos de **2019 a 2025** no INRAE, comparando estação sem sensor, ERA5-Land e NASA POWER em sete safras.
-- **Análise secundária B, previsão real com horizonte fixo:** anos de **2024 a 2025** com `Open-Meteo Previous Runs` nos horizontes de 1, 2 e 3 dias de antecedência, separada por rede.
+- **Análise primária:** janela temporal pareada de **2022 a 2025** com todas as quatro fontes principais disponíveis simultaneamente, a saber estação local sem sensor, ERA5-Land, Open-Meteo Historical Forecast e NASA POWER; estimador de molhamento **`rh90_rain`**; Regra 3-10 com temperatura mínima diária **`daily_min`**; controle de qualidade sob política **`mask_with_warmup`**.
 
-### 5.2 Controle de qualidade, mascaramento de lacunas e separação de lockbox
+Todo o restante é **análise secundária**, sempre rotulada como tal:
 
-Os critérios objetivos de qualidade estão em `docs/v2/criterios_qualidade.md` e implementados em `vitirule_v2/qc.py`. Mantemos o piso de **95,0% de cobertura válida** e todos os testes físicos e de deriva de sensor. Conforme a Emenda 1 registrada na seção 8, lacunas contínuas acima de 24 horas não reprovam a estação-safra se a cobertura global seguir em 95,0% ou mais; em vez disso, a lacuna e um período de aquecimento pós-lacuna igual à memória máxima de cada regra ficam mascarados, e qualquer evento cujo cálculo toque uma hora mascarada sai da referência e de todas as candidatas. A regra original de reprovação rígida acima de 24 horas fica preservada como análise de sensibilidade.
+1. Estimadores secundários de molhamento `dpd_hysteresis` e `cart_kim2002` em 2022–2025 para Mills e TOM-CAST.
+2. Versão original `daily_mean` da Regra 3-10 e de Goidànich em 2022–2025.
+3. Sensibilidade de controle de qualidade `reject_24h` em 2022–2025.
+4. **Análise secundária A, série longa sem Historical Forecast:** anos de **2019 a 2025** no INRAE comparando estação sem sensor, ERA5-Land e NASA POWER.
+5. **Análise secundária B, previsão real com horizonte fixo:** anos de **2024 a 2025** com `Open-Meteo Previous Runs` nos horizontes de 1, 2 e 3 dias de antecedência.
 
-As 4 estações do INRAE e as 7 estações do Politecnico usadas na v1 ficam obrigatoriamente fora do lockbox, pois já participaram da avaliação de estimadores na v1. Todas as estações-safra aprovadas do Politecnico ficam no conjunto de desenvolvimento. O lockbox em `docs/v2/lockbox.txt` será sorteado exclusivamente entre as estações novas do INRAE aprovadas no controle de qualidade, com 20% das estações e mínimo de 2 estações, estratificado por região quando o número permitir, com semente fixa registrada no commit do sorteio.
+### 5.2 Conjunto exploratório versus conjunto confirmatório
+
+Substituímos o sorteio anterior de 20% em lockbox por uma separação limpa ligada ao congelamento:
+
+- **Conjunto exploratório:** composto pelas 4 estações locais do INRAE e pelas 2 estações aprovadas do Politecnico di Torino já usadas na v1. Toda avaliação sobre essas estações é rotulada explicitamente como exploratória. O Politecnico di Torino, com apenas 2 estações aprovadas, é reportado de forma estritamente **descritiva, sem intervalos de confiança**.
+- **Conjunto confirmatório:** como o desenvolvimento termina na tag `v2-freeze` e o lote novo do INRAE não tem nenhum papel antes dela, **todas as estações novas do INRAE** que passarem no controle de qualidade cego `vitirule_v2/qc.py` formam o conjunto confirmatório. Quando o portal `entrepot.recherche.data.gouv.fr` retornar e a licença for confirmada, o conjunto confirmatório roda **uma única vez** após `v2-freeze`, registrado na tag **`v2-confirmatory`**, e o resultado entra no relatório seja ele qual for.
 
 ### 5.3 Metadados espaciais e padrão temporal das fontes candidatas
 
-- Todas as fontes são alinhadas em **UTC**. Na API horária do NASA POWER, o padrão da API sem parâmetro explícito é Local Solar Time, portanto o coletor exige `time-standard=UTC` em toda chamada e valida `header.time_standard == "UTC"` ao ler a resposta.
+- Todas as fontes são alinhadas em **UTC**. Na API horária do NASA POWER, o padrão da API sem parâmetro explícito é Local Solar Time, portanto o coletor exige `time-standard=UTC` em toda chamada e valida `header.time_standard == "UTC"` no retorno.
 - Para cada estação e cada fonte em grade, registramos a distância horizontal em quilômetros até o ponto de grade servido e a diferença de altitude entre a grade e a estação. **Nenhuma correção de altitude entra na análise principal.**
 
 ## 6. Estimadores de molhamento foliar
 
-Para limitar comparações múltiplas e evitar seleção pós-hoc, fixamos uma hierarquia explícita de estimadores puros de molhamento foliar em `vitirule_v2/lwd.py`, nenhum deles lendo o sensor físico da estação:
+Fixamos em `vitirule_v2/lwd.py` a hierarquia de estimadores puros de molhamento foliar, nenhum deles lendo o sensor físico da estação:
 
-1. **Estimador primário:** `rh90_rain`, que marca a hora como molhada quando `UR >= 90,0%` ou `precipitação > 0,0 mm/h`. Todas as comparações principais entre fontes meteorológicas na Fase 3 usam este estimador como linha primária.
+1. **Estimador primário:** `rh90_rain`, marcando a hora como molhada quando `UR >= 90,0%` ou `precipitação > 0,0 mm/h`.
 2. **Estimadores secundários com parâmetros publicados fixos:**
-   - `dpd_hysteresis`: depressão do ponto de orvalho com início em `DPD <= 1,8 °C` e secagem em `DPD >= 3,8 °C`, além de chuva acima de zero, usando os parâmetros publicados por Gillespie, Srivastava & Pitblado (1993).
-   - `cart_kim2002`: árvore de classificação e regressão publicada por Kim, Taylor, Gleason & Koehler (2002) com seus coeficientes originais, ajustando vento de 10 m para 2 m via FAO-56 apenas nas fontes que entregam vento a 10 m.
-3. **Modelo empírico recalibrado condicionado ao lote novo do INRAE:** enquanto o portal do INRAE permanecer em manutenção e o conjunto de desenvolvimento contar apenas com as 4 estações da v1, nenhum modelo recalibrado entra na análise, evitando sobreajuste com amostra insuficiente. Caso o lote completo do INRAE chegue antes da tag `v2-freeze`, um estimador recalibrado estritamente nas estações de desenvolvimento fora do lockbox poderá entrar como estimador secundário adicional.
+   - `dpd_hysteresis`: depressão do ponto de orvalho com início em `DPD <= 1,8 °C` e secagem em `DPD >= 3,8 °C`, além de chuva acima de zero, citando Gillespie, Srivastava & Pitblado (1993).
+   - `cart_kim2002`: árvore publicada por Kim, Taylor, Gleason & Koehler (2002) com seus coeficientes originais, ajustando vento de 10 m para 2 m via FAO-56 apenas nas fontes que entregam vento a 10 m.
+3. **Sem modelo empírico recalibrado nesta etapa:** com apenas 4 estações do INRAE disponíveis antes do congelamento, nenhum modelo recalibrado entra na análise, evitando ajuste com amostra insuficiente.
 
-## 7. Regras de pareamento de eventos e métricas
+## 7. Regras de pareamento, métricas, custo-perda e critério de usabilidade
 
-Pendente de definição na Fase 3 antes da tag `v2-freeze`: tolerâncias temporais de pareamento de alertas, definição de taxa de alertas perdidos, taxa de alarmes falsos, atraso mediano em dias, valor econômico de custo-perda simplificado e intervalos de confiança por bootstrap em bloco por estação.
+Todas as métricas abaixo estão implementadas em `vitirule_v2/metrics.py` e congeladas em `v2-freeze`.
+
+### 7.1 Pareamento temporal um-para-um e tolerâncias
+
+Eventos da referência medida e de cada fonte candidata são pareados um-para-um por busca gulosa ordenada pela menor distância temporal absoluta dentro de tolerâncias fixas:
+
+- **Regra 3-10 e Goidànich: `±2 dias`.** A incubação do míldio da videira leva de 4 a 13 dias, de modo que um desvio de até 2 dias ainda permite posicionar uma pulverização preventiva ou pós-infecção inicial antes da esporulação.
+- **Tabela revisada de Mills: `±24 horas` sobre `light_ts`.** Fungicidas pós-infecção contra a sarna da macieira perdem eficácia após cerca de 24 a 48 horas do início da infecção, exigindo que o alerta capture o mesmo evento de molhamento dentro de 24 horas.
+- **TOM-CAST no modo `self_reset`: `±3 dias`.** Os intervalos entre pulverizações de 15 DSV no tomateiro duram em geral de 7 a 14 dias, logo um desvio de até 3 dias ainda vincula o alerta ao mesmo ciclo operacional de proteção.
+
+No modo `reference_reset` do TOM-CAST não há pareamento livre: avalia-se diretamente, em cada intervalo não mascarado encerrado por uma pulverização da referência, se a candidata atingiu `15 DSV` até a data de referência, a antecipação em dias e o erro de DSV acumulado naquela data.
+
+### 7.2 Métricas principais e convenção de sinal
+
+- **Taxa de alertas perdidos:** `FN / (TP + FN)`, fração dos eventos de referência não detectados pela fonte dentro da tolerância.
+- **Razão de alarmes falsos, FAR:** `FP / (TP + FP)`, fração dos alertas emitidos pela fonte que não correspondem a nenhum evento de referência dentro da tolerância.
+- **F1 de eventos:** `2 * TP / (2 * TP + FP + FN)`.
+- **Atraso com sinal:** `t_candidata - t_referência`, medido em dias e expresso em fração de dia para Mills horária. O sinal é **positivo quando a fonte alerta depois da referência** e negativo quando antecipa. Reportam-se a mediana e o intervalo interquartil `P25` a `P75`.
+- **Concordância de severidade em Mills:** entre os pares detectados, fração de acerto exato entre leve, moderada e severa e fração de subestimativa de severidade.
+- **Incerteza:** intervalos de confiança de 95% por bootstrap em bloco por estação com `2.000` reamostragens e semente fixa `20261122`, mantendo juntas todas as safras de cada estação sorteada. Quando a rede tem menos de 3 estações, como no Politecnico com 2 estações aprovadas, o bootstrap não roda e os números saem apenas como descritivos.
+
+### 7.3 Modelo de custo-perda com decisão diária
+
+Seguindo Richardson (2000) e Kim, Beresford & Henshall (2008), a unidade de decisão é **cada dia não mascarado** dentro da janela fenológica da cultura. Em cada dia monta-se a tabela de contingência 2 por 2 completa entre alerta da referência e alerta da candidata: acertos `a`, alarmes falsos `b`, alertas perdidos `c` e **acertos negativos `d`**, somando `N = a + b + c + d` dias e frequência climatológica `s = (a + c) / N`.
+
+Para razões de custo sobre perda $r = C / L \in \{0{,}05;\, 0{,}10;\, 0{,}20\}$, o custo médio normalizado por dia da candidata é $E_{\text{cand}} = [(a + b)r + c] / N$, o custo da melhor estratégia fixa entre sempre e nunca pulverizar é $E_{\text{fixa}} = \min(r, s)$ e o custo sob informação perfeita da referência medida é $E_{\text{perf}} = s \cdot r$. O valor econômico relativo é:
+
+$$V(r) = \frac{E_{\text{fixa}} - E_{\text{cand}}}{E_{\text{fixa}} - E_{\text{perf}}}$$
+
+Valores próximos de `1` indicam desempenho próximo ao do sensor medido, `0` equivale à melhor estratégia fixa e valores negativos indicam desempenho pior que adotar uma regra fixa sem previsão.
+
+### 7.4 Critério pré-registrado de usabilidade
+
+Uma fonte meteorológica será classificada como **usável** para uma regra se, no **conjunto confirmatório**, atender simultaneamente às quatro condições abaixo:
+
+1. Taxa de alertas perdidos de no máximo **20%**.
+2. Razão de alarmes falsos, FAR, de no máximo **30%**.
+3. Atraso mediano com sinal de no máximo **1,0 dia**.
+4. Limite superior do intervalo de confiança de 95% da taxa de alertas perdidos estritamente abaixo de **30%**.
 
 ## 8. Registro de emendas e desvios do pré-registro
 
-### Emenda 1: 22 nov 2026, após contagens de QC da Fase 1 e antes de rodar qualquer fonte candidata
+### Emenda 1: 22 nov 2026, antes de `v2-freeze` e antes de rodar qualquer fonte candidata
 
 - **O que mudou:** substituiu-se a reprovação automática por lacuna contínua acima de `24 h` pelo mascaramento da lacuna acrescido de um período de aquecimento pós-lacuna igual à memória máxima de cada regra, mantendo inalterados a cobertura mínima de `95,0%` e todos os testes físicos e de deriva do sensor.
 - **Motivo:** a aplicação cega da regra de `24 h` na Fase 1 descartou três estações-safra do INRAE em 2022 que possuíam cobertura acima de `95%` e sensores limpos, apenas por uma única falha breve de telemetria entre `46 h` e `115 h`.
-- **Períodos de aquecimento derivados de `params.json`:**
-  - **Regra 3-10:** `48 horas`, igual a `rain_window_hours`, garantindo que nenhuma soma móvel de 48 horas cruze a lacuna.
-  - **Goidànich:** `48 horas` herdadas do gatilho 3-10 mais exclusão exata de qualquer coorte de incubação cujo intervalo do gatilho até `100%` toque uma hora faltante, com teto teórico de memória de `24 dias` a `10 °C` sob umidade baixa.
-  - **Tabela revisada de Mills:** `9 horas`, soma de `max_dry_interruption_hours = 8 h` e `rain_initiation_lookback_hours = 1 h`. Após 9 horas válidas contínuas depois da lacuna, nenhum evento anterior pode se combinar nem disparar pelo recuo de 1 hora de chuva.
-  - **TOM-CAST:** exclusão exata de qualquer intervalo de pulverização cuja acumulação toque um dia `12h–12h` com hora faltante, com teto teórico de memória de `15 dias` no limiar de `15 DSV` a `1 DSV/dia`.
-- **Análise de sensibilidade:** a regra original de reprovação rígida acima de `24 h` permanece implementada como `gap_policy="reject_24h"` para verificação de sensibilidade.
+- **Períodos de aquecimento derivados de `params.json`:** `48 h` na Regra 3-10; `48 h` mais exclusão exata de coortes que toquem hora faltante em Goidànich; `9 h` em Mills pela soma de `8 h` de interrupção seca e `1 h` de recuo de chuva; exclusão exata de intervalos de pulverização que toquem dia faltante no TOM-CAST.
+- **Sensibilidade:** `gap_policy="reject_24h"` permanece calculada como análise secundária.
 
-### Emenda 2: 22 nov 2026, antes do congelamento da Fase 3 e antes de rodar qualquer fonte candidata
+### Emenda 2: 22 nov 2026, antes de `v2-freeze` e antes de rodar qualquer fonte candidata
 
-- **O que mudou:** na Regra 3-10 em `vitirule_v2/rules/params.json`, a agregação térmica primária passou de temperatura média diária `daily_mean >= 10 °C`, usada na tag `v2-rules`, para **temperatura mínima diária `daily_min >= 10 °C`**.
-- **Motivo:** conferência bibliográfica da formulação italiana clássica de Baldacci (1947), Goidànich (1964) e da revisão de Rossi et al. (2008), que enunciam a regra como temperatura mínima não inferior a `10 °C` durante a chuva primária.
-- **Reportagem das duas versões:** a referência medida na Fase 2 e todas as comparações da Fase 3 calcularão e reportarão tanto `daily_min` quanto a versão original `daily_mean` congelada em `v2-rules`.
+- **O que mudou:** na Regra 3-10 em `vitirule_v2/rules/params.json`, a agregação térmica primária passou de temperatura média diária `daily_mean >= 10 °C`, usada em `v2-rules`, para **temperatura mínima diária `daily_min >= 10 °C`**.
+- **Motivo:** conferência bibliográfica da formulação clássica italiana de Baldacci (1947), Goidànich (1964) e Rossi et al. (2008). A versão `daily_mean` segue reportada como análise secundária.
+
+### Emenda 3: 22 nov 2026, antes de `v2-freeze`
+
+- **O que mudou:** o lockbox de 20% foi substituído pelo **conjunto confirmatório completo**, formado por todas as estações novas do INRAE que passarem no controle de qualidade cego, rodando uma única vez após `v2-freeze` na tag `v2-confirmatory`.
+- **Motivo:** como o desenvolvimento termina em `v2-freeze` sem uso prévio do lote novo do INRAE, reservar apenas 20% desperdiçaria poder estatístico. Usar todo o lote novo como conjunto confirmatório maximiza a precisão dos intervalos de confiança de 95% mantendo separação total do desenvolvimento.
