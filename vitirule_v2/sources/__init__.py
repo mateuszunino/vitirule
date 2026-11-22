@@ -13,6 +13,16 @@ from .grid_metadata import (
     nearest_era5_025_center,
     nearest_merra2_center,
 )
+from .inmet import (
+    InmetStationInfo,
+    discover_inmet_sc_stations,
+    download_inmet_sc_zips,
+    fetch_ibge_pam_sc_producers,
+    is_producing_municipality,
+    load_inmet_station_records,
+    parse_inmet_csv_header,
+    parse_inmet_csv_records,
+)
 from .nasa_power import NASA_POWER_URL, fetch_nasa_power_hourly, parse_nasa_power_payload
 from .open_meteo import (
     OPEN_METEO_ARCHIVE_URL,
@@ -31,6 +41,14 @@ __all__ = [
     "nearest_era5_025_center",
     "nearest_merra2_center",
     "build_station_grid_match",
+    "InmetStationInfo",
+    "discover_inmet_sc_stations",
+    "download_inmet_sc_zips",
+    "fetch_ibge_pam_sc_producers",
+    "is_producing_municipality",
+    "load_inmet_station_records",
+    "parse_inmet_csv_header",
+    "parse_inmet_csv_records",
     "NASA_POWER_URL",
     "fetch_nasa_power_hourly",
     "parse_nasa_power_payload",

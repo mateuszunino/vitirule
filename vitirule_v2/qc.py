@@ -109,7 +109,11 @@ class StationSeasonQCResult:
         return d
 
 
-def _is_valid_hour(rec: HourlyRecord, allow_rh_saturation_105: bool = True) -> bool:
+def _is_valid_hour(
+    rec: HourlyRecord,
+    allow_rh_saturation_105: bool = True,
+    require_lwd_sensor: bool = True,
+) -> bool:
     if rec.temp_c is None or not math.isfinite(rec.temp_c):
         return False
     if not (TEMP_MIN_C <= rec.temp_c <= TEMP_MAX_C):
@@ -123,7 +127,7 @@ def _is_valid_hour(rec: HourlyRecord, allow_rh_saturation_105: bool = True) -> b
         return False
     if not (PRECIP_MIN_MM <= rec.precip_mm <= PRECIP_MAX_MM):
         return False
-    if rec.wet is None:
+    if require_lwd_sensor and rec.wet is None:
         return False
     return True
 
@@ -222,6 +226,7 @@ def compute_raw_gap_hours(
     tz_name: str,
     hemisphere: str = "northern_hemisphere",
     allow_rh_saturation_105: bool = True,
+    require_lwd_sensor: bool = True,
 ) -> set[datetime]:
     """Retorna apenas os timestamps UTC ausentes ou fisicamente invalidos na grade esperada."""
     _lbl, expected_grid, parsed_by_ts, _, _, _ = _extract_expected_grid_and_valid_map(
@@ -230,7 +235,9 @@ def compute_raw_gap_hours(
     gaps: set[datetime] = set()
     for ts in expected_grid:
         rec = parsed_by_ts.get(ts)
-        if rec is None or not _is_valid_hour(rec, allow_rh_saturation_105=allow_rh_saturation_105):
+        if rec is None or not _is_valid_hour(
+            rec, allow_rh_saturation_105=allow_rh_saturation_105, require_lwd_sensor=require_lwd_sensor
+        ):
             gaps.add(ts)
     return gaps
 
@@ -243,6 +250,7 @@ def compute_masked_hours_for_rule(
     tz_name: str,
     hemisphere: str = "northern_hemisphere",
     allow_rh_saturation_105: bool = True,
+    require_lwd_sensor: bool = True,
 ) -> set[datetime]:
     """
     Retorna o conjunto de timestamps UTC mascarados para `rule_name`:
@@ -262,7 +270,9 @@ def compute_masked_hours_for_rule(
     cooldown = 0
     for ts in expected_grid:
         rec = parsed_by_ts.get(ts)
-        is_ok = rec is not None and _is_valid_hour(rec, allow_rh_saturation_105=allow_rh_saturation_105)
+        is_ok = rec is not None and _is_valid_hour(
+            rec, allow_rh_saturation_105=allow_rh_saturation_105, require_lwd_sensor=require_lwd_sensor
+        )
         if not is_ok:
             masked.add(ts)
             cooldown = warmup_h
@@ -311,6 +321,7 @@ def evaluate_station_season_qc(
     hemisphere: str = "northern_hemisphere",
     allow_rh_saturation_105: bool = True,
     gap_policy: str = "mask_with_warmup",
+    require_lwd_sensor: bool = True,
 ) -> StationSeasonQCResult:
     """
     Avalia uma estacao-safra contra todos os criterios de controle de qualidade.
@@ -354,31 +365,34 @@ def evaluate_station_season_qc(
 
     for ts in expected_grid:
         rec = parsed_by_ts.get(ts)
-        if rec is not None and _is_valid_hour(rec, allow_rh_saturation_105=allow_rh_saturation_105):
+        if rec is not None and _is_valid_hour(
+            rec, allow_rh_saturation_105=allow_rh_saturation_105, require_lwd_sensor=require_lwd_sensor
+        ):
             valid_hours += 1
             cur_gap = 0
             rain_val = float(rec.precip_mm or 0.0)
             rain_history.append(rain_val)
 
-            if rec.wet:
-                wet_hours += 1
-                wet_streak += 1
-                last_72_rain = sum(rain_history[-RAINLESS_LOOKBACK_H:])
-                if last_72_rain < RAINLESS_MIN_RAIN_MM and wet_streak > max_rainless_streak:
-                    max_rainless_streak = wet_streak
-            else:
-                wet_streak = 0
-
-            local_h = ts.astimezone(tz).hour
-            if (
-                rain_val == 0.0
-                and rec.rh_pct is not None
-                and rec.rh_pct < DRY_MIDDAY_RH_LT
-                and DRY_MIDDAY_HOUR_START <= local_h <= DRY_MIDDAY_HOUR_END
-            ):
-                dry_midday_total += 1
+            if require_lwd_sensor:
                 if rec.wet:
-                    dry_midday_wet += 1
+                    wet_hours += 1
+                    wet_streak += 1
+                    last_72_rain = sum(rain_history[-RAINLESS_LOOKBACK_H:])
+                    if last_72_rain < RAINLESS_MIN_RAIN_MM and wet_streak > max_rainless_streak:
+                        max_rainless_streak = wet_streak
+                else:
+                    wet_streak = 0
+
+                local_h = ts.astimezone(tz).hour
+                if (
+                    rain_val == 0.0
+                    and rec.rh_pct is not None
+                    and rec.rh_pct < DRY_MIDDAY_RH_LT
+                    and DRY_MIDDAY_HOUR_START <= local_h <= DRY_MIDDAY_HOUR_END
+                ):
+                    dry_midday_total += 1
+                    if rec.wet:
+                        dry_midday_wet += 1
         else:
             cur_gap += 1
             if cur_gap > max_gap:
@@ -393,18 +407,22 @@ def evaluate_station_season_qc(
     if gap_policy == "reject_24h" and max_gap > MAX_GAP_HOURS:
         reasons.append(f"max_gap_gt_{MAX_GAP_HOURS}h")
 
-    wet_frac = (wet_hours / valid_hours) if valid_hours > 0 else None
-    if wet_frac is None or wet_frac < MIN_WET_FRACTION:
-        reasons.append(f"wet_fraction_below_{MIN_WET_FRACTION:.2f}")
-    elif wet_frac > MAX_WET_FRACTION:
-        reasons.append(f"wet_fraction_above_{MAX_WET_FRACTION:.2f}")
+    if require_lwd_sensor:
+        wet_frac = (wet_hours / valid_hours) if valid_hours > 0 else None
+        if wet_frac is None or wet_frac < MIN_WET_FRACTION:
+            reasons.append(f"wet_fraction_below_{MIN_WET_FRACTION:.2f}")
+        elif wet_frac > MAX_WET_FRACTION:
+            reasons.append(f"wet_fraction_above_{MAX_WET_FRACTION:.2f}")
 
-    dry_midday_wet_frac = (dry_midday_wet / dry_midday_total) if dry_midday_total > 0 else None
-    if dry_midday_wet_frac is not None and dry_midday_wet_frac > MAX_DRY_MIDDAY_WET_FRACTION:
-        reasons.append(f"dry_midday_wet_above_{MAX_DRY_MIDDAY_WET_FRACTION:.2f}")
+        dry_midday_wet_frac = (dry_midday_wet / dry_midday_total) if dry_midday_total > 0 else None
+        if dry_midday_wet_frac is not None and dry_midday_wet_frac > MAX_DRY_MIDDAY_WET_FRACTION:
+            reasons.append(f"dry_midday_wet_above_{MAX_DRY_MIDDAY_WET_FRACTION:.2f}")
 
-    if max_rainless_streak > MAX_RAINLESS_WET_STREAK_H:
-        reasons.append(f"rainless_wet_streak_gt_{MAX_RAINLESS_WET_STREAK_H}h")
+        if max_rainless_streak > MAX_RAINLESS_WET_STREAK_H:
+            reasons.append(f"rainless_wet_streak_gt_{MAX_RAINLESS_WET_STREAK_H}h")
+    else:
+        wet_frac = None
+        dry_midday_wet_frac = None
 
     return StationSeasonQCResult(
         network=network,
